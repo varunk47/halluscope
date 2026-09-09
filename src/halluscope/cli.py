@@ -92,11 +92,12 @@ def uq(
     items: Path = typer.Option(Path("data/augmented/items.jsonl")),
     split: str = typer.Option("test"),
     out: Path = typer.Option(Path("results")),
+    limit: int | None = typer.Option(None, help="Only the first N items of the split"),
 ) -> None:
     """Score items with every uncertainty baseline."""
     from halluscope.uq.runner import run_uq
 
-    path = run_uq(model_key=model, items_path=items, split=split, out_dir=out)
+    path = run_uq(model_key=model, items_path=items, split=split, out_dir=out, limit=limit)
     console.print(f"wrote {path}")
 
 
@@ -120,12 +121,13 @@ def loop(
     condition: str = typer.Option("gate", help="off | gate | always | prompt"),
     seed: int = typer.Option(0),
     out: Path = typer.Option(Path("results")),
+    limit: int | None = typer.Option(None, help="Only the first N items of the test split"),
 ) -> None:
     """Multi-turn simulated-user evaluation of the clarify gate."""
     from halluscope.gate.loop import run_loop_cli
 
     path = run_loop_cli(
-        model_key=model, items_path=items, condition=condition, seed=seed, out_dir=out
+        model_key=model, items_path=items, condition=condition, seed=seed, out_dir=out, limit=limit
     )
     console.print(f"wrote {path}")
 

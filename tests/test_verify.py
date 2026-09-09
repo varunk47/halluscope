@@ -59,17 +59,14 @@ def test_run_verify_marks_failing_family_rejected(tmp_path):
     save_items(items, path)
 
     def fake(**kw):
-        content = kw["messages"][-1]["content"]
-        bad = "rag-0002" in content or "USER: s fill" not in content and False
         verdict = {
             "b_omits_gap": True,
             "b_is_answerable_without_guessing": False,
             "c_is_consistent": True,
-            "d_contradicts": "rag-0002" not in kw["messages"][-1]["content"] and True,
+            "d_contradicts": True,
             "off_domain": False,
             "notes": "",
         }
-        # the family name is not in the prompt; use the assistant ack difference instead
         return _resp(json.dumps(verdict))
 
     cfg = JudgeCfg(aliases={"judge_primary": AliasCfg(models=["fake/j"])}, max_retries=1)
