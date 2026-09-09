@@ -295,6 +295,8 @@ export async function chatStream(
       signal,
     });
   } catch (e) {
+    // keep abort semantics intact so callers can stay silent on a user stop
+    if ((e as Error).name === "AbortError") throw e;
     const err = new ApiError(0, `backend unreachable (${(e as Error).message})`);
     handlers.onError?.(err);
     throw err;
@@ -309,17 +311,39 @@ export async function chatStream(
   const decoder = new TextDecoder();
   let buffer = "";
 
+  let sawDone = false;
+  const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null;
+  const isMode = (v: unknown): v is "ask" | "answer" => v === "ask" || v === "answer";
+
   const dispatch = (event: string, data: string) => {
     if (!data) return;
     let parsed: unknown;
     try {
       parsed = JSON.parse(data);
     } catch {
+      handlers.onError?.(new ApiError(0, `malformed ${event} event from stream`));
       return;
     }
-    if (event === "gate") handlers.onGate?.(parsed as GateEvent);
-    else if (event === "token") handlers.onToken?.(parsed as TokenEvent);
-    else if (event === "done") handlers.onDone?.(parsed as DoneEvent);
+    if (event === "gate") {
+      if (isObj(parsed) && typeof parsed.fired === "boolean" && isMode(parsed.mode)) {
+        handlers.onGate?.({
+          fired: parsed.fired,
+          prob: typeof parsed.prob === "number" ? parsed.prob : null,
+          threshold: typeof parsed.threshold === "number" ? parsed.threshold : null,
+          mode: parsed.mode,
+        });
+      } else handlers.onError?.(new ApiError(0, "gate event had an unexpected shape"));
+    } else if (event === "token") {
+      if (isObj(parsed) && typeof parsed.text === "string") handlers.onToken?.({ text: parsed.text });
+    } else if (event === "done") {
+      if (isObj(parsed) && isMode(parsed.mode) && typeof parsed.text === "string") {
+        sawDone = true;
+        handlers.onDone?.({ mode: parsed.mode, text: parsed.text });
+      } else handlers.onError?.(new ApiError(0, "done event had an unexpected shape"));
+    } else if (event === "error") {
+      const detail = isObj(parsed) && typeof parsed.detail === "string" ? parsed.detail : data;
+      handlers.onError?.(new ApiError(0, detail));
+    }
   };
 
   const consumeFrame = (frame: string) => {
@@ -353,6 +377,12 @@ export async function chatStream(
     }
   }
   if (buffer.trim()) consumeFrame(buffer);
+  if (!sawDone) {
+    // the server generator raised or the connection dropped before `done`
+    const err = new ApiError(0, "stream ended before a done event; check the server log");
+    handlers.onError?.(err);
+    throw err;
+  }
 }
 
 // ---- formatting helpers shared by pages ----------------------------------

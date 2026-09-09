@@ -109,7 +109,10 @@ export default function Live() {
         ac.signal,
       );
     } catch (e) {
-      if ((e as Error).name !== "AbortError") toast.error((e as ApiError).message);
+      const aborted = ac.signal.aborted || (e as Error).name === "AbortError";
+      if (!aborted) toast.error((e as ApiError).message);
+    } finally {
+      // whatever happened, never leave the page stuck in the streaming state
       setStream(EMPTY_STREAM);
     }
   };
