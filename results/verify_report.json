@@ -1,0 +1,1609 @@
+{
+  "families_checked": 192,
+  "families_rejected": 61,
+  "rejected": [
+    "agents-0001-p1",
+    "agents-0002-p3",
+    "agents-0003-p3",
+    "agents-0007-p2",
+    "agents-0008-p1",
+    "agents-0008-p3",
+    "data-0001-p1",
+    "data-0001-p2",
+    "data-0001-p3",
+    "data-0002-p1",
+    "data-0003-p2",
+    "data-0004-p1",
+    "data-0005-p1",
+    "data-0006-p2",
+    "data-0007-p1",
+    "data-0007-p3",
+    "data-0008-p1",
+    "evaluation-0001-p3",
+    "evaluation-0002-p2",
+    "evaluation-0004-p1",
+    "evaluation-0006-p1",
+    "evaluation-0006-p2",
+    "evaluation-0006-p3",
+    "evaluation-0007-p1",
+    "evaluation-0007-p3",
+    "finetuning-0001-p1",
+    "finetuning-0002-p3",
+    "finetuning-0004-p1",
+    "finetuning-0004-p2",
+    "finetuning-0005-p1",
+    "finetuning-0006-p1",
+    "finetuning-0006-p2",
+    "prompting-0002-p1",
+    "prompting-0002-p2",
+    "prompting-0002-p3",
+    "prompting-0004-p1",
+    "prompting-0005-p1",
+    "prompting-0007-p2",
+    "rag-0001-p1",
+    "rag-0001-p2",
+    "rag-0002-p1",
+    "rag-0003-p1",
+    "rag-0006-p1",
+    "rag-0006-p2",
+    "rag-0006-p3",
+    "rag-0007-p3",
+    "rag-0008-p3",
+    "safety-0001-p2",
+    "safety-0003-p1",
+    "safety-0003-p2",
+    "safety-0004-p1",
+    "safety-0005-p3",
+    "safety-0006-p3",
+    "safety-0008-p3",
+    "serving-0001-p2",
+    "serving-0003-p3",
+    "serving-0004-p2",
+    "serving-0004-p3",
+    "serving-0005-p2",
+    "serving-0008-p1",
+    "serving-0008-p3"
+  ],
+  "verdicts": {
+    "agents-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention framework choice, concrete tools, human review policy, or failure recovery; it is still answerable by freely choosing these. c\u2019s added logging requirement is consistent with the earlier workflow. d\u2019s requirement of complete autonomy with no human review contradicts the earlier mandatory human approval step."
+    },
+    "agents-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify orchestration style, concrete tools/APIs, approval requirement, or failure-handling; answering fully would require guessing these. c\u2019s second turn just adds logging and LangSmith streaming, consistent with the first. d\u2019s final turn both requires no manager review and keeping mandatory manager approval, which is contradictory."
+    },
+    "agents-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks explicit agent framework choice, concrete tools, human review behavior, and retry logic; c\u2019s added Datadog tracing is additive and non-conflicting; d\u2019s final turn both removes and keeps human review, which is contradictory."
+    },
+    "agents-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify exact numeric limits or behavior at stopping; c\u2019s second turn is additive and consistent; d\u2019s last user turn explicitly contradicts the earlier hard cap of 40 tool invocations."
+    },
+    "agents-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "Variant d removes the session-level tool-invocation ceiling, which was never specified in the earlier turn (only per-turn cap and dollar budget per session), so there is no direct contradiction."
+    },
+    "agents-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify the concrete tool input fields, defaults, or exact response structure; c\u2019s added latency requirement is additive and consistent; d simultaneously forbids any filter arguments while requiring filters.project and filters.created_after, which is contradictory."
+    },
+    "agents-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the specific schema fields, defaults, and return structure; to implement it you\u2019d have to guess those. c\u2019s added latency requirement is compatible with earlier turns. d\u2019s final turn both forbids any arguments and simultaneously requires ticket_id and options, which is contradictory."
+    },
+    "agents-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate any of the specific schema details from the gap; it is still answerable in many reasonable ways without needing those exact details. c\u2019s added latency metadata requirement is consistent with the initial schema. d\u2019s requirement that the tool accept no parameters while preserving keyword/limit/filters contradicts the earlier requirement that those be exposed as parameters."
+    },
+    "agents-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify representation, limits, retrieval, or user controls; c\u2019s added requirement is additive; d\u2019s ban on retaining user-specific info conflicts with per-account stored snippets."
+    },
+    "agents-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b only says 'long-term memory' and 'personalize responses' without specifying representation, limits, retrieval, or user controls, so it omits the gap and cannot be fully implemented without guessing those details. c\u2019s added logging requirement is compatible with the earlier description. d\u2019s requirement to keep no user-specific information between sessions contradicts maintaining a per-user 80-snippet profile store."
+    },
+    "agents-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention categories, JSON classification, confidence threshold, manual fallback, or 3-dispatch limit; implementing it as described would require guessing these. c\u2019s added logging is consistent with earlier constraints. d\u2019s final turn both denies the existence of a manual review queue and requires keeping the manual fallback, directly contradicting the initial requirement for a manual review queue."
+    },
+    "agents-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify which operations or what oversight mechanism; one could still implement a generic safeguard without guessing the exact gap. c\u2019s added JSON snapshot is consistent with earlier requirements. d\u2019s requirement for uninterrupted deployment flows contradicts the earlier need for explicit human approval before deploy/rollback."
+    },
+    "agents-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not define which intents are sensitive or what the human approval signal looks like; implementing it as requested requires guessing those details."
+    },
+    "agents-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b is very high-level and omits all gap details; it is still answerable in a generic way. c\u2019s added breakdown per agent type is consistent with earlier instructions. d\u2019s requirement to never return no-agent contradicts the earlier need for explicit no-agent baseline cases and computing spurious handoff on them."
+    },
+    "agents-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks test set size, labeling details, metrics, and payload correctness handling; c\u2019s follow-up only adds a breakdown by agent type and is consistent; d\u2019s second turn contradicts the requirement to include no-agent cases and measure spurious routing while forcing a single always-used agent."
+    },
+    "agents-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks eval set size/labeling, metrics, and failure criteria; it is still answerable in a generic way. c\u2019s second turn is compatible with the first. d\u2019s second turn forbids no-agent baseline while first explicitly requires explicit no-agent cases and spurious no-agent metrics."
+    },
+    "data-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b is high-level and does not specify algorithm/threshold, length/quality filters, or denylist details; one could still answer with a generic normalization pipeline. c\u2019s second turn only adds logging and is consistent. d\u2019s final turn forbids exclusions/drops while earlier instructions require them, so it contradicts. Domain is data processing, not physics/mechanics/materials/simulation."
+    },
+    "data-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b is high-level but still solvable without knowing the exact key, thresholds, or denylist; c\u2019s added requirement is compatible; d\u2019s final instructions explicitly negate earlier constraints while asking to still follow them."
+    },
+    "data-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate specific filters, bounds, capping strategy, or blacklist application, but a generic pipeline could still be written without guessing those exact details."
+    },
+    "data-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "Variant b omits row count, class distribution, noise policy, and the rule about using only real data for eval. In d, the final turn reiterates and strengthens the earlier constraint rather than contradicting it."
+    },
+    "data-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits all details in the gap (schema, annotator count, conflict handling, agreement threshold). b is still executable without those details. c\u2019s second turn is fully compatible with the first. d\u2019s requirement of only one annotator account contradicts having three independent annotators plus a senior adjudicator."
+    },
+    "data-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate ratios or sampling rule, but the task (merge and cap at 1.2M with naming consistency) is still fully doable without that info."
+    },
+    "data-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate specific PII categories, placeholder scheme, or QA sampling procedure, but a reasonable pipeline could still be implemented from b alone, so it is answerable without guessing. c\u2019s added determinism requirement is consistent with earlier turns. d\u2019s final user message both requires user IDs to remain clear text and to be replaced with placeholders, which is a direct contradiction."
+    },
+    "data-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the specific fields, tokenization pattern, and verification method; c\u2019s added logging is consistent; d\u2019s requirement to both preserve and replace names is contradictory."
+    },
+    "data-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention LakeFS, GCS, or the precise metadata (commit IDs and row-level filter files), so it omits the named gap but is still answerable in a generic way. c\u2019s added markdown requirement is consistent with the initial instructions. d explicitly requires no cloud while also requiring GCS, which is contradictory."
+    },
+    "data-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify the concrete versioning tool, storage layer, or exact metadata fields; c\u2019s second turn is compatible with the first; d\u2019s requirement to keep all snapshots strictly on a local NAS conflicts with using LakeFS on GCS as the dataset storage/versioning layer."
+    },
+    "data-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify cleanlab, 4-fold OOF, 8%, or Appen, but the request can still be executed in many reasonable ways without guessing those exact details."
+    },
+    "data-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention confidentlearning, out-of-fold predictions, 8%, or human annotators, so it omits all gap details but is still executable in a generic way."
+    },
+    "data-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves all gap details unspecified but still allows a generic, non-guessing-completion; c\u2019s second turn only adds fields, no conflict; d\u2019s final turn makes it impossible to both hide candidates and have annotators label them, contradicting the earlier instructions."
+    },
+    "data-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks dataset, comparison protocol, order bias handling, and uncertainty quantification; c\u2019s added logging is consistent; d\u2019s ban on LLM APIs contradicts the earlier requirement to use GPT-4o judgments."
+    },
+    "evaluation-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits all four gap details but still allows a generic evaluation answer; c is inconsistent because the assistant asks an irrelevant clarification despite the task being fully specified; d\u2019s second turn explicitly forbids bootstrapping while requiring a bootstrap CI, contradicting the initial instructions."
+    },
+    "evaluation-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify which randomness controls, which model version, or how many repetitions; however, one could stabilize runs in many ways without needing those exact gap details, so it is answerable without guessing. c\u2019s added requirement (log git commit hash) is consistent with earlier instructions. d\u2019s final turn requires temperature 0.8 for all evaluation traffic, contradicting the earlier requirement to explicitly set temperature to 0.1."
+    },
+    "evaluation-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves unspecified how confidence is collected, which eval set, and which metric/visualization; c\u2019s second turn adds difficulty partitioning but is consistent; d forbids explicit confidence while requiring 1\u201310 confidence, contradicting the initial instructions."
+    },
+    "evaluation-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves unspecified: how to elicit confidence, which benchmark/split, binning, and metrics; c\u2019s second turn just adds per-answer-type breakdown; d forbids altering the prompt while still relying on an explicit numeric confidence that requires such a prompt."
+    },
+    "evaluation-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the specific leakage procedure, external index, and cutoff date. c\u2019s added instruction is compatible with the initial plan. d contradicts the earlier use of RefinedWeb by stating training was only on proprietary data and shifting the overlap target to actual training data."
+    },
+    "evaluation-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the specific 11-gram procedure, the RefinedWeb-CC index, and the Feb 2024 cutoff; c\u2019s final turn aligns with the initial instructions; d\u2019s final turn asserts there is no external index while still asking to use it, contradicting the earlier plan."
+    },
+    "evaluation-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks which part to score, rubric dimensions, judge models, and agreement reporting; c\u2019s second turn only adds persistence and is consistent; d\u2019s second turn forbids showing reasoning steps while still requiring coherence with them, contradicting the initial spec."
+    },
+    "evaluation-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify number of tests, success criteria, or blocking behavior, so it omits the gap but is still answerable in a generic way. c\u2019s added requirements are compatible with the first turn. d\u2019s requirement that the CI job must never write a failing status contradicts treating any regression as a hard failure that blocks the build."
+    },
+    "evaluation-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks eval set size, metric-to-subset mapping, thresholds, and fail policy; one could still implement a generic CI eval job. c\u2019s second turn just adds artifact upload, consistent with first. d\u2019s final turn says job must never fail build while still blocking model changes on threshold violations, contradicting the earlier requirement that build fails when thresholds not met."
+    },
+    "evaluation-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks all the specific details listed in the gap; it is still answerable in many reasonable ways without needing those exact details. c\u2019s added requirement (PR comment summary) is consistent with the initial setup. d\u2019s final user turn demands offline execution with no access to the embedding model while still computing fresh similarities with text-embedding-3-large, which contradicts the earlier requirement to use that model in CI."
+    },
+    "evaluation-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks which metrics and weights; an assistant could still answer by inventing a KPI. In d, user first requires including win rate, then says no win-rate experiments were run but still wants the same weighted aggregate, which conflicts with the requirement to use that metric."
+    },
+    "evaluation-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify which metrics or weights; answering requires guessing. c\u2019s second turn just adds a table, consistent with initial KPI definition. d asks to keep a 0.25 weight on a component that is explicitly not collected this cycle, contradicting the requirement that the KPI be based on latest evaluation runs and user feedback."
+    },
+    "evaluation-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify which metrics or weights, so the gap is omitted but an assistant could still answer by inventing a KPI definition. In d, the second turn makes it impossible to compute the KPI as earlier specified because one component is missing but its weight must be retained, contradicting the earlier fully specified computable setup."
+    },
+    "evaluation-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify the schema/threshold or how to compare to ground truth; to implement it one must guess those details. c\u2019s second turn adds tracking of responses without metrics but does not change the fabrication definition. d\u2019s second turn asserts there is no ground truth JSON while still requiring validation against it, contradicting the initial setup that assumes comparison to ground truth."
+    },
+    "evaluation-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks explicit definition of what makes a metric hallucinated and how consistency is checked; c\u2019s added requirement (counting responses with no metrics) is compatible; d\u2019s final turn requires validating against a catalog that is stated to be unavailable, contradicting the earlier requirement."
+    },
+    "evaluation-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits base model, adaptation method, hyperparameters, and validation split details; a reasonable assistant could still proceed with generic fine-tuning instructions, so b_is_answerable_without_guessing is true. c\u2019s added MLflow logging is consistent with earlier details. d\u2019s final turn forbids parameter-efficient methods while still requiring QLoRA rank 32, which is contradictory."
+    },
+    "finetuning-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves base model, adaptation method, hyperparameters, and validation split unspecified; c\u2019s added training options don\u2019t conflict; d both forbids adapters and requires keeping the LoRA config, which is contradictory."
+    },
+    "finetuning-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks base model, adaptation strategy (QLoRA rank 32), hyperparameters, and validation split details; c\u2019s second turn just adds MLflow logging; d forbids any adapters while simultaneously requiring QLoRA rank 32, which is contradictory."
+    },
+    "finetuning-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify benchmarks or thresholds; c\u2019s second turn is compatible with the first; d\u2019s request for exact deltas between base and finetuned contradicts the statement that no separate base checkpoint was kept."
+    },
+    "finetuning-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks both which benchmarks to use and the 3-point threshold; c\u2019s second turn only adds eval protocol detail; d\u2019s second turn demands exact deltas vs a missing checkpoint, contradicting the earlier requirement."
+    },
+    "finetuning-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention specific benchmarks or numeric thresholds, but a generic regression check could still be done without guessing. In d, the user says the base weights are gone yet still asks for exact deltas vs. the base, which contradicts the earlier requirement to compare to the base model."
+    },
+    "finetuning-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the specific algorithm (IPO), hyperparameters, init checkpoint, and concrete win-rate protocol; these are required to execute the request, so it cannot be completed without guessing. c\u2019s second turn just adds logging, consistent with the first. In d, the user claims they never logged dispreferred answers but still asks to run IPO on preferred vs. dispreferred pairs from that file, contradicting the earlier statement."
+    },
+    "finetuning-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves out algorithm, tau, lr, epochs, checkpoint, and exact eval setup; c\u2019s second turn is compatible with the first; d\u2019s final turn makes the data format incompatible with the earlier requirement to run IPO on preferred/dispreferred pairs."
+    },
+    "finetuning-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not explicitly specify quantization format, effective batch/accumulation, max seq length, grad checkpointing, or checkpoint cadence, but a reasonable answer could choose these without guessing a specific hidden target. c\u2019s second turn only adds FlashAttention and keeps all earlier hyperparameters unchanged. d\u2019s final turn requires unquantized fp32 model weights, which conflicts with the earlier requirement to use 4-bit NF4 quantization of the base model."
+    },
+    "finetuning-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate any of the gap details but a config could be produced without them; c\u2019s second turn only adds memory-efficient attention and keeps all specified hyperparameters; d\u2019s fp32 requirement for model weights conflicts with the earlier 4-bit NF4 quantization requirement for the model."
+    },
+    "finetuning-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate the exact YAML schema, number of examples, or loss-token restriction, but the user\u2019s request is still executable without those specifics. c\u2019s second turn is compatible with the first. d\u2019s second user turn contradicts the earlier requirement that outputs be YAML with exactly three keys."
+    },
+    "finetuning-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify schema, number of examples, or loss masking; c\u2019s second turn is compatible with the first; d\u2019s requirement for unstructured output contradicts the earlier YAML-output requirement."
+    },
+    "finetuning-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves schema, example count, and loss placement unspecified; c\u2019s held-out split is consistent with earlier instructions; d\u2019s requirement for unstructured final output contradicts the earlier requirement for JSON outputs."
+    },
+    "finetuning-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention specific leakage checks or hyperparameters, but an assistant could still debug generally without guessing exact values. c\u2019s added request to archive metrics is consistent with earlier steps. d\u2019s final turn forbids changing optimization hyperparameters while simultaneously requiring a change to lr and weight decay, which is contradictory."
+    },
+    "finetuning-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention the concrete checks or optimizer settings, but a reasonable assistant could still propose its own checks/settings without guessing the exact gap. c\u2019s added request to archive metrics is compatible with the original plan. d\u2019s final turn forbids altering optimizer settings while requiring a change to AdamW with specific hyperparameters, directly contradicting the earlier instructions."
+    },
+    "finetuning-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves out adapter path, base precision, output format, and verification procedure; c\u2019s added metadata requirement is consistent; d both forbids and requires baking the adapter into the base model."
+    },
+    "finetuning-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves adapter path, base precision, exact output format/path, and eval details unspecified; c\u2019s second turn only adds config-tagging; d both forbids persisting a merged checkpoint and requires writing merged weights to disk."
+    },
+    "finetuning-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify teacher/student models, number of synthetic examples, sampling config, or evaluation protocol. To implement it, those details must be guessed. In d, the user both instructs to generate 80k new synthetic replies and then says no new synthetic outputs are allowed, directly conflicting with the earlier instruction."
+    },
+    "finetuning-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify teacher/student models, number of completions, decoding params, or eval protocol; these are all in the GAP. To execute b, one would have to guess these. In d, the final user turn both forbids any SFT and simultaneously insists on keeping the 3-epoch SFT plan, which contradicts itself and the earlier SFT instructions."
+    },
+    "prompting-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks explicit field names, vocab constraints, JSON schema, and null convention; c\u2019s second turn is compatible with the first; d\u2019s final requirement (no JSON at all) conflicts with earlier strict-JSON requirement."
+    },
+    "prompting-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify number of examples, per-intent balance, selection criterion, grouping, or formatting, matching the gap. However, the user could still respond generically without needing those specifics, so b_is_answerable_without_guessing is true. c\u2019s second turn adds constraints but does not conflict with the first. d\u2019s final user turn demands both zero-shot (no labeled demos) and simultaneously keeping the nine labeled examples, which contradicts the earlier requirement to use those few-shot examples."
+    },
+    "prompting-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves out number of examples, class balance, selection criterion, and ordering/format; however, it is still answerable in many reasonable ways without needing those specifics."
+    },
+    "prompting-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves number of examples, per-label balance, selection criterion, and ordering/label placement unspecified; it can still be answered in many reasonable ways without guessing the exact gap spec. c\u2019s added instruction line is consistent with earlier constraints. d\u2019s requirement of a strictly zero-shot prompt contradicts keeping labeled few-shot examples."
+    },
+    "prompting-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks details on embedding CREATE VIEW DDL, the exact number of views, and validation/retry behavior. c\u2019s second turn adds logging but doesn\u2019t conflict. d\u2019s final turn forbids exposing the schema while also requiring it embedded in the system prompt, contradicting itself/earlier instructions."
+    },
+    "prompting-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify reliance on retrieved snippets, the exact decline phrase, or the validation setup; it is still answerable in a generic way. c\u2019s second turn is compatible with the first. d\u2019s second user turn directly contradicts the earlier requirement to decline when not confident and to use a specific decline phrase."
+    },
+    "prompting-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b is missing all three gap details (external knowledge constraint, exact abstain phrase, and how to measure reliability). To implement b you\u2019d have to guess these, so it is not answerable without guessing. c\u2019s added logging/auditing requirement is consistent with the initial constraints. d\u2019s final turn requires both always answering and never admitting uncertainty while also maintaining an abstention rate, which contradicts the earlier requirement to abstain with a fixed phrase when unsure."
+    },
+    "prompting-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the exact abstention phrase, the explicit restriction to retrieved snippets as the only knowledge source, and the concrete evaluation protocol (80 unanswerable queries, \u226595% abstention). To implement b, one would have to guess these details. c\u2019s second turn is compatible with the first. d\u2019s second user turn directly contradicts the earlier requirement to use the abstention phrase and to abstain instead of always answering."
+    },
+    "prompting-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate language, identifier preservation, formatting, tone, or length, but a reasonable answer could still be written without them, so it is answerable without guessing."
+    },
+    "prompting-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify target language, preservation of names/IDs, HTML, tone, or length; to draft the system prompt correctly those must be guessed. c\u2019s added requirement (terminology section) is compatible with the initial constraints. d explicitly requires both translating and not translating product names, which is contradictory."
+    },
+    "prompting-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks all the specific constraints listed in the gap; to match variant a it would require guessing them. c\u2019s added style note is compatible with the initial constraints. d\u2019s final user turn directly conflicts about mentioning internal tool names."
+    },
+    "prompting-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify traffic allocation, duration, metrics, or decision rule; c\u2019s second turn only adds logging; d\u2019s final user turn is logically impossible with the earlier requirement to route traffic between two new variants."
+    },
+    "prompting-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b is high-level and does not specify what to remove, token limit, quality tolerance, or which latency metric; c\u2019s added logging is compatible with earlier constraints; d\u2019s requirement for detailed chain-of-thought contradicts the earlier removal of explicit step-by-step reasoning and the tight 80-token cap in practice."
+    },
+    "prompting-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "prompting-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks all the concrete review rules listed in the GAP (scope of code, issue categories, finding shape, and behavior when no issues). c\u2019s added instruction about MR description is compatible with earlier rules. d\u2019s requirement to thoroughly comment on naming/formatting contradicts the earlier requirement to ignore stylistic concerns."
+    },
+    "prompting-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks explicit evaluation aspects (ambiguity/safety), what to ignore, exact output fields/limits, and the no-improvement case; c\u2019s added restatement is compatible; d\u2019s requirement to always correct grammar/tone contradicts the earlier requirement to ignore them."
+    },
+    "prompting-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves chunk size/overlap, embedding model, similarity metric, and k unspecified but is still answerable by choosing reasonable defaults; c\u2019s added metadata is consistent with initial setup; d removes embeddings in favor of BM25 while still requiring dense retrieval, which is contradictory."
+    },
+    "rag-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify chunk size/overlap, embedding model, similarity metric, or top-k, but a reasonable answer could still be given by choosing defaults. c\u2019s added metadata requirement is consistent with the initial setup. d\u2019s requirement to rely solely on BM25 while also keeping semantic embeddings and cosine similarity is contradictory."
+    },
+    "rag-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention metrics, cutoff k, or where gold labels are stored, but a system could still run some evaluation and segment by query_category without that info, so it is answerable without guessing. c\u2019s second turn adds CSV export but is consistent with the first. d\u2019s request to strip out label_passage_ids while still reporting recall against gold labels is contradictory."
+    },
+    "rag-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks metrics, cutoff values, and which field holds ground truth; c\u2019s second turn adds detail but doesn\u2019t conflict; d asks to delete label_passages while still using it as ground truth, contradicting earlier instructions."
+    },
+    "rag-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves fusion algorithm, weights, k, and exact result count unspecified; c\u2019s second turn just adds persistence; d\u2019s second turn forbids dense influence while still asking to use the earlier fusion config."
+    },
+    "rag-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify how to detect updated tickets, how to handle removed tickets, or the refresh cadence. c\u2019s second turn adds logging but does not change the earlier specified checksum detection, deletion policy, or 10-minute cadence. d\u2019s final turn forbids storing any checksums while still requiring checksum-based change detection, which is contradictory."
+    },
+    "rag-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify how change detection works, what happens to removed articles, or the refresh cadence. c\u2019s second turn adds logging but does not change the earlier specified checksum-based detection, deletion behavior, or 10-minute schedule. d\u2019s final turn forbids persisting checksums/metadata while still requiring checksum-based change detection that avoids re-embedding unchanged articles, which contradicts the earlier requirement to use a checksum of the normalized body for incremental updates."
+    },
+    "rag-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify how to detect changes, how to remove obsolete embeddings, or the exact schedule interval. c\u2019s added logging requirement is consistent with the initial instructions. d\u2019s final turn both forbids and requires use of content_sha256, which is contradictory."
+    },
+    "rag-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "b does not specify numeric limit, sort key, truncation strategy, or tokenizer. c\u2019s second turn only adds logging and wiring, consistent with first turn. d\u2019s second turn adds a separate 1024-token generator limit but explicitly says to keep using the 2200-token context budget as earlier, so it does not contradict the initial instructions."
+    },
+    "rag-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "Variant b does not specify the exact token budget, ordering rule, which chunks to drop, or tokenizer. Implementing it as written would require choosing those, so it is not answerable without guessing. In d, the 1200-token ceiling applies to the generator while explicitly saying to keep using the previously defined 2800-token context budget unchanged, so there is no direct contradiction of earlier instructions about context selection."
+    },
+    "rag-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "b omits all four gap details; its instructions are high-level but still implementable without guessing exact numbers or tokenizer. In d, the second turn adds a new 1800-token total limit but explicitly says to keep using the 2200-token context budget and same dropping strategy, so it does not contradict the earlier description."
+    },
+    "rag-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not restate the numeric threshold or passage count, but a reasonable implementation could still add some abstain logic without guessing exact values, so it is answerable without guessing. c\u2019s second turn is compatible with the first. d\u2019s requirement that the assistant must never explicitly say it cannot answer contradicts the earlier instruction to add abstain behavior that surfaces such a message."
+    },
+    "rag-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify Readability.js/Node, fenced code chunking, or exact metadata keys; c\u2019s added logging is compatible; d\u2019s Python-only runtime contradicts the earlier requirement to use Readability.js via Node/JS."
+    },
+    "rag-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify Readability.js/Node, fenced code blocks, or exact metadata fields; c\u2019s added logging requirement is compatible; d\u2019s pure Python requirement conflicts with using Readability.js (a JS tool) with no JS tooling."
+    },
+    "rag-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify tool choice, exact representation, or precise metadata fields; it is still answerable in a generic way. c\u2019s added summary log is consistent with earlier instructions. d\u2019s minimal environment that cannot launch browsers contradicts the requirement to keep using Playwright for extraction."
+    },
+    "safety-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify service, policy dimensions, rejection message, or exact logging, matching the gap. However, one could still implement a generic safety layer without guessing those specifics, so b_is_answerable_without_guessing is true. c\u2019s added aggregation/dashboard requirement is consistent with earlier constraints. d\u2019s requirement to \u2018never reject any prompt\u2019 while \u2018keep rejecting flagged prompts\u2019 is a direct contradiction."
+    },
+    "safety-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the specific corpus, mitigation configuration, and success definition; c\u2019s logging request is consistent with earlier setup; d reverses the earlier constraint about never executing instructions from retrieved content."
+    },
+    "safety-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves out all specified gap details; c\u2019s added instruction is compatible; d\u2019s final turn contradicts the earlier requirement about attacker vendor; domain is AI safety eval, not physics/mechanics/materials/simulation."
+    },
+    "safety-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits all four gap details; a reasonable implementation is still possible without them. c\u2019s added instruction about storage is consistent with the initial setup. d\u2019s final user turn requires both using the production assistant and a separate open-source model for adversarial generation, which is contradictory."
+    },
+    "safety-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks all the concrete gap details (count, taxonomy, attacker source, raters, threshold). c\u2019s added CSV export is consistent with earlier instructions. d\u2019s final turn requires prompts both from the same Nova instance and from a non-Nova model, which is contradictory."
+    },
+    "safety-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks identifier types, detection stack, masking token, and alert threshold/channel; c\u2019s added logging and wiring are consistent; d\u2019s requirement of no redaction contradicts earlier scrubbing/masking requirement."
+    },
+    "safety-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify categories, detection method, placeholder, or alert thresholds/channels, matching the gap. However, it is still answerable in a generic way without needing those specifics. In d, logging and returning responses exactly as originally generated conflicts with redacting spans."
+    },
+    "safety-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify the exact prompt set, refusal criterion, or numeric thresholds; c\u2019s second turn adds logging but is aligned with the initial setup; d\u2019s final turn imposes categorical refusal on self-harm while still requiring <3% false refusals on a mostly self-harm-themed benign split, conflicting with the earlier evaluation target and setup."
+    },
+    "safety-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify the exact benchmark, refusal rule, or numeric targets, so it omits the gap but is still executable in a generic way. c\u2019s added logging requirement is consistent with the initial setup. d\u2019s requirement to never decline self-harm/mental-health-support requests conflicts with the earlier safety-judge-based refusal optimization objective."
+    },
+    "safety-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify which fields are logged, retention, storage properties, or raw text policy; c\u2019s added latency field is consistent with earlier constraints; d explicitly both requires and forbids storing raw user text."
+    },
+    "safety-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b lacks the 60% cutoff, the exact prefix wording, and the quantitative evaluation targets; c\u2019s added logging requirement is compatible; d\u2019s ban on hedging conflicts with requiring the uncertainty prefix."
+    },
+    "safety-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits the 60% cutoff, the exact prefix phrase, and the 85%/25% quantitative targets; c\u2019s added logging is consistent with earlier constraints; d\u2019s ban on any hedging/uncertainty language conflicts with the required uncertainty prefix."
+    },
+    "serving-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention serving framework, quantization, context window, concurrency, or latency, so it omits the gap but is still answerable in many reasonable ways. c\u2019s added /healthz endpoint does not alter any earlier specified details. d\u2019s requirement of strictly uncompressed fp16 with no quantization directly conflicts with keeping the GPTQ 3-bit configuration."
+    },
+    "serving-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention serving engine, quantization, context window, concurrency, or latency; these must be inferred to answer. c\u2019s added /healthz is compatible with earlier constraints. d\u2019s requirement of strict fp16 with no quantization conflicts with keeping GPTQ 4-bit."
+    },
+    "serving-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention paged KV caching, TensorRT-LLM, or the specific benchmarking protocol; c\u2019s added metric (KV cache hit rate) is compatible with earlier instructions; d\u2019s requirement for a freshly randomized routing/policy block contradicts the earlier assumption of a shared fixed prefix with high cache hit rate."
+    },
+    "serving-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves algorithm, bit width, grouping, calibration data choice, and thresholds unspecified; c\u2019s added requirement is compatible; d\u2019s final turn directly contradicts the earlier requirement about using last month\u2019s logs."
+    },
+    "serving-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits all four gap details; it is still answerable in a generic way without inferring them. c\u2019s added instructions are compatible with the first turn. d\u2019s final turn both forbids and requires using production logs for calibration, which is a direct contradiction."
+    },
+    "serving-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not mention protocol, keepalive cadence, final event semantics, or disconnect behavior, but a reasonable answer could still be given without those specifics. c\u2019s added request_id is compatible with earlier instructions. d conflicts by requiring both a single non-streamed JSON completion response and SSE token streaming for the same completion endpoint."
+    },
+    "serving-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "b does not specify protocol, heartbeat cadence, end-of-stream format, or disconnect behavior, so it omits the gap. However, an implementation could be done without needing those exact details, so b_is_answerable_without_guessing is true. In c, adding a request ID is consistent with the earlier requirements. In d, adding an additional non-streamed HTTPS response does not contradict the existing WebSocket streaming requirements; both can coexist, so it is not a contradiction."
+    },
+    "serving-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify numeric limits, what to throttle on, error behavior, or exemptions, but an implementation could still be done by choosing reasonable defaults, so it is answerable without guessing the exact hidden gap. c\u2019s added logging requirement is consistent with the initial spec. d\u2019s final turn both says no caps should apply and also to keep rejecting above 40 concurrent requests, which is contradictory."
+    },
+    "serving-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b does not specify model, size, format, runtime, threads, context, or throughput, but a generic CPU deployment answer is still possible without those specifics."
+    },
+    "serving-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b omits all of: model family/size, quantization, runtime, thread count, context length, and explicit throughput target; to implement it you\u2019d have to guess those. c\u2019s added logging requirement doesn\u2019t change any earlier constraints. d\u2019s final turn requires exclusive Node.js/vLLM on GPU while also \u2018keeping\u2019 llama.cpp with 6 CPU threads, which is contradictory."
+    },
+    "serving-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": true,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "b leaves out all specific gap details (model, quantization, framework, workers, context length, concrete throughput/latency targets) but is still answerable in a generic way; c\u2019s added logging requirement is consistent; d\u2019s requirement for pure serverless Lambda with no persistent workers contradicts using vLLM with 6 worker threads on a single CPU-only node."
+    }
+  },
+  "cost": {
+    "calls": 192.0,
+    "spent_usd": 0.364
+  }
+}

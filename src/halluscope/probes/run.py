@@ -25,7 +25,7 @@ from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item
 from halluscope.data.splits import grouped_split, leave_one_topic_out
-from halluscope.probes.baselines import length_baseline, tfidf_baseline
+from halluscope.probes.baselines import digit_count_baseline, length_baseline, tfidf_baseline
 from halluscope.probes.linear import LinearProbe, MassMeanProbe
 from halluscope.probes.mlp import MLPProbe
 from halluscope.probes.sweep import layer_sweep
@@ -171,6 +171,9 @@ def run_probe(
         tr, y_tr, te, y_te, final_turn_only=True, n_bootstrap=cfg.probe.n_bootstrap
     ).to_dict()
     out["baselines"]["length"] = length_baseline(
+        te, y_te, n_bootstrap=cfg.probe.n_bootstrap
+    ).to_dict()
+    out["baselines"]["digit_count"] = digit_count_baseline(
         te, y_te, n_bootstrap=cfg.probe.n_bootstrap
     ).to_dict()
 

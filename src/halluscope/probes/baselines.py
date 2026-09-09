@@ -43,6 +43,17 @@ def tfidf_baseline(
     return evaluate_scores(y_test, score, prob=prob, n_bootstrap=n_bootstrap, seed=seed)
 
 
+def digit_count_baseline(
+    test: list[Item], y_test: np.ndarray, n_bootstrap: int = 1000, seed: int = 0
+) -> MetricsWithCI:
+    """Fewer numbers in the final turn tends to mean a missing parameter. If this
+    baseline is strong, the dataset leaks the label through specificity cues."""
+    import re
+
+    score = -np.array([len(re.findall(r"\d+", i.turns[-1].content)) for i in test], dtype=float)
+    return evaluate_scores(y_test, score, n_bootstrap=n_bootstrap, seed=seed)
+
+
 def length_baseline(
     test: list[Item], y_test: np.ndarray, n_bootstrap: int = 1000, seed: int = 0
 ) -> MetricsWithCI:
