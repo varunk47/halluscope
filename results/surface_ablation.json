@@ -1,0 +1,64 @@
+{
+  "datasets": [
+    {
+      "path": "data/augmented/items_v1_lengthbiased.jsonl",
+      "n": 768,
+      "n_train": 576,
+      "n_test": 96,
+      "dialogue": {
+        "all_to_all": 0.9348958333333334,
+        "ab_to_ab": 0.984375,
+        "cd_to_cd": 1.0,
+        "ab_to_cd": 0.32291666666666663,
+        "cd_to_ab": 0.10416666666666664
+      },
+      "final_turn": {
+        "all_to_all": 0.94921875,
+        "ab_to_ab": 0.984375,
+        "cd_to_cd": 1.0,
+        "ab_to_cd": 0.0625,
+        "cd_to_ab": 0.012152777777777768
+      }
+    },
+    {
+      "path": "data/augmented/items.jsonl",
+      "n": 740,
+      "n_train": 548,
+      "n_test": 96,
+      "dialogue": {
+        "all_to_all": 0.9748263888888888,
+        "ab_to_ab": 0.9947916666666667,
+        "cd_to_cd": 0.9965277777777777,
+        "ab_to_cd": 0.4409722222222222,
+        "cd_to_ab": 0.4097222222222222
+      },
+      "final_turn": {
+        "all_to_all": 0.9969618055555556,
+        "ab_to_ab": 0.9947916666666667,
+        "cd_to_cd": 1.0,
+        "ab_to_cd": 0.3402777777777778,
+        "cd_to_ab": 0.3524305555555555
+      }
+    },
+    {
+      "path": "data/augmented/items_minimal.jsonl",
+      "n": 768,
+      "n_train": 576,
+      "n_test": 96,
+      "dialogue": {
+        "all_to_all": 0.8680555555555556,
+        "ab_to_ab": 1.0,
+        "cd_to_cd": 0.7413194444444444,
+        "ab_to_cd": 0.5069444444444444,
+        "cd_to_ab": 0.4618055555555555
+      },
+      "final_turn": {
+        "all_to_all": 0.9066840277777779,
+        "ab_to_ab": 1.0,
+        "cd_to_cd": 0.861111111111111,
+        "ab_to_cd": 0.513888888888889,
+        "cd_to_ab": 0.41666666666666663
+      }
+    }
+  ]
+}

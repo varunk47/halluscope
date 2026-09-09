@@ -26,11 +26,17 @@ def build_data(
     out: Path = typer.Option(Path("data/augmented/items.jsonl"), help="Output JSONL"),
     paraphrases: int = typer.Option(3, help="Paraphrase families per seed family"),
     limit: int | None = typer.Option(None, help="Only process the first N seed families"),
+    mode: str = typer.Option(
+        "free",
+        help="free | minimal; minimal forces near-identical pairs that differ only in the gap",
+    ),
 ) -> None:
     """Augment hand-written seed families with LLM paraphrases."""
     from halluscope.data.augment import build_dataset
 
-    n = build_dataset(seeds_dir=seeds, out_path=out, n_paraphrases=paraphrases, limit=limit)
+    n = build_dataset(
+        seeds_dir=seeds, out_path=out, n_paraphrases=paraphrases, limit=limit, mode=mode
+    )
     console.print(f"wrote {n} items to {out}")
 
 

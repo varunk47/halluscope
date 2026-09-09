@@ -36,8 +36,24 @@ FIELDS = (
 )
 
 
-def augment_prompt(spec: FamilySpec, k: int) -> list[dict[str, str]]:
+MINIMAL_EDIT_RULES = (
+    "MINIMAL-EDIT MODE. The pairs must be near-identical strings that differ only in the "
+    "gap: 'underspecified' must be 'specified' with the gap details replaced in place by "
+    "vague phrases of similar length (for example '512-token chunks with 64 overlap' becomes "
+    "'reasonably sized chunks with some overlap'; 'top 8' becomes 'a sensible number'); every "
+    "other word stays identical. 'update' and 'contradiction' must share the same opening "
+    "words and the same connective structure (both of the form 'Also, <new constraint>, but "
+    "keep <earlier detail>.' or both 'One change: <new constraint>; still keep <earlier "
+    "detail>.'), differ only in whether the new constraint conflicts with 'fill', and be "
+    "within 10 percent of each other in length. Do not use words like 'contradict', "
+    "'conflict', 'no longer allowed', or 'cannot' only on the contradiction side; if you use "
+    "such a phrase, use it on both sides."
+)
+
+
+def augment_prompt(spec: FamilySpec, k: int, mode: str = "free") -> list[dict[str, str]]:
     src = {f: getattr(spec, f) for f in FIELDS}
+    extra = ("\n\n" + MINIMAL_EDIT_RULES) if mode == "minimal" else ""
     return [
         {
             "role": "system",
@@ -60,7 +76,7 @@ def augment_prompt(spec: FamilySpec, k: int) -> list[dict[str, str]]:
                 "opener style, and length as 'contradiction' (for example both begin with "
                 "'Also,' or 'One change:'). Stay strictly within AI, LLM, and machine learning "
                 "engineering. Never mention physics, mechanics, materials, or simulation. "
-                "No em dashes."
+                "No em dashes." + extra
             ),
         },
         {
@@ -81,6 +97,7 @@ def augment_family(
     temperature_range: tuple[float, float] = (0.7, 1.0),
     seed: int = 0,
     alias: str = "augmenter",
+    mode: str = "free",
 ) -> list[Item]:
     rng = random.Random(f"{spec.family}:{seed}")
     out: list[Item] = []
@@ -91,7 +108,7 @@ def augment_family(
             try:
                 raw = client.complete(
                     alias,
-                    augment_prompt(spec, k),
+                    augment_prompt(spec, k, mode),
                     _SpecFields,
                     temperature=temp,
                     tag=f"augment:{spec.family}:p{k}:{attempt}",
@@ -129,6 +146,7 @@ def build_dataset(
     limit: int | None = None,
     client: JudgeClient | None = None,
     workers: int = 4,
+    mode: str = "free",
 ) -> int:
     from halluscope.config import get_settings
 
@@ -146,7 +164,12 @@ def build_dataset(
         with ThreadPoolExecutor(max_workers=workers) as ex:
             futures = [
                 ex.submit(
-                    augment_family, client, spec, n_paraphrases=n_paraphrases, seed=cfg.split.seed
+                    augment_family,
+                    client,
+                    spec,
+                    n_paraphrases=n_paraphrases,
+                    seed=cfg.split.seed,
+                    mode=mode,
                 )
                 for spec in specs
             ]

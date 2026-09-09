@@ -2,7 +2,12 @@ import json
 from types import SimpleNamespace
 
 from halluscope.config import AliasCfg, JudgeCfg
-from halluscope.data.augment import FIELDS, augment_family, build_dataset
+from halluscope.data.augment import (
+    FIELDS,
+    MINIMAL_EDIT_RULES,
+    augment_family,
+    build_dataset,
+)
 from halluscope.data.expand import FamilySpec
 from halluscope.data.io import load_items
 from halluscope.judge.client import JudgeClient
@@ -78,3 +83,38 @@ def test_build_dataset_writes_seeds_and_augmented(tmp_path, monkeypatch):
     items = load_items(out)
     assert sum(it.source == "seed" for it in items) == 4
     assert sum(it.source == "augmented" for it in items) == 4
+
+
+def test_minimal_mode_reaches_the_augmenter_prompt(tmp_path):
+    seen: list[str] = []
+
+    def fake(**kw):
+        seen.append(kw["messages"][0]["content"])
+        return _resp(json.dumps({f: f"{f} new" for f in FIELDS}))
+
+    augment_family(_client(tmp_path, fake), _spec(), n_paraphrases=1)
+    assert MINIMAL_EDIT_RULES not in seen[0]
+
+    seen.clear()
+    augment_family(_client(tmp_path, fake), _spec(), n_paraphrases=1, mode="minimal")
+    assert MINIMAL_EDIT_RULES in seen[0]
+
+
+def test_build_dataset_forwards_mode(tmp_path):
+    seeds = tmp_path / "seeds"
+    seeds.mkdir()
+    (seeds / "rag.json").write_text(json.dumps([_spec().model_dump()]), encoding="utf-8")
+    seen: list[str] = []
+
+    def fake(**kw):
+        seen.append(kw["messages"][0]["content"])
+        return _resp(json.dumps({f: f"{f} new" for f in FIELDS}))
+
+    build_dataset(
+        seeds,
+        tmp_path / "items.jsonl",
+        n_paraphrases=1,
+        client=_client(tmp_path, fake),
+        mode="minimal",
+    )
+    assert seen and all(MINIMAL_EDIT_RULES in m for m in seen)
