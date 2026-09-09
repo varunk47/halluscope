@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 import torch
 from dotenv import load_dotenv
@@ -57,22 +58,56 @@ def _causal_lm_class(model_id: str):
     return AutoModelForCausalLM, cfg
 
 
-def load_model(spec: ModelSpec, device: str = "auto") -> LoadedModel:
+def quantized_dir(spec: ModelSpec) -> Path:
+    """Where a one-time nf4 export of this model lives (small shards, cheap to load)."""
+    root = Path(os.environ.get("HALLUSCOPE_QUANT_DIR", "D:/dev-cache/quant"))
+    return root / (spec.id.replace("/", "_") + "-nf4")
+
+
+def export_quantized(spec: ModelSpec, max_shard_size: str = "500MB") -> Path:
+    """Load once with on-the-fly nf4 and save the quantized weights in small shards.
+
+    Loading the original bf16 checkpoint reads every shard into RAM on Windows;
+    after this export, loads need only the ~3 GB quantized files."""
+    loaded = load_model(spec, prefer_quantized_dir=False)
+    out = quantized_dir(spec)
+    out.mkdir(parents=True, exist_ok=True)
+    loaded.model.save_pretrained(str(out), max_shard_size=max_shard_size, safe_serialization=True)
+    loaded.tokenizer.save_pretrained(str(out))
+    return out
+
+
+def load_model(
+    spec: ModelSpec, device: str = "auto", prefer_quantized_dir: bool = True
+) -> LoadedModel:
     if spec.id in _LOADED:
         return _LOADED[spec.id]
 
     from transformers import AutoTokenizer, BitsAndBytesConfig
 
     token = os.environ.get("HF_TOKEN") or None
-    tokenizer = AutoTokenizer.from_pretrained(spec.id, token=token)
+    source = spec.id
+    qdir = quantized_dir(spec)
+    use_cuda = torch.cuda.is_available() and device != "cpu"
+    from_quantized_dir = (
+        prefer_quantized_dir
+        and spec.quant == "nf4"
+        and use_cuda
+        and (qdir / "config.json").exists()
+    )
+    if from_quantized_dir:
+        source = str(qdir)
+
+    tokenizer = AutoTokenizer.from_pretrained(source, token=token)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
 
-    cls, cfg = _causal_lm_class(spec.id)
+    cls, cfg = _causal_lm_class(source)
     kwargs: dict = {"token": token}
-    use_cuda = torch.cuda.is_available() and device != "cpu"
-    if spec.quant == "nf4" and use_cuda:
+    if from_quantized_dir:
+        kwargs["device_map"] = "auto"
+    elif spec.quant == "nf4" and use_cuda:
         kwargs["quantization_config"] = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
@@ -92,7 +127,7 @@ def load_model(spec: ModelSpec, device: str = "auto") -> LoadedModel:
         kwargs["dtype"] = dtype
         kwargs["device_map"] = "auto" if use_cuda else None
 
-    model = cls.from_pretrained(spec.id, **kwargs)
+    model = cls.from_pretrained(source, **kwargs)
     if not use_cuda:
         model = model.to("cpu")
     model.eval()

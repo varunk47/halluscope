@@ -85,13 +85,20 @@ class AliasCfg(BaseModel):
 
 class JudgeCfg(BaseModel):
     aliases: dict[str, AliasCfg] = {
-        "judge_primary": AliasCfg(models=["openai/gpt-5", "azure/gpt-5"]),
-        "judge_secondary": AliasCfg(models=["anthropic/claude-sonnet-5", "gemini/gemini-2.5-pro"]),
+        # Primary judge: OpenAI. Secondary judge must be a different family for
+        # cross-family agreement; it falls back to an older OpenAI model only when
+        # no Anthropic or Gemini key is present, and the report flags that.
+        "judge_primary": AliasCfg(models=["openai/gpt-5.1", "openai/gpt-5"]),
+        "judge_secondary": AliasCfg(
+            models=["anthropic/claude-sonnet-5", "gemini/gemini-2.5-pro", "openai/gpt-4.1"]
+        ),
         "simulated_user": AliasCfg(
-            models=["openai/gpt-5-mini", "azure/gpt-5-mini"], temperature=0.3
+            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini"], temperature=0.3
         ),
         "augmenter": AliasCfg(
-            models=["anthropic/claude-sonnet-5", "openai/gpt-5"], temperature=0.9, max_tokens=4096
+            models=["anthropic/claude-sonnet-5", "openai/gpt-5.1", "openai/gpt-5"],
+            temperature=0.9,
+            max_tokens=4096,
         ),
     }
     max_retries: int = 3
@@ -119,6 +126,7 @@ class Settings(BaseSettings):
 
     models: dict[str, ModelSpec] = {
         "qwen": ModelSpec(id="Qwen/Qwen3.5-4B", family="qwen", quant="nf4"),
+        "qwen2b": ModelSpec(id="Qwen/Qwen3.5-2B", family="qwen", quant="bf16"),
         "gemma": ModelSpec(id="google/gemma-4-E4B-it", family="gemma", quant="nf4"),
         "llama": ModelSpec(id="meta-llama/Llama-3.2-3B-Instruct", family="llama", quant="bf16"),
         "tiny": ModelSpec(id="Qwen/Qwen3.5-0.8B", family="qwen", quant="bf16"),
