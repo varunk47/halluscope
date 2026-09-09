@@ -7,6 +7,10 @@ from fastapi.testclient import TestClient
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setenv("HALLUSCOPE_PATHS__RESULTS_DIR", str(tmp_path / "results"))
+    # Pin the data dir at an empty tmp tree so the item routes fall back to the
+    # read-only seeds. Without this the tests read whatever dataset the developer
+    # last built, and the PATCH case below would write to it.
+    monkeypatch.setenv("HALLUSCOPE_PATHS__DATA_DIR", str(tmp_path / "data"))
     (tmp_path / "results").mkdir()
     (tmp_path / "results" / "probe_qwen_gap_last.json").write_text(
         json.dumps(
