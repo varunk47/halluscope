@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink text-text font-sans antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  background-image:
+    radial-gradient(1200px 500px at 15% -10%, rgba(34, 211, 238, 0.06), transparent 60%),
+    radial-gradient(900px 400px at 95% 0%, rgba(249, 115, 22, 0.05), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Fine graph-paper texture, very low contrast, keeps the instrument feel. */
+.grid-texture {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.25);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3642 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2a3642;
+  border-radius: 8px;
+}
+
+@layer components {
+  .label {
+    @apply text-[11px] uppercase tracking-[0.14em] text-muted font-medium;
+  }
+  .page-title {
+    @apply text-[22px] font-semibold tracking-tight text-text;
+  }
+  .panel {
+    @apply bg-panel border border-line rounded-lg shadow-panel;
+  }
+  .mono {
+    @apply font-mono tabular-nums;
+  }
+  .input {
+    @apply bg-ink border border-line rounded-md px-3 py-2 text-[13px] text-text placeholder:text-dim
+      outline-none transition focus:border-safe/60 focus:shadow-glow;
+  }
+  .select {
+    @apply input appearance-none pr-8 bg-no-repeat;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%238b98a5' stroke-width='1.5'/></svg>");
+    background-position: right 10px center;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-[13px] font-medium
+      transition select-none disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-safe/10 border-safe/40 text-safe hover:bg-safe/20 hover:border-safe/70 active:bg-safe/25;
+  }
+  .btn-risk {
+    @apply btn bg-risk/10 border-risk/40 text-risk hover:bg-risk/20 hover:border-risk/70 active:bg-risk/25;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent border-line text-muted hover:text-text hover:border-line-2 active:bg-panel-2;
+  }
+  .btn-xs {
+    @apply px-2 py-0.5 text-[11px];
+  }
+  .kbd {
+    @apply mono inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded border border-line-2
+      bg-ink text-[10px] text-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium leading-4;
+  }
+}
+
+.recharts-cartesian-grid line {
+  stroke: #1f2933;
+}
+.recharts-tooltip-cursor {
+  fill: rgba(255, 255, 255, 0.04);
+}

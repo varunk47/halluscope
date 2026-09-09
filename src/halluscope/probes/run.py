@@ -92,11 +92,17 @@ def run_probe(
     out_dir: Path = Path("results"),
     probes: tuple[str, ...] = ("linear", "massmean", "mlp"),
     loto: bool = True,
+    exclude_seeds: bool = False,
+    tag: str = "",
 ) -> Path:
     cfg = get_settings()
     spec = cfg.model_spec(model_key)
     cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
     items = approved(load_items(items_path))
+    if exclude_seeds:
+        # hand-written seeds are not length-matched across variants; the augmented
+        # set is, so the cleaner experiment uses augmented items only
+        items = [i for i in items if i.source != "seed"]
     have = {iid for iid, _ in cache.list_items(spec.id)}
     items = [i for i in items if i.id in have]
     if not items:
@@ -120,6 +126,8 @@ def run_probe(
         "model_key": model_key,
         "target": target,
         "pooling": pooling,
+        "exclude_seeds": exclude_seeds,
+        "n_items": len(items),
         "n_layers": n_layers,
         "split_sizes": {"train": len(tr), "val": len(va), "test": len(te)},
         "positive_rate_test": float(np.mean(y_te)),
@@ -142,6 +150,18 @@ def run_probe(
         d = res.to_dict()
         d["test_prob"] = res.test_prob
         d["test_ids"] = [i.id for i in te]
+        # The single-turn pair (a vs b) and the multi-turn pair (c vs d) are different
+        # questions; c vs d is only answerable from context, so report them apart.
+        d["by_pair"] = {}
+        probs = np.array(res.test_prob)
+        for pair_name, variants in (("single_turn_ab", ("a", "b")), ("multi_turn_cd", ("c", "d"))):
+            mask = np.array([i.variant in variants for i in te])
+            if mask.sum() >= 8 and len(np.unique(y_te[mask])) == 2:
+                from halluscope.eval.metrics import evaluate_scores
+
+                d["by_pair"][pair_name] = evaluate_scores(
+                    y_te[mask], probs[mask], prob=probs[mask], n_bootstrap=cfg.probe.n_bootstrap
+                ).to_dict()
         out["probes"][name] = d
 
     out["baselines"]["tfidf_dialogue"] = tfidf_baseline(
@@ -174,7 +194,8 @@ def run_probe(
             out["loto"][topic] = res.test.to_dict()
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"probe_{model_key}_{target}_{pooling}.json"
+    suffix = f"_{tag}" if tag else ("_noseeds" if exclude_seeds else "")
+    path = out_dir / f"probe_{model_key}_{target}_{pooling}{suffix}.json"
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)
     return path

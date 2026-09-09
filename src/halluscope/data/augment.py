@@ -32,6 +32,7 @@ FIELDS = (
     "fill",
     "final",
     "contradiction",
+    "update",
 )
 
 
@@ -47,12 +48,19 @@ def augment_prompt(spec: FamilySpec, k: int) -> list[dict[str, str]]:
                 "relationships, but different wording, different concrete numbers, different "
                 "tool or model names where sensible, and a plausible different product context. "
                 "Rules: the 'specified' field must contain every detail needed to act; the "
-                "'underspecified' field must omit exactly the kind of details described in 'gap'; "
-                "'fill' must supply those details in prose; 'final' is a short follow-up "
-                "instruction that alone would be underspecified; 'contradiction' must directly "
-                "conflict with something in 'fill' while insisting the earlier plan also holds. "
-                "Stay strictly within AI, LLM, and machine learning engineering. Never mention "
-                "physics, mechanics, materials, or simulation. No em dashes."
+                "'underspecified' field must omit exactly the kind of details described in 'gap' "
+                "but must be about the same length as 'specified' and contain about as many "
+                "concrete numbers, names, and tool mentions, spent on other legitimate details "
+                "(context, constraints, deadlines, file names) so that length or number count "
+                "cannot reveal which one is underspecified; 'fill' must supply the gap details in "
+                "prose; 'final' is a short follow-up instruction that alone would be "
+                "underspecified; 'contradiction' must directly conflict with something in 'fill' "
+                "while insisting the earlier plan also holds; 'update' must be a compatible extra "
+                "instruction that does not conflict with anything, written in the same shape, "
+                "opener style, and length as 'contradiction' (for example both begin with "
+                "'Also,' or 'One change:'). Stay strictly within AI, LLM, and machine learning "
+                "engineering. Never mention physics, mechanics, materials, or simulation. "
+                "No em dashes."
             ),
         },
         {

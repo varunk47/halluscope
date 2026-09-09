@@ -17,12 +17,23 @@ from halluscope.data.schema import Family, Item
 
 
 def load_seed_specs(seeds_dir: Path | str) -> list[FamilySpec]:
+    """Topic files hold the nine hand-written fields; ``_updates.json`` holds the
+    compatible-update sentence per family (kept separate so it is easy to audit)."""
     seeds_dir = Path(seeds_dir)
+    updates: dict[str, str] = {}
+    upd_path = seeds_dir / "_updates.json"
+    if upd_path.exists():
+        with open(upd_path, encoding="utf-8") as fh:
+            updates = json.load(fh)
     specs: list[FamilySpec] = []
     for path in sorted(seeds_dir.glob("*.json")):
+        if path.name.startswith("_"):
+            continue
         with open(path, encoding="utf-8") as fh:
             payload = json.load(fh)
         for raw in payload:
+            if "update" not in raw:
+                raw = {**raw, "update": updates.get(raw["family"], "")}
             specs.append(FamilySpec.model_validate(raw))
     return specs
 

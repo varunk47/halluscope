@@ -1,0 +1,270 @@
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ErrorBar,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ZAxis,
+} from "recharts";
+import { fmt, type Metric, type ProbeFull, type ResultSummary } from "../../api";
+import { Panel, SectionLabel, Spinner, Stat } from "../Primitives";
+import { AXIS, C, ChartFrame, GRID, makeTooltip } from "../charts/theme";
+import { EmptyChart } from "../charts/TurnTrajectory";
+
+const PROBE_ORDER = ["linear", "massmean", "mlp"];
+const BASELINE_ORDER = ["tfidf_dialogue", "tfidf_final_turn", "length"];
+
+function ordered<T>(obj: Record<string, T> | undefined, order: string[]): [string, T][] {
+  if (!obj) return [];
+  const keys = Object.keys(obj).sort((a, b) => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b);
+  });
+  return keys.map((k) => [k, obj[k]]);
+}
+
+export default function ProbeView({ summary, full }: { summary: ResultSummary; full: ProbeFull | null }) {
+  const probes = ordered(summary.probes, PROBE_ORDER);
+  const baselines = ordered(summary.baselines, BASELINE_ORDER);
+  const linear = full?.probes?.linear;
+  const bestTest = probes.reduce<number>((m, [, p]) => Math.max(m, p.test?.auroc ?? 0), 0);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <div className="flex flex-wrap gap-x-10 gap-y-3">
+          <Stat label="model" value={<span className="text-[14px]">{summary.model ?? "n/a"}</span>} />
+          <Stat label="target" value={summary.target ?? "n/a"} />
+          <Stat label="pooling" value={summary.pooling ?? "n/a"} />
+          <Stat label="layers" value={summary.n_layers ?? "n/a"} />
+          {summary.split_sizes && (
+            <Stat
+              label="split"
+              value={Object.entries(summary.split_sizes)
+                .map(([k, v]) => `${k[0]}${v}`)
+                .join(" / ")}
+              hint="train / val / test"
+            />
+          )}
+          <Stat label="best test AUROC" value={bestTest ? bestTest.toFixed(3) : "n/a"} tone="safe" />
+        </div>
+      </Panel>
+
+      <Panel padded={false}>
+        <div className="px-5 pt-4">
+          <SectionLabel right="test split, bootstrap 95% CI">probes and baselines</SectionLabel>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-[12.5px]">
+            <thead>
+              <tr className="label border-b border-line">
+                <th className="text-left font-medium px-5 py-2">probe</th>
+                <th className="text-right font-medium px-3 py-2">layer</th>
+                <th className="text-right font-medium px-3 py-2">AUROC [CI]</th>
+                <th className="text-right font-medium px-3 py-2">AUPRC</th>
+                <th className="text-right font-medium px-3 py-2">acc</th>
+                <th className="text-right font-medium px-3 py-2 pr-5">ECE</th>
+              </tr>
+            </thead>
+            <tbody className="mono">
+              {probes.map(([name, p]) => (
+                <MetricRow key={name} name={name} layer={p.best_layer} m={p.test} highlight={p.test?.auroc === bestTest} />
+              ))}
+              {baselines.map(([name, m]) => (
+                <MetricRow key={name} name={name} m={m} muted />
+              ))}
+              {probes.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-4 text-dim">
+                    no probes in this result
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+
+      {!full ? (
+        <Panel>
+          <Spinner label="loading full result" />
+        </Panel>
+      ) : (
+        <>
+          <Panel>
+            <LayerSweep
+              val={linear?.per_layer_val_auroc}
+              test={linear?.per_layer_test_auroc}
+              best={linear?.best_layer ?? null}
+            />
+          </Panel>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Panel>
+              <ReliabilityDiagram rel={linear?.test?.reliability} ece={linear?.test?.ece} />
+            </Panel>
+            <Panel>
+              <Loto loto={full.loto ?? summary.loto} />
+            </Panel>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function MetricRow({
+  name,
+  layer,
+  m,
+  muted = false,
+  highlight = false,
+}: {
+  name: string;
+  layer?: number;
+  m: Metric | undefined;
+  muted?: boolean;
+  highlight?: boolean;
+}) {
+  return (
+    <tr className={`border-b border-line/60 last:border-b-0 ${muted ? "text-muted" : "text-text"}`}>
+      <td className="px-5 py-2 font-sans">
+        <span className={highlight ? "text-safe" : ""}>{name.replace(/_/g, " ")}</span>
+        {muted && <span className="ml-2 text-[10px] uppercase tracking-wider text-dim">baseline</span>}
+      </td>
+      <td className="text-right px-3 py-2">{layer ?? "-"}</td>
+      <td className="text-right px-3 py-2">{fmt.ci(m)}</td>
+      <td className="text-right px-3 py-2">{fmt.num(m?.auprc)}</td>
+      <td className="text-right px-3 py-2">{fmt.num(m?.accuracy)}</td>
+      <td className="text-right px-3 py-2 pr-5">{fmt.num(m?.ece)}</td>
+    </tr>
+  );
+}
+
+const SweepTip = makeTooltip((_n, v) => Number(v).toFixed(3), (l) => `layer ${String(l)}`);
+
+function LayerSweep({
+  val,
+  test,
+  best,
+}: {
+  val?: Record<string, number>;
+  test?: Record<string, number>;
+  best: number | null;
+}) {
+  const layers = new Set<number>();
+  Object.keys(val ?? {}).forEach((k) => layers.add(Number(k)));
+  Object.keys(test ?? {}).forEach((k) => layers.add(Number(k)));
+  const data = [...layers]
+    .sort((a, b) => a - b)
+    .map((l) => ({ layer: l, val: val?.[String(l)], test: test?.[String(l)] }));
+  return (
+    <ChartFrame title="layer sweep, linear probe AUROC" right={best !== null ? `best L${best}` : undefined} height={220}>
+      {data.length === 0 ? (
+        <EmptyChart text="no per-layer AUROC in this result" />
+      ) : (
+        <ResponsiveContainer>
+          <LineChart data={data} margin={{ top: 8, right: 12, left: -14, bottom: 0 }}>
+            <CartesianGrid {...GRID} />
+            <XAxis dataKey="layer" {...AXIS} interval="preserveStartEnd" />
+            <YAxis domain={[0.4, 1]} ticks={[0.5, 0.6, 0.7, 0.8, 0.9, 1]} {...AXIS} />
+            <Tooltip content={<SweepTip />} />
+            <ReferenceLine y={0.5} stroke={C.dim} strokeDasharray="3 3" />
+            {best !== null && <ReferenceLine x={best} stroke={C.text} strokeOpacity={0.35} />}
+            <Line type="monotone" dataKey="val" name="validation" stroke={C.safe} strokeWidth={2} dot={false} isAnimationActive={false} />
+            <Line
+              type="monotone"
+              dataKey="test"
+              name="test"
+              stroke={C.risk}
+              strokeWidth={1.5}
+              strokeDasharray="5 4"
+              dot={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
+    </ChartFrame>
+  );
+}
+
+const RelTip = makeTooltip(
+  (n, v, p) => (n === "accuracy" ? `${Number(v).toFixed(3)}  (n=${String(p?.count ?? "?")})` : Number(v).toFixed(3)),
+  (l) => `confidence ${Number(l).toFixed(2)}`,
+);
+
+function ReliabilityDiagram({ rel, ece }: { rel?: { confidence: number[]; accuracy: number[]; count: number[] }; ece?: number }) {
+  const data = rel
+    ? rel.confidence.map((c, i) => ({ confidence: c, accuracy: rel.accuracy[i], count: rel.count[i] ?? 0 }))
+    : [];
+  const maxCount = Math.max(1, ...data.map((d) => d.count));
+  return (
+    <ChartFrame title="reliability, linear probe" right={ece !== undefined ? `ECE ${ece.toFixed(3)}` : undefined} height={220}>
+      {data.length === 0 ? (
+        <EmptyChart text="no reliability bins in this result" />
+      ) : (
+        <ResponsiveContainer>
+          <ScatterChart margin={{ top: 8, right: 12, left: -14, bottom: 0 }}>
+            <CartesianGrid {...GRID} vertical />
+            <XAxis dataKey="confidence" type="number" domain={[0, 1]} ticks={[0, 0.5, 1]} {...AXIS} name="confidence" />
+            <YAxis dataKey="accuracy" type="number" domain={[0, 1]} ticks={[0, 0.5, 1]} {...AXIS} name="accuracy" />
+            <ZAxis dataKey="count" range={[30, 30 + 220 * Math.min(1, 8 / maxCount)]} />
+            <Tooltip content={<RelTip />} cursor={{ strokeDasharray: "3 3", stroke: C.line2 }} />
+            <ReferenceLine segment={[{ x: 0, y: 0 }, { x: 1, y: 1 }]} stroke={C.dim} strokeDasharray="3 3" />
+            <Scatter data={data} name="accuracy" fill={C.safe} line={{ stroke: C.safe, strokeWidth: 1.5 }} isAnimationActive={false} />
+          </ScatterChart>
+        </ResponsiveContainer>
+      )}
+    </ChartFrame>
+  );
+}
+
+const LotoTip = makeTooltip(
+  (_n, v, p) => `${Number(v).toFixed(3)} [${Number(p?.lo).toFixed(2)}, ${Number(p?.hi).toFixed(2)}]`,
+  (l) => `held out ${String(l)}`,
+);
+
+function Loto({ loto }: { loto?: Record<string, { auroc: number; auroc_lo: number; auroc_hi: number }> }) {
+  const data = Object.entries(loto ?? {})
+    .map(([topic, v]) => ({
+      topic,
+      auroc: v.auroc,
+      lo: v.auroc_lo,
+      hi: v.auroc_hi,
+      err: [Math.max(0, v.auroc - v.auroc_lo), Math.max(0, v.auroc_hi - v.auroc)],
+    }))
+    .sort((a, b) => b.auroc - a.auroc);
+  return (
+    <ChartFrame title="leave-one-topic-out AUROC" right={data.length ? `${data.length} topics` : undefined} height={220}>
+      {data.length === 0 ? (
+        <EmptyChart text="no leave-one-topic-out sweep in this result" />
+      ) : (
+        <ResponsiveContainer>
+          <BarChart data={data} margin={{ top: 8, right: 12, left: -14, bottom: 0 }} barCategoryGap="30%">
+            <CartesianGrid {...GRID} />
+            <XAxis dataKey="topic" {...AXIS} interval={0} tick={{ ...AXIS.tick, fontSize: 10 }} />
+            <YAxis domain={[0.4, 1]} ticks={[0.5, 0.75, 1]} {...AXIS} />
+            <Tooltip content={<LotoTip />} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+            <ReferenceLine y={0.5} stroke={C.dim} strokeDasharray="3 3" />
+            <Bar dataKey="auroc" name="auroc" radius={[2, 2, 0, 0]} isAnimationActive={false}>
+              {data.map((d) => (
+                <Cell key={d.topic} fill={d.auroc >= 0.75 ? C.safe : d.auroc >= 0.6 ? C.risk : C.riskHot} fillOpacity={0.8} />
+              ))}
+              <ErrorBar dataKey="err" width={4} strokeWidth={1.2} stroke={C.text} direction="y" />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </ChartFrame>
+  );
+}

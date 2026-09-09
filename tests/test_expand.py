@@ -14,6 +14,7 @@ def _spec():
         fill="We use bge-m3, cosine, 512 chunks, top 8.",
         final="Write the code.",
         contradiction="We cannot run embeddings anymore.",
+        update="Also, log every query to a file.",
     )
 
 
@@ -29,7 +30,8 @@ def test_expand_produces_four_valid_variants():
     assert (
         by_v["d"].label == "inconsistent" and by_v["d"].reference_specified_variant == "rag-9999-c"
     )
-    assert by_v["c"].turns[-1].content == by_v["d"].turns[-1].content.split(" ", 1)[1] or True
+    assert by_v["c"].turns[-1].content == "Also, log every query to a file. Write the code."
+    assert by_v["d"].turns[-1].content == "We cannot run embeddings anymore. Write the code."
 
 
 def test_variant_c_and_d_share_first_turn_and_ack_is_neutral():

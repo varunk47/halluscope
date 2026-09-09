@@ -36,6 +36,10 @@ class FamilySpec(BaseModel):
     fill: str = Field(min_length=1)
     final: str = Field(min_length=1)
     contradiction: str = Field(min_length=1)
+    # A compatible extra instruction of the same shape as ``contradiction``. Variant c
+    # carries it so c and d differ only in whether the added sentence conflicts with
+    # the earlier turn, not in length or surface form.
+    update: str = Field(min_length=1)
 
 
 def _ack(family: str, salt: str) -> str:
@@ -78,7 +82,7 @@ def expand(spec: FamilySpec) -> Family:
         turns=[
             Turn(role="user", content=f"{spec.setup} {spec.fill}"),
             Turn(role="assistant", content=_ack(f, "c")),
-            Turn(role="user", content=spec.final),
+            Turn(role="user", content=f"{spec.update} {spec.final}"),
         ],
         source="seed",
         review_status="approved",

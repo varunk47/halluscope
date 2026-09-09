@@ -21,6 +21,7 @@ def _spec():
         fill="We use bge-m3, cosine, 512 chunks, top 8.",
         final="Write the code.",
         contradiction="We cannot run embeddings anymore.",
+        update="Also, log every query to a file.",
     )
 
 

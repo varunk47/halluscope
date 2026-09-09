@@ -38,6 +38,16 @@ def test_seeds_contain_no_computational_science_vocabulary():
     assert not hits, hits
 
 
+def test_every_seed_family_has_a_compatible_update_sentence():
+    fams = load_seed_families(SEEDS)
+    for f in fams:
+        by_v = {it.variant: it for it in f.items}
+        c_final, d_final = by_v["c"].turns[-1].content, by_v["d"].turns[-1].content
+        assert len(c_final) > 40, f"{f.family}: variant c has no update sentence"
+        # c and d must end with the same instruction and differ only in the added sentence
+        assert c_final.split(". ")[-1] == d_final.split(". ")[-1]
+
+
 def test_variant_c_and_d_share_context_with_gap_filled_early():
     fams = load_seed_families(SEEDS)
     for f in fams:

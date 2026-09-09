@@ -54,11 +54,21 @@ def probe(
     target: str = typer.Option("gap", help="gap | will_assume | will_ask"),
     pooling: str = typer.Option("last"),
     out: Path = typer.Option(Path("results")),
+    exclude_seeds: bool = typer.Option(False, help="Use augmented (length-matched) items only"),
+    tag: str = typer.Option("", help="Suffix for the results file name"),
 ) -> None:
     """Layer sweep with grouped splits, nested layer selection, bootstrap intervals."""
     from halluscope.probes.run import run_probe
 
-    path = run_probe(model_key=model, items_path=items, target=target, pooling=pooling, out_dir=out)
+    path = run_probe(
+        model_key=model,
+        items_path=items,
+        target=target,
+        pooling=pooling,
+        out_dir=out,
+        exclude_seeds=exclude_seeds,
+        tag=tag,
+    )
     console.print(f"wrote {path}")
 
 
