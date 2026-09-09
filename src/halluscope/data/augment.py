@@ -120,6 +120,7 @@ def build_dataset(
     n_paraphrases: int = 3,
     limit: int | None = None,
     client: JudgeClient | None = None,
+    workers: int = 4,
 ) -> int:
     from halluscope.config import get_settings
 
@@ -131,10 +132,18 @@ def build_dataset(
     items: list[Item] = []
     for spec in specs:
         items.extend(expand(spec).items)
-        if n_paraphrases > 0:
-            items.extend(
-                augment_family(client, spec, n_paraphrases=n_paraphrases, seed=cfg.split.seed)
-            )
+    if n_paraphrases > 0:
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futures = [
+                ex.submit(
+                    augment_family, client, spec, n_paraphrases=n_paraphrases, seed=cfg.split.seed
+                )
+                for spec in specs
+            ]
+            for fut in futures:
+                items.extend(fut.result())
     n = save_items(items, out_path)
     log.info("wrote %d items; %s", n, client.cost_summary())
     return n

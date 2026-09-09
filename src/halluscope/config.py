@@ -61,9 +61,10 @@ class GenCfg(BaseModel):
 
 
 class UQCfg(BaseModel):
-    K: int = 8
+    K: int = 6
     seed: int = 0
-    gen: GenCfg = GenCfg()
+    sampling_limit: int = 96  # items that get the K-sample methods (slow on a laptop GPU)
+    gen: GenCfg = GenCfg(max_new_tokens=160)
     methods: list[str] = [
         "predictive_entropy",
         "semantic_entropy",

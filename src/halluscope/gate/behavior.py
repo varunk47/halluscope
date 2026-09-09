@@ -41,6 +41,7 @@ def run_behavior(
     client: JudgeClient | None = None,
     second_judge: bool = True,
     limit: int | None = None,
+    batch_size: int = 8,
 ) -> Path:
     cfg = get_settings()
     spec = cfg.model_spec(model_key)
@@ -58,8 +59,22 @@ def run_behavior(
 
     todo = [i for i in items if i.id not in done]
     loaded = load_model(spec) if todo else None
-    for it in track(todo, description=f"behavior {model_key}"):
-        answer = answer_item(loaded, it, max_new_tokens=cfg.uq.gen.max_new_tokens)
+    from halluscope.models.chat import generate_batch
+
+    answers: dict[str, str] = {}
+    for start in track(range(0, len(todo), batch_size), description=f"generate {model_key}"):
+        chunk = todo[start : start + batch_size]
+        gens = generate_batch(
+            loaded,
+            [i.turns for i in chunk],
+            max_new_tokens=cfg.uq.gen.max_new_tokens,
+            temperature=0.0,
+            batch_size=batch_size,
+        )
+        for it, g in zip(chunk, gens, strict=True):
+            answers[it.id] = g.text
+    for it in track(todo, description=f"judge {model_key}"):
+        answer = answers[it.id]
         v1 = judge_answer(client, it, answer, "judge_primary")
         row = {
             "item_id": it.id,

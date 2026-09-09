@@ -78,6 +78,20 @@ def _usage(resp: Any) -> tuple[int, int]:
     return int(getattr(u, "prompt_tokens", 0) or 0), int(getattr(u, "completion_tokens", 0) or 0)
 
 
+def _is_permanent(e: Exception) -> bool:
+    """Missing key, bad key, or unknown model: retrying the same model is pointless."""
+    name = type(e).__name__.lower()
+    msg = str(e).lower()
+    return (
+        "authentication" in name
+        or "notfound" in name
+        or "api key" in msg
+        or "api_key" in msg
+        or "does not exist" in msg
+        or "model_not_found" in msg
+    )
+
+
 class JudgeClient:
     def __init__(
         self,
@@ -90,6 +104,7 @@ class JudgeClient:
         self._completion = completion_fn or _default_completion()
         self._spent = 0.0
         self._calls = 0
+        self._dead_models: set[str] = set()  # no key / not found: skip for the session
 
     # ---- raw text ---------------------------------------------------------------------
     def text(
@@ -108,6 +123,8 @@ class JudgeClient:
         mt = acfg.max_tokens if max_tokens is None else max_tokens
         last_err: Exception | None = None
         for model in acfg.models:
+            if model in self._dead_models:
+                continue
             for attempt in range(self.cfg.max_retries):
                 t0 = time.time()
                 try:
@@ -128,6 +145,9 @@ class JudgeClient:
                     self._log(
                         alias, model, None, time.time() - t0, tag, ok=False, error=str(e)[:200]
                     )
+                    if _is_permanent(e):
+                        self._dead_models.add(model)
+                        break
                     time.sleep(min(2.0 * (attempt + 1), 6.0))
         raise JudgeError(f"all models failed for alias {alias!r}: {last_err}")
 

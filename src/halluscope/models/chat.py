@@ -97,3 +97,46 @@ def generate(
         text = tok.decode(kept, skip_special_tokens=True).strip()
         gens.append(Generation(text=text, token_ids=kept, logprobs=lps))
     return gens
+
+
+@torch.no_grad()
+def generate_batch(
+    loaded: LoadedModel,
+    dialogues: list[list[Turn]],
+    max_new_tokens: int = 256,
+    temperature: float = 0.0,
+    top_p: float = 0.95,
+    batch_size: int = 8,
+    system: str | None = SYSTEM_PROMPT,
+) -> list[Generation]:
+    """One generation per dialogue, batched with left padding. No logprobs."""
+    tok = loaded.tokenizer
+    tok.padding_side = "left"
+    out_all: list[Generation] = []
+    do_sample = temperature > 0
+    for i in range(0, len(dialogues), batch_size):
+        chunk = dialogues[i : i + batch_size]
+        prompts = [render_chat(tok, t, system=system) for t in chunk]
+        enc = tok(prompts, return_tensors="pt", padding=True, add_special_tokens=False).to(
+            loaded.device
+        )
+        out = loaded.model.generate(
+            **enc,
+            max_new_tokens=max_new_tokens,
+            do_sample=do_sample,
+            temperature=temperature if do_sample else None,
+            top_p=top_p if do_sample else None,
+            pad_token_id=tok.pad_token_id,
+        )
+        prompt_len = enc["input_ids"].shape[1]
+        for row in out[:, prompt_len:]:
+            ids = row.tolist()
+            kept: list[int] = []
+            for tid in ids:
+                if tid == tok.pad_token_id or tid == tok.eos_token_id:
+                    break
+                kept.append(tid)
+            out_all.append(
+                Generation(text=tok.decode(kept, skip_special_tokens=True).strip(), token_ids=kept)
+            )
+    return out_all

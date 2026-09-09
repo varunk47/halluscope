@@ -8,7 +8,7 @@ def test_defaults_have_primary_qwen():
     assert s.primary_model == "qwen"
     assert s.model_spec().id == "Qwen/Qwen3.5-4B"
     assert s.model_spec().quant == "nf4"
-    assert s.uq.K == 8
+    assert s.uq.K == 6
 
 
 def test_yaml_override(tmp_path: Path):

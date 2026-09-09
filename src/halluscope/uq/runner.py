@@ -190,9 +190,17 @@ def run_uq(
         with open(path, encoding="utf-8") as fh:
             rows = {r["item_id"]: r for r in json.load(fh)["rows"]}
 
-    for it in track([i for i in items if i.id not in rows], description=f"uq {model_key} {split}"):
+    sampling_methods = {"semantic_entropy", "eigenscore"}
+    todo = [i for i in items if i.id not in rows]
+    for idx, it in enumerate(track(todo, description=f"uq {model_key} {split}")):
+        # K-sample methods are slow on a laptop GPU: run them on the first sampling_limit items
+        m = (
+            methods
+            if idx < cfg.uq.sampling_limit
+            else [x for x in methods if x not in sampling_methods]
+        )
         scores = score_item(
-            loaded, it, client, methods, cfg.uq.K, cfg.uq.seed, cfg.uq.gen.max_new_tokens, mid
+            loaded, it, client, m, cfg.uq.K, cfg.uq.seed, cfg.uq.gen.max_new_tokens, mid
         )
         rows[it.id] = {
             "item_id": it.id,

@@ -11,7 +11,8 @@ probe:
   seed: 0
 
 uq:
-  K: 8
+  K: 6
+  sampling_limit: 96
 
 gate:
   alpha: 0.10
