@@ -111,6 +111,11 @@ class GateCfg(BaseModel):
     max_rounds: int = 2
 
 
+class ReviewCfg(BaseModel):
+    require_human_approval: bool = False  # True: only human-approved items enter experiments
+    auto_verify: bool = True  # LLM verification pass marks structurally broken families rejected
+
+
 class SplitCfg(BaseModel):
     fractions: tuple[float, float, float] = (0.6, 0.15, 0.25)
     seed: int = 0
@@ -140,6 +145,7 @@ class Settings(BaseSettings):
     judge: JudgeCfg = JudgeCfg()
     gate: GateCfg = GateCfg()
     split: SplitCfg = SplitCfg()
+    review: ReviewCfg = ReviewCfg()
     cache_dir: Path | None = Field(default=None, description="Overrides paths.cache_dir")
 
     def resolved_cache_dir(self) -> Path:

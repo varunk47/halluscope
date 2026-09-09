@@ -35,6 +35,20 @@ def build_data(
 
 
 @app.command()
+def verify(
+    items: Path = typer.Option(Path("data/augmented/items.jsonl")),
+    report: Path = typer.Option(Path("results/verify_report.json")),
+) -> None:
+    """LLM verification pass: reject augmented families whose variants do not match their labels."""
+    from halluscope.data.verify import run_verify
+
+    r = run_verify(items, out_report=report)
+    console.print(
+        f"checked {r['families_checked']} families, rejected {r['families_rejected']}; {r['cost']}"
+    )
+
+
+@app.command()
 def capture(
     model: str = typer.Option("qwen", help="Model key from config"),
     items: Path = typer.Option(Path("data/augmented/items.jsonl")),

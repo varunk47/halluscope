@@ -70,5 +70,24 @@ def save_items(items: Iterable[Item], path: Path | str) -> int:
     return n
 
 
-def approved(items: Iterable[Item]) -> list[Item]:
-    return [it for it in items if it.review_status in ("approved", "edited")]
+def approved(items: Iterable[Item], require_human: bool | None = None) -> list[Item]:
+    """Items usable for experiments.
+
+    With ``require_human`` (default from ``settings.review.require_human_approval``)
+    only human-approved or human-edited items pass. Otherwise anything not
+    rejected passes, and the results record how many were human-approved.
+    """
+    if require_human is None:
+        from halluscope.config import get_settings
+
+        require_human = get_settings().review.require_human_approval
+    if require_human:
+        return [it for it in items if it.review_status in ("approved", "edited")]
+    return [it for it in items if it.review_status != "rejected"]
+
+
+def review_counts(items: Iterable[Item]) -> dict[str, int]:
+    out = {"approved": 0, "edited": 0, "pending": 0, "rejected": 0}
+    for it in items:
+        out[it.review_status] = out.get(it.review_status, 0) + 1
+    return out
