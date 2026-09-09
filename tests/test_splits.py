@@ -52,6 +52,14 @@ def test_grouped_split_is_deterministic():
     assert [i.id for i in a["test"]] == [i.id for i in b["test"]]
 
 
+def test_zero_test_fraction_gives_empty_test_split():
+    items = _fake_items(4, 1)
+    splits = grouped_split(items, seed=0, fractions=(0.8, 0.2, 0.0))
+    assert splits["test"] == []
+    assert len(splits["val"]) > 0 and len(splits["train"]) > 0
+    assert_no_leakage(splits)
+
+
 def test_leave_one_topic_out_yields_every_topic():
     items = _fake_items(2, 0)
     folds = list(leave_one_topic_out(items))

@@ -46,10 +46,18 @@ def grouped_split(
         n = len(roots)
         n_train = int(round(fractions[0] * n))
         n_val = int(round(fractions[1] * n))
-        # guarantee at least one root per split when the topic has three or more roots
-        if n >= 3:
-            n_train = max(1, min(n_train, n - 2))
-            n_val = max(1, min(n_val, n - n_train - 1))
+        # guarantee at least one root per split that has a nonzero fraction
+        wants_val = fractions[1] > 0
+        wants_test = fractions[2] > 0
+        reserve = int(wants_val) + int(wants_test)
+        if n > reserve:
+            n_train = max(1, min(n_train, n - reserve))
+            if wants_val:
+                n_val = max(1, min(n_val, n - n_train - int(wants_test)))
+            else:
+                n_val = 0
+            if not wants_test:
+                n_val = n - n_train
         for i, root in enumerate(roots):
             if i < n_train:
                 assignment[root] = "train"
