@@ -8,6 +8,7 @@ nf4 through bitsandbytes; 3B and smaller load in bf16.
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -104,6 +105,40 @@ def load_model(
     tokenizer.padding_side = "left"
 
     cls, cfg = _causal_lm_class(source)
+
+    # Windows: avoid transformers' whole-shard reads by streaming tensors ourselves.
+    stream = (
+        os.environ.get("HALLUSCOPE_STREAM_LOAD", "1" if sys.platform == "win32" else "0") == "1"
+    )
+    if stream and not from_quantized_dir and use_cuda:
+        from huggingface_hub import snapshot_download
+
+        from halluscope.models.streaming import load_streaming, shard_files
+
+        snap = Path(
+            snapshot_download(spec.id, token=token, allow_patterns=["*.safetensors", "*.json"])
+        )
+        dtype = (
+            torch.bfloat16
+            if spec.quant in ("bf16", "nf4")
+            else torch.float16
+            if spec.quant == "fp16"
+            else torch.float32
+        )
+        model = load_streaming(
+            cls, _text_config(cfg), shard_files(snap), device="cuda", dtype=dtype, quant=spec.quant
+        )
+        tcfg = _text_config(model.config)
+        loaded = LoadedModel(
+            model=model,
+            tokenizer=tokenizer,
+            spec=spec,
+            n_layers=int(tcfg.num_hidden_layers),
+            hidden=int(tcfg.hidden_size),
+        )
+        _LOADED[spec.id] = loaded
+        return loaded
+
     kwargs: dict = {"token": token}
     if from_quantized_dir:
         kwargs["device_map"] = "auto"

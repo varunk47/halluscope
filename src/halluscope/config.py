@@ -158,15 +158,26 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
     return out
 
 
+def _explicitly_set(model: BaseModel) -> dict[str, Any]:
+    """Only the fields pydantic saw as provided (env or init), recursively."""
+    out: dict[str, Any] = {}
+    for name in model.model_fields_set:
+        val = getattr(model, name)
+        out[name] = _explicitly_set(val) if isinstance(val, BaseModel) else val
+    return out
+
+
 def load_settings(
     overrides: dict[str, Any] | None = None,
     yaml_path: Path | str | None = None,
 ) -> Settings:
-    """Build settings from YAML, environment, then explicit overrides."""
+    """Precedence: explicit overrides > environment > YAML > defaults."""
     data: dict[str, Any] = {}
     if yaml_path is not None:
         with open(yaml_path, encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
+    env_only = _explicitly_set(Settings())
+    data = _deep_merge(data, env_only)
     if overrides:
         data = _deep_merge(data, overrides)
     return Settings(**data)

@@ -31,3 +31,12 @@ def test_env_override(monkeypatch):
     monkeypatch.setenv("HALLUSCOPE_CACHE_DIR", "somewhere/else")
     s = Settings()
     assert s.resolved_cache_dir() == Path("somewhere/else")
+
+
+def test_env_beats_yaml_for_nested_field(tmp_path: Path, monkeypatch):
+    y = tmp_path / "c.yaml"
+    y.write_text("paths:\n  results_dir: from_yaml\nuq:\n  K: 3\n", encoding="utf-8")
+    monkeypatch.setenv("HALLUSCOPE_PATHS__RESULTS_DIR", "from_env")
+    s = load_settings(yaml_path=y)
+    assert s.paths.results_dir == Path("from_env")
+    assert s.uq.K == 3  # untouched yaml value survives

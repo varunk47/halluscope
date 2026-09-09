@@ -52,10 +52,7 @@ def grouped_split(
         reserve = int(wants_val) + int(wants_test)
         if n > reserve:
             n_train = max(1, min(n_train, n - reserve))
-            if wants_val:
-                n_val = max(1, min(n_val, n - n_train - int(wants_test)))
-            else:
-                n_val = 0
+            n_val = max(1, min(n_val, n - n_train - int(wants_test))) if wants_val else 0
             if not wants_test:
                 n_val = n - n_train
         for i, root in enumerate(roots):
