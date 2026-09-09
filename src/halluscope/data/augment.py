@@ -89,7 +89,9 @@ def augment_family(
                     tag=f"augment:{spec.family}:p{k}:{attempt}",
                 )
                 new_spec = FamilySpec(
-                    family=f"{spec.family}-p{k}", topic=spec.topic, **raw.model_dump()
+                    family=f"{spec.family}-p{k}",
+                    topic=spec.topic,
+                    **raw.model_dump(exclude={"family", "topic"}),
                 )
                 break
             except (JudgeError, ValidationError) as e:

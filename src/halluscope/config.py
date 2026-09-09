@@ -11,8 +11,12 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Load .env before any Hugging Face import so HF_HOME points at the big disk.
+load_dotenv()
 
 Quant = Literal["nf4", "bf16", "fp16", "fp32"]
 Pooling = Literal["last", "mean_user"]
