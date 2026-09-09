@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from halluscope.capture.cache import ActivationCache
+from halluscope.capture.cache import ActivationCache, shas_for
 from halluscope.data.schema import Item
 from halluscope.eval.metrics import MetricsWithCI, evaluate_scores
 from halluscope.probes.linear import LinearProbe
@@ -47,8 +47,9 @@ def recipe_transfer(
     seed: int = 0,
 ) -> MetricsWithCI:
     t_idx = {i.id: i.n_user_turns for i in train + test}
-    Xtr = cache.matrix(model_id, [i.id for i in train], t_idx, layer, pooling)
-    Xte = cache.matrix(model_id, [i.id for i in test], t_idx, layer, pooling)
+    shas = shas_for(train + test)
+    Xtr = cache.matrix(model_id, [i.id for i in train], t_idx, layer, pooling, shas=shas)
+    Xte = cache.matrix(model_id, [i.id for i in test], t_idx, layer, pooling, shas=shas)
     p = LinearProbe(seed=seed).fit(Xtr, y_train)
     return evaluate_scores(
         y_test, p.decision(Xte), prob=p.predict_proba(Xte), n_bootstrap=n_bootstrap, seed=seed
@@ -65,7 +66,8 @@ def representation_similarity(
     pooling: str = "last",
 ) -> float:
     t_idx = {i.id: i.n_user_turns for i in items}
+    shas = shas_for(items)
     ids = [i.id for i in items]
-    A = cache.matrix(model_a, ids, t_idx, layer_a, pooling)
-    B = cache.matrix(model_b, ids, t_idx, layer_b, pooling)
+    A = cache.matrix(model_a, ids, t_idx, layer_a, pooling, shas=shas)
+    B = cache.matrix(model_b, ids, t_idx, layer_b, pooling, shas=shas)
     return linear_cka(A, B)

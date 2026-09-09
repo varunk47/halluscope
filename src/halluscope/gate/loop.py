@@ -181,7 +181,7 @@ def build_probe_gate(
     import pickle
 
     from halluscope.capture.activations import capture_prefix
-    from halluscope.capture.cache import ActivationCache
+    from halluscope.capture.cache import ActivationCache, CaptureKey, shas_for
     from halluscope.data.splits import grouped_split
     from halluscope.gate.conformal import conformal_threshold
     from halluscope.probes.linear import LinearProbe
@@ -194,15 +194,15 @@ def build_probe_gate(
     layer = int(res["probes"]["linear"]["best_layer"])
     cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
     items = approved(load_items(cfg.paths.data_dir / "augmented" / "items.jsonl"))
-    have = {iid for iid, _ in cache.list_items(spec.id)}
-    items = [i for i in items if i.id in have]
+    shas = shas_for(items)
+    items = [i for i in items if cache.has(CaptureKey(spec.id, i.id, i.n_user_turns, shas[i.id]))]
     splits = grouped_split(items, seed=cfg.split.seed, fractions=cfg.split.fractions)
     tr, va = splits["train"], splits["val"]
     t_idx = {i.id: i.n_user_turns for i in items}
-    Xtr = cache.matrix(spec.id, [i.id for i in tr], t_idx, layer, pooling)
+    Xtr = cache.matrix(spec.id, [i.id for i in tr], t_idx, layer, pooling, shas=shas)
     ytr = np.array([gap_label(i) for i in tr])
     probe = LinearProbe(seed=cfg.probe.seed).fit(Xtr, ytr)
-    Xva = cache.matrix(spec.id, [i.id for i in va], t_idx, layer, pooling)
+    Xva = cache.matrix(spec.id, [i.id for i in va], t_idx, layer, pooling, shas=shas)
     va_spec = np.array([i.label == "specified" for i in va])
     thr = conformal_threshold(probe.decision(Xva)[va_spec], alpha=alpha)
     loaded = load_model(spec)

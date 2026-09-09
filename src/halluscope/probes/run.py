@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from halluscope.capture.cache import ActivationCache
+from halluscope.capture.cache import ActivationCache, CaptureKey, content_sha
 from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item
@@ -72,13 +72,15 @@ def _source_factory(
     va: list[Item],
     te: list[Item],
 ):
-    t_all = _final_turn_index(tr + va + te)
+    items = tr + va + te
+    t_all = _final_turn_index(items)
+    shas = {i.id: content_sha(i.prefix(i.n_user_turns)) for i in items}
 
     def source(layer: int):
         return (
-            cache.matrix(model_id, [i.id for i in tr], t_all, layer, pooling),
-            cache.matrix(model_id, [i.id for i in va], t_all, layer, pooling),
-            cache.matrix(model_id, [i.id for i in te], t_all, layer, pooling),
+            cache.matrix(model_id, [i.id for i in tr], t_all, layer, pooling, shas=shas),
+            cache.matrix(model_id, [i.id for i in va], t_all, layer, pooling, shas=shas),
+            cache.matrix(model_id, [i.id for i in te], t_all, layer, pooling, shas=shas),
         )
 
     return source
@@ -103,8 +105,15 @@ def run_probe(
         # hand-written seeds are not length-matched across variants; the augmented
         # set is, so the cleaner experiment uses augmented items only
         items = [i for i in items if i.source != "seed"]
-    have = {iid for iid, _ in cache.list_items(spec.id)}
-    items = [i for i in items if i.id in have]
+    # Match on (id, final turn, content hash) so a stale build in the cache is
+    # simply absent rather than quietly standing in for the current text.
+    items = [
+        i
+        for i in items
+        if cache.has(
+            CaptureKey(spec.id, i.id, i.n_user_turns, content_sha(i.prefix(i.n_user_turns)))
+        )
+    ]
     if not items:
         raise RuntimeError(f"no cached activations for {spec.id}; run `halluscope capture` first")
 
@@ -145,7 +154,7 @@ def run_probe(
             probe_factory=lambda name=name: PROBES[name](seed=cfg.probe.seed),
             n_bootstrap=cfg.probe.n_bootstrap,
             seed=cfg.probe.seed,
-            record_test_curve=True,
+            record_test_curve=(name == "linear"),
         )
         d = res.to_dict()
         d["test_prob"] = res.test_prob

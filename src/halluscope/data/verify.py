@@ -116,11 +116,14 @@ def reapply(items_path: Path, report_path: Path) -> dict:
         if it.family not in verdicts:
             continue
         should = "rejected" if it.family in rejected else "pending"
-        if it.reviewed_by in (None, "llm-verify") and it.review_status in ("pending", "rejected"):
-            if it.review_status != should:
-                it.review_status = should
-                it.reviewed_by = "llm-verify" if should == "rejected" else None
-                changed += 1
+        if (
+            it.reviewed_by in (None, "llm-verify")
+            and it.review_status in ("pending", "rejected")
+            and it.review_status != should
+        ):
+            it.review_status = should
+            it.reviewed_by = "llm-verify" if should == "rejected" else None
+            changed += 1
     save_items(items, items_path)
     report["families_rejected"] = len(rejected)
     report["rejected"] = sorted(rejected)

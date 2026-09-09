@@ -51,7 +51,7 @@ def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
     with _lock:
         if _STATE.model_key == key and _STATE.pooling == pooling and _STATE.loaded is not None:
             return _STATE
-        from halluscope.capture.cache import ActivationCache
+        from halluscope.capture.cache import ActivationCache, CaptureKey, shas_for
         from halluscope.data.io import approved, load_items
         from halluscope.data.splits import grouped_split
         from halluscope.eval.metrics import auroc
@@ -65,11 +65,13 @@ def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
         cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
         items_path = cfg.paths.data_dir / "augmented" / "items.jsonl"
         items = approved(load_items(items_path if items_path.exists() else cfg.paths.seeds_dir))
+        shas = shas_for(items)
         try:
-            have = {iid for iid, _ in cache.list_items(spec.id)}
+            items = [
+                i for i in items if cache.has(CaptureKey(spec.id, i.id, i.n_user_turns, shas[i.id]))
+            ]
         except (KeyError, FileNotFoundError):
-            have = set()
-        items = [i for i in items if i.id in have]
+            items = []
         probes: dict[int, LinearProbe] = {}
         best_layer, thr, gate_info = (
             None,
@@ -89,14 +91,14 @@ def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
                     best_layer = int(json.load(fh)["probes"]["linear"]["best_layer"])
             val_auc: dict[int, float] = {}
             for layer in range(n_layers):
-                Xtr = cache.matrix(spec.id, [i.id for i in tr], t_idx, layer, pooling)
+                Xtr = cache.matrix(spec.id, [i.id for i in tr], t_idx, layer, pooling, shas=shas)
                 p = LinearProbe(seed=cfg.probe.seed).fit(Xtr, y_tr)
                 probes[layer] = p
-                Xva = cache.matrix(spec.id, [i.id for i in va], t_idx, layer, pooling)
+                Xva = cache.matrix(spec.id, [i.id for i in va], t_idx, layer, pooling, shas=shas)
                 val_auc[layer] = auroc(y_va, p.decision(Xva))
             if best_layer is None:
                 best_layer = max(val_auc, key=lambda k: (val_auc[k], -k))
-            Xva = cache.matrix(spec.id, [i.id for i in va], t_idx, best_layer, pooling)
+            Xva = cache.matrix(spec.id, [i.id for i in va], t_idx, best_layer, pooling, shas=shas)
             spec_mask = np.array([i.label == "specified" for i in va])
             s_spec = probes[best_layer].decision(Xva)[spec_mask]
             thr = conformal_threshold(s_spec, alpha=cfg.gate.alpha)

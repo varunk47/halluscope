@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 from rich.progress import track
 
-from halluscope.capture.cache import ActivationCache, CaptureKey
+from halluscope.capture.cache import ActivationCache, CaptureKey, shas_for
 from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item
@@ -228,15 +228,18 @@ def _add_sep(cfg, model_id, model_key, items_all, splits, rows, path, split, met
         train_rows = {r["item_id"]: r for r in json.load(fh)["rows"]}
     cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
     t_idx = {i.id: i.n_user_turns for i in items_all}
-    tr_ids = [i for i in train_rows if "semantic_entropy" in train_rows[i]["scores"]]
+    shas = shas_for(items_all)
+    tr_ids = [i for i, r in train_rows.items() if "semantic_entropy" in r["scores"] and i in shas]
     if len(tr_ids) < 20:
         return
     layer = cache.n_layers(model_id) * 2 // 3
-    Xtr = cache.matrix(model_id, tr_ids, t_idx, layer, pooling)
+    Xtr = cache.matrix(model_id, tr_ids, t_idx, layer, pooling, shas=shas)
     se = np.array([train_rows[i]["scores"]["semantic_entropy"]["value"] for i in tr_ids])
     probe = SEProbe().fit(Xtr, se)
-    te_ids = [i for i in rows if cache.has(CaptureKey(model_id, i, t_idx[i]))]
-    Xte = cache.matrix(model_id, te_ids, t_idx, layer, pooling)
+    te_ids = [
+        i for i in rows if i in shas and cache.has(CaptureKey(model_id, i, t_idx[i], shas[i]))
+    ]
+    Xte = cache.matrix(model_id, te_ids, t_idx, layer, pooling, shas=shas)
     pred = probe.predict(Xte)
     for iid, v in zip(te_ids, pred, strict=True):
         rows[iid]["scores"]["sep"] = {

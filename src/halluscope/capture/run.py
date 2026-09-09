@@ -7,7 +7,7 @@ from pathlib import Path
 from rich.progress import track
 
 from halluscope.capture.activations import capture_prefix, user_turn_indices
-from halluscope.capture.cache import ActivationCache, CaptureKey
+from halluscope.capture.cache import ActivationCache, CaptureKey, content_sha
 from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.models.loader import load_model
@@ -21,11 +21,15 @@ def run_capture(model_key: str, items_path: Path, approved_only: bool = True) ->
         items = approved(items)
     cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
 
-    todo = [
-        (it, k)
+    # Key on the dialogue prefix, not the item id: a rebuilt dataset reuses ids
+    # for different text, and an id-only check would call that already captured.
+    keys = {
+        (it.id, k): CaptureKey(spec.id, it.id, k, content_sha(it.prefix(k)))
         for it in items
         for k in user_turn_indices(it)
-        if not cache.has(CaptureKey(spec.id, it.id, k))
+    }
+    todo = [
+        (it, k) for it in items for k in user_turn_indices(it) if not cache.has(keys[(it.id, k)])
     ]
     if not todo:
         return 0
@@ -34,7 +38,7 @@ def run_capture(model_key: str, items_path: Path, approved_only: bool = True) ->
     for it, k in track(todo, description=f"capture {spec.id}"):
         cap = capture_prefix(loaded, it.prefix(k), dtype=cfg.capture.dtype)
         cache.put(
-            CaptureKey(spec.id, it.id, k),
+            keys[(it.id, k)],
             cap,
             extra={
                 "topic": it.topic,

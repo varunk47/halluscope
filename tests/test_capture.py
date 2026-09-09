@@ -2,7 +2,15 @@ import numpy as np
 import pytest
 
 from halluscope.capture.activations import Capture
-from halluscope.capture.cache import ActivationCache, CaptureKey, model_slug
+from halluscope.capture.cache import (
+    ActivationCache,
+    AmbiguousCaptureError,
+    CaptureKey,
+    content_sha,
+    model_slug,
+    shas_for,
+)
+from halluscope.data.schema import Turn
 
 
 def _cap(L=5, H=8, seed=0):
@@ -37,6 +45,49 @@ def test_missing_key_raises(tmp_path):
     assert not cache.has(CaptureKey("m", "x", 1))
     with pytest.raises(KeyError):
         cache.get(CaptureKey("m", "x", 1))
+
+
+def test_two_builds_under_one_item_id_do_not_collide(tmp_path):
+    """The bug this guards: a rebuilt dataset reuses item ids for different text.
+
+    Keyed on the id alone, the cache called the new item already captured and then
+    served the old build's activations to the probe, silently.
+    """
+    cache = ActivationCache(tmp_path)
+    free = [Turn(role="user", content="Chunk at 512 tokens with 64 overlap.")]
+    minimal = [Turn(role="user", content="Chunk at a reasonable size with some overlap.")]
+    a, b = content_sha(free), content_sha(minimal)
+    assert a != b
+
+    cache.put(CaptureKey("m", "rag-0001-a", 0, a), _cap(seed=1))
+    # Same id, different text: not captured yet, and capturing it must not overwrite.
+    assert not cache.has(CaptureKey("m", "rag-0001-a", 0, b))
+    cache.put(CaptureKey("m", "rag-0001-a", 0, b), _cap(seed=2))
+
+    np.testing.assert_array_equal(
+        cache.get(CaptureKey("m", "rag-0001-a", 0, a)).last, _cap(seed=1).last
+    )
+    np.testing.assert_array_equal(
+        cache.get(CaptureKey("m", "rag-0001-a", 0, b)).last, _cap(seed=2).last
+    )
+    # With both builds present, a hash-free lookup must refuse to guess.
+    with pytest.raises(AmbiguousCaptureError):
+        cache.get(CaptureKey("m", "rag-0001-a", 0))
+    assert not cache.has(CaptureKey("m", "rag-0001-a", 0))
+
+
+def test_shas_for_hashes_the_final_user_turn(tmp_path):
+    from halluscope.data.schema import Item
+
+    it = Item(
+        id="rag-0001-a",
+        family="rag-0001",
+        topic="rag",
+        variant="a",
+        label="specified",
+        turns=[Turn(role="user", content="Chunk at 512.")],
+    )
+    assert shas_for([it]) == {it.id: content_sha(it.prefix(it.n_user_turns))}
 
 
 def test_model_slug():
