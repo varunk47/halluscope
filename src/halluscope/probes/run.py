@@ -20,11 +20,12 @@ from pathlib import Path
 
 import numpy as np
 
-from halluscope.capture.cache import ActivationCache, CaptureKey, content_sha
+from halluscope.capture.cache import ActivationCache, CaptureKey, content_sha, shas_for
 from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item
 from halluscope.data.splits import grouped_split, leave_one_topic_out
+from halluscope.eval.metrics import evaluate_scores
 from halluscope.probes.baselines import digit_count_baseline, length_baseline, tfidf_baseline
 from halluscope.probes.linear import LinearProbe, MassMeanProbe
 from halluscope.probes.mlp import MLPProbe
@@ -74,7 +75,7 @@ def _source_factory(
 ):
     items = tr + va + te
     t_all = _final_turn_index(items)
-    shas = {i.id: content_sha(i.prefix(i.n_user_turns)) for i in items}
+    shas = shas_for(items)
 
     def source(layer: int):
         return (
@@ -84,6 +85,21 @@ def _source_factory(
         )
 
     return source
+
+
+def _pair_masks(te: list[Item], y_te: np.ndarray) -> dict[str, np.ndarray]:
+    """Test masks for the two variant pairs, dropping any that cannot be scored.
+
+    The single-turn pair (a vs b) and the multi-turn pair (c vs d) ask different
+    questions: c vs d is answerable only from the earlier context, so a number
+    pooled over both says little about either.
+    """
+    out = {}
+    for name, variants in (("single_turn_ab", ("a", "b")), ("multi_turn_cd", ("c", "d"))):
+        mask = np.array([i.variant in variants for i in te])
+        if mask.sum() >= 8 and len(np.unique(y_te[mask])) == 2:
+            out[name] = mask
+    return out
 
 
 def run_probe(
@@ -161,24 +177,34 @@ def run_probe(
         d["test_ids"] = [i.id for i in te]
         # The single-turn pair (a vs b) and the multi-turn pair (c vs d) are different
         # questions; c vs d is only answerable from context, so report them apart.
-        d["by_pair"] = {}
         probs = np.array(res.test_prob)
-        for pair_name, variants in (("single_turn_ab", ("a", "b")), ("multi_turn_cd", ("c", "d"))):
-            mask = np.array([i.variant in variants for i in te])
-            if mask.sum() >= 8 and len(np.unique(y_te[mask])) == 2:
-                from halluscope.eval.metrics import evaluate_scores
-
-                d["by_pair"][pair_name] = evaluate_scores(
-                    y_te[mask], probs[mask], prob=probs[mask], n_bootstrap=cfg.probe.n_bootstrap
-                ).to_dict()
+        d["by_pair"] = {
+            pair_name: evaluate_scores(
+                y_te[mask], probs[mask], prob=probs[mask], n_bootstrap=cfg.probe.n_bootstrap
+            ).to_dict()
+            for pair_name, mask in _pair_masks(te, y_te).items()
+        }
         out["probes"][name] = d
 
-    out["baselines"]["tfidf_dialogue"] = tfidf_baseline(
-        tr, y_tr, te, y_te, final_turn_only=False, n_bootstrap=cfg.probe.n_bootstrap
-    ).to_dict()
-    out["baselines"]["tfidf_final_turn"] = tfidf_baseline(
-        tr, y_tr, te, y_te, final_turn_only=True, n_bootstrap=cfg.probe.n_bootstrap
-    ).to_dict()
+    # Same train set and same test subsets the probes are scored on, so the
+    # headline comparison is probe against words on identical footing. Without
+    # the per-pair split a strong single-turn baseline hides a weak multi-turn one.
+    for bname, final_only in (("tfidf_dialogue", False), ("tfidf_final_turn", True)):
+        b = tfidf_baseline(
+            tr, y_tr, te, y_te, final_turn_only=final_only, n_bootstrap=cfg.probe.n_bootstrap
+        ).to_dict()
+        b["by_pair"] = {
+            pair_name: tfidf_baseline(
+                tr,
+                y_tr,
+                [i for i, m in zip(te, mask, strict=True) if m],
+                y_te[mask],
+                final_turn_only=final_only,
+                n_bootstrap=cfg.probe.n_bootstrap,
+            ).to_dict()
+            for pair_name, mask in _pair_masks(te, y_te).items()
+        }
+        out["baselines"][bname] = b
     out["baselines"]["length"] = length_baseline(
         te, y_te, n_bootstrap=cfg.probe.n_bootstrap
     ).to_dict()
