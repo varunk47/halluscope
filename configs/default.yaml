@@ -1,0 +1,22 @@
+# Project defaults. Environment variables prefixed HALLUSCOPE_ override these.
+primary_model: qwen
+
+paths:
+  cache_dir: cache
+  results_dir: results
+  cost_log: logs/llm_cost.jsonl
+
+probe:
+  n_bootstrap: 1000
+  seed: 0
+
+uq:
+  K: 8
+
+gate:
+  alpha: 0.10
+  max_rounds: 2
+
+split:
+  fractions: [0.6, 0.15, 0.25]
+  seed: 0

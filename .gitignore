@@ -1,0 +1,31 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.ruff_cache/
+.pytest_cache/
+.pyright/
+*.egg-info/
+build/
+dist/
+
+# secrets and local config
+.env
+.env.*
+!.env.example
+
+# data artifacts that are regenerated
+cache/
+results/raw/
+results/activations/
+data/augmented/*.jsonl
+!data/augmented/.gitkeep
+logs/
+
+# ui
+ui/node_modules/
+ui/dist/
+
+# editors
+.vscode/
+.idea/
