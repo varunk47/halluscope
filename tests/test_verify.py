@@ -51,6 +51,8 @@ def test_passes_requires_all_checks():
     assert passes(good)
     assert not passes(good.model_copy(update={"d_contradicts": False}))
     assert not passes(good.model_copy(update={"off_domain": True}))
+    # recorded but deliberately not part of the rule
+    assert passes(good.model_copy(update={"b_is_answerable_without_guessing": True}))
 
 
 def test_run_verify_marks_failing_family_rejected(tmp_path):

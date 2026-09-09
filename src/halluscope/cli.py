@@ -38,10 +38,18 @@ def build_data(
 def verify(
     items: Path = typer.Option(Path("data/augmented/items.jsonl")),
     report: Path = typer.Option(Path("results/verify_report.json")),
+    reapply: bool = typer.Option(
+        False, help="Recompute rejections from the saved report, no API calls"
+    ),
 ) -> None:
     """LLM verification pass: reject augmented families whose variants do not match their labels."""
+    from halluscope.data.verify import reapply as _reapply
     from halluscope.data.verify import run_verify
 
+    if reapply:
+        r = _reapply(items, report)
+        console.print(f"reapplied: {r}")
+        return
     r = run_verify(items, out_report=report)
     console.print(
         f"checked {r['families_checked']} families, rejected {r['families_rejected']}; {r['cost']}"

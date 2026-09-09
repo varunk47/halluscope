@@ -90,13 +90,42 @@ def verify_families(
 
 
 def passes(v: FamilyVerdict) -> bool:
-    return (
-        v.b_omits_gap
-        and not v.b_is_answerable_without_guessing
-        and v.c_is_consistent
-        and v.d_contradicts
-        and not v.off_domain
-    )
+    """Structural checks only.
+
+    ``b_is_answerable_without_guessing`` is recorded but not used: judges read it
+    as "could one implement something reasonable by choosing values freely",
+    which is true of every underspecified request and is the very behavior the
+    dataset exists to detect.
+    """
+    return v.b_omits_gap and v.c_is_consistent and v.d_contradicts and not v.off_domain
+
+
+def reapply(items_path: Path, report_path: Path) -> dict:
+    """Recompute rejections from a saved report with the current ``passes`` rule.
+    Families previously rejected by the LLM pass and now passing return to pending."""
+    import json
+
+    report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    verdicts = {
+        f: (FamilyVerdict.model_validate(v) if v else None) for f, v in report["verdicts"].items()
+    }
+    rejected = {f for f, v in verdicts.items() if v is not None and not passes(v)}
+    items = load_items(items_path)
+    changed = 0
+    for it in items:
+        if it.family not in verdicts:
+            continue
+        should = "rejected" if it.family in rejected else "pending"
+        if it.reviewed_by in (None, "llm-verify") and it.review_status in ("pending", "rejected"):
+            if it.review_status != should:
+                it.review_status = should
+                it.reviewed_by = "llm-verify" if should == "rejected" else None
+                changed += 1
+    save_items(items, items_path)
+    report["families_rejected"] = len(rejected)
+    report["rejected"] = sorted(rejected)
+    Path(report_path).write_text(json.dumps(report, indent=2), encoding="utf-8")
+    return {"families_rejected": len(rejected), "items_changed": changed}
 
 
 def run_verify(
