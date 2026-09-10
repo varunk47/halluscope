@@ -93,6 +93,9 @@ KIMI_K3 = "nvidia_nim/moonshotai/kimi-k3"
 # for hours after a short burst; Nemotron answered every call in the same
 # session, so it takes the bulk work and Kimi stays as a further fallback.
 NEMOTRON = "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"
+# Grok, a third family. The key on hand has no credit, so it sits last and is
+# skipped in one call until that changes.
+GROK = "xai/grok-4-fast-non-reasoning"
 
 
 class JudgeCfg(BaseModel):
@@ -102,7 +105,7 @@ class JudgeCfg(BaseModel):
         # the genuine cross-family option here and leads that list; the older
         # OpenAI model stays last as a same-family fallback the report flags.
         "judge_primary": AliasCfg(
-            models=["openai/gpt-5.1", "openai/gpt-5", NEMOTRON, KIMI_K3], max_tokens=4096
+            models=["openai/gpt-5.1", "openai/gpt-5", NEMOTRON, KIMI_K3, GROK], max_tokens=4096
         ),
         "judge_secondary": AliasCfg(
             models=[
@@ -110,12 +113,13 @@ class JudgeCfg(BaseModel):
                 KIMI_K3,
                 "anthropic/claude-sonnet-5",
                 "gemini/gemini-2.5-pro",
+                GROK,
                 "openai/gpt-4.1",
             ],
             max_tokens=4096,
         ),
         "simulated_user": AliasCfg(
-            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini", NEMOTRON, KIMI_K3],
+            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini", NEMOTRON, KIMI_K3, GROK],
             temperature=0.3,
             max_tokens=2048,
         ),
@@ -126,6 +130,7 @@ class JudgeCfg(BaseModel):
                 "openai/gpt-5",
                 NEMOTRON,
                 KIMI_K3,
+                GROK,
             ],
             temperature=0.9,
             max_tokens=8192,
