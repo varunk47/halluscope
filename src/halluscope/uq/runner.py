@@ -191,25 +191,38 @@ def run_uq(
             rows = {r["item_id"]: r for r in json.load(fh)["rows"]}
 
     sampling_methods = {"semantic_entropy", "eigenscore"}
-    todo = [i for i in items if i.id not in rows]
-    for idx, it in enumerate(track(todo, description=f"uq {model_key} {split}")):
+    # A row is done only for the methods it already holds, so a later run can
+    # add a method (semantic entropy, once a judge is reachable) without
+    # recomputing the rest.
+    todo = [
+        (i, [m for m in methods if m != "sep" and m not in rows.get(i.id, {}).get("scores", {})])
+        for i in items
+    ]
+    todo = [(i, m) for i, m in todo if m]
+    for idx, (it, missing) in enumerate(track(todo, description=f"uq {model_key} {split}")):
         # K-sample methods are slow on a laptop GPU: run them on the first sampling_limit items
         m = (
-            methods
+            missing
             if idx < cfg.uq.sampling_limit
-            else [x for x in methods if x not in sampling_methods]
+            else [x for x in missing if x not in sampling_methods]
         )
+        if not m:
+            continue
         scores = score_item(
             loaded, it, client, m, cfg.uq.K, cfg.uq.seed, cfg.uq.gen.max_new_tokens, mid
         )
-        rows[it.id] = {
-            "item_id": it.id,
-            "label": it.label,
-            "topic": it.topic,
-            "variant": it.variant,
-            "y": gap_label(it),
-            "scores": scores,
-        }
+        row = rows.setdefault(
+            it.id,
+            {
+                "item_id": it.id,
+                "label": it.label,
+                "topic": it.topic,
+                "variant": it.variant,
+                "y": gap_label(it),
+                "scores": {},
+            },
+        )
+        row["scores"].update(scores)
         _write(path, spec.id, split, rows, methods, cfg.probe.n_bootstrap)
 
     # SEP: train a ridge probe from hidden states to semantic entropy on train split, score test split
@@ -255,7 +268,8 @@ def _write(
 ) -> None:
     summary = {}
     ys = np.array([r["y"] for r in rows.values()])
-    for m in methods + ["sep"]:
+    present = sorted({k for r in rows.values() for k in r["scores"] if not k.startswith("_")})
+    for m in present:
         vals = [r["scores"].get(m, {}).get("value", np.nan) for r in rows.values()]
         v = np.array(vals, dtype=float)
         ok = ~np.isnan(v)

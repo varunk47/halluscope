@@ -108,11 +108,33 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 
 | model | split | method | AUROC [95% CI] | AUPRC [95% CI] | generations | mean seconds/item |
 |---|---|---|---|---|---|---|
-| Qwen/Qwen3.5-4B | test | predictive_entropy | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1 | 29.37 |
-| Qwen/Qwen3.5-4B | test | logit_lens_entropy | 0.778 [0.250, 1.000] | 0.806 [0.333, 1.000] | 0 | 0.51 |
-| Qwen/Qwen3.5-4B | test | ptrue | 0.667 [0.111, 1.000] | 0.756 [0.250, 1.000] | 1 | 29.75 |
-| Qwen/Qwen3.5-4B | test | eigenscore | 0.556 [0.000, 1.000] | 0.700 [0.250, 1.000] | 6 | 34.07 |
-| Qwen/Qwen3.5-4B | test | verbalized | 0.333 [0.000, 0.833] | 0.467 [0.167, 0.967] | 1 | 1.06 |
+| Qwen/Qwen3.5-4B | test | predictive_entropy | 0.721 [0.615, 0.816] | 0.686 [0.553, 0.835] | 1 | 26.21 |
+| Qwen/Qwen3.5-4B | test | logit_lens_entropy | 0.577 [0.457, 0.692] | 0.607 [0.461, 0.747] | 0 | 0.50 |
+| Qwen/Qwen3.5-4B | test | verbalized | 0.575 [0.461, 0.686] | 0.572 [0.435, 0.702] | 1 | 0.98 |
+| Qwen/Qwen3.5-4B | test | ptrue | 0.559 [0.447, 0.682] | 0.581 [0.450, 0.733] | 1 | 26.54 |
+| Qwen/Qwen3.5-4B | test | eigenscore | 0.445 [0.328, 0.571] | 0.504 [0.371, 0.642] | 6 | 52.23 |
+
+
+## Clarify gate, simulated-user loop
+
+| model | condition | seed | label | n | correct | partial or better | assumption rate | questions/task |
+|---|---|---|---|---|---|---|---|---|
+| Qwen/Qwen3.5-4B | always | 0 | all | 48 | 0.12 | 0.50 | 0.33 | 1.00 |
+| Qwen/Qwen3.5-4B | always | 0 | specified | 24 | 0.17 | 0.62 | 0.29 | 1.00 |
+| Qwen/Qwen3.5-4B | always | 0 | underspecified | 12 | 0.17 | 0.42 | 0.42 | 1.00 |
+| Qwen/Qwen3.5-4B | always | 0 | inconsistent | 12 | 0.00 | 0.33 | 0.33 | 1.00 |
+| Qwen/Qwen3.5-4B | gate | 0 | all | 48 | 0.08 | 0.50 | 0.35 | 0.98 |
+| Qwen/Qwen3.5-4B | gate | 0 | specified | 24 | 0.12 | 0.58 | 0.33 | 0.00 |
+| Qwen/Qwen3.5-4B | gate | 0 | underspecified | 12 | 0.08 | 0.42 | 0.25 | 1.92 |
+| Qwen/Qwen3.5-4B | gate | 0 | inconsistent | 12 | 0.00 | 0.42 | 0.50 | 2.00 |
+| Qwen/Qwen3.5-4B | off | 0 | all | 48 | 0.08 | 0.31 | 0.40 | 0.00 |
+| Qwen/Qwen3.5-4B | off | 0 | specified | 24 | 0.17 | 0.38 | 0.38 | 0.00 |
+| Qwen/Qwen3.5-4B | off | 0 | underspecified | 12 | 0.00 | 0.08 | 0.33 | 0.00 |
+| Qwen/Qwen3.5-4B | off | 0 | inconsistent | 12 | 0.00 | 0.42 | 0.50 | 0.00 |
+| Qwen/Qwen3.5-4B | prompt | 0 | all | 48 | 0.06 | 0.23 | 0.21 | 0.25 |
+| Qwen/Qwen3.5-4B | prompt | 0 | specified | 24 | 0.04 | 0.29 | 0.12 | 0.29 |
+| Qwen/Qwen3.5-4B | prompt | 0 | underspecified | 12 | 0.08 | 0.08 | 0.33 | 0.25 |
+| Qwen/Qwen3.5-4B | prompt | 0 | inconsistent | 12 | 0.08 | 0.25 | 0.25 | 0.17 |
 
 
 ## Figures

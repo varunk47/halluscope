@@ -168,6 +168,60 @@ def loop_table(loop_results: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def transfer_table(rows: list[dict]) -> str:
+    lines = [
+        "| dataset | source | target | reading | layer | AUROC [95% CI] | single turn | multi turn | CKA |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for r in rows:
+        ds = r.get("tag") or str(r.get("dataset", "")).removeprefix("items_") or "items"
+        for name, key, layer, cka in (
+            ("source at its best layer", "src_at_best", r["src_layer"], ""),
+            (
+                "target at matched depth",
+                "dst_at_matched",
+                r["dst_matched_layer"],
+                f"{r['cka_matched']:.3f}",
+            ),
+            (
+                "target at its own best",
+                "dst_at_own_best",
+                r["dst_best_layer"],
+                f"{r['cka_best']:.3f}",
+            ),
+        ):
+            m = r[key]
+            bp = m.get("by_pair", {})
+            lines.append(
+                f"| {ds} | {r['src_key']} | {r['dst_key']} | {name} | {layer} | {_fmt(m)} | "
+                f"{_fmt(bp.get('single_turn_ab', {}))} | {_fmt(bp.get('multi_turn_cd', {}))} | {cka} |"
+            )
+    return "\n".join(lines)
+
+
+def steer_table(rows: list[dict]) -> str:
+    lines = []
+    for r in rows:
+        ds = r.get("tag") or str(r.get("dataset", "")).removeprefix("items_") or "items"
+        alphas = [f"{a:+.1f}" for a in r["alphas"]]
+        lines += [
+            f"Model {r['model']}, {ds} build, layer {r['layer']}, {r['n_items']} test items "
+            f"({r['n_specified']} specified, {r['n_gap']} with a gap). Alpha is in train-set standard "
+            "deviations along the mass-mean direction; cells are the fraction of steered replies that "
+            "ask a clarifying question.\n",
+            "| label | " + " | ".join(alphas) + " |",
+            "|---|" + "---|" * len(alphas),
+        ]
+        for label, curve in r["asking_rate"].items():
+            lines.append(
+                f"| {label} | "
+                + " | ".join(f"{curve.get(a, float('nan')):.2f}" for a in alphas)
+                + " |"
+            )
+        lines.append("")
+    return "\n".join(lines)
+
+
 def fig_layer_sweep(r: dict, out: Path) -> Path:
     fig, ax = plt.subplots(figsize=(8, 4.2), dpi=150)
     for name, p in r["probes"].items():
@@ -259,6 +313,8 @@ def build_report(
     uqs = _load_all(results_dir, "uq")
     behaviors = _load_all(results_dir, "behavior")
     loops = _load_all(results_dir, "loop")
+    transfers = _load_all(results_dir, "transfer")
+    steers = _load_all(results_dir, "steer")
 
     figs: list[Path] = []
     for r in probes:
@@ -303,6 +359,10 @@ def build_report(
         md += ["## Uncertainty baselines\n", uq_table(uqs), "\n"]
     if loops:
         md += ["## Clarify gate, simulated-user loop\n", loop_table(loops), "\n"]
+    if transfers:
+        md += ["## Cross-model transfer\n", transfer_table(transfers), "\n"]
+    if steers:
+        md += ["## Activation steering\n", steer_table(steers), "\n"]
     if figs:
         md += ["## Figures\n"] + [f"![{f.stem}](figures/{f.name})\n" for f in figs]
     out = figures_dir.parent / "results.md"

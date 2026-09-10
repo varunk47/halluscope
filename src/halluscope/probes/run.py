@@ -174,7 +174,11 @@ def run_probe(
 
     behavior = None
     if target != "gap":
-        bpath = out_dir / f"behavior_{model_key}.json"
+        from halluscope.gate.behavior import behavior_filename
+
+        bpath = out_dir / behavior_filename(model_key, items_path)
+        if not bpath.exists():
+            bpath = out_dir / f"behavior_{model_key}.json"
         behavior = load_behavior_labels(bpath)
         items = [i for i in items if i.id in behavior]
 

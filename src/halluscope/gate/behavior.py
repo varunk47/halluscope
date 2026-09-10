@@ -34,6 +34,12 @@ def judge_answer(
     )
 
 
+def behavior_filename(model_key: str, items_path: Path, tag: str = "") -> str:
+    """``behavior_{model}_{build}.json``; the untagged name is the default build."""
+    t = tag or Path(items_path).stem.removeprefix("items").lstrip("_")
+    return f"behavior_{model_key}_{t}.json" if t else f"behavior_{model_key}.json"
+
+
 def run_behavior(
     model_key: str,
     items_path: Path,
@@ -42,6 +48,7 @@ def run_behavior(
     second_judge: bool = True,
     limit: int | None = None,
     batch_size: int = 8,
+    tag: str = "",
 ) -> Path:
     cfg = get_settings()
     spec = cfg.model_spec(model_key)
@@ -50,7 +57,7 @@ def run_behavior(
         items = items[:limit]
     client = client or JudgeClient(cfg.judge, cost_log=cfg.paths.cost_log)
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"behavior_{model_key}.json"
+    path = out_dir / behavior_filename(model_key, items_path, tag)
 
     done: dict[str, dict] = {}
     if path.exists():

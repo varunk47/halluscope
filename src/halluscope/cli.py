@@ -119,13 +119,19 @@ def uq(
         "",
         help="Comma-separated methods to leave out, e.g. semantic_entropy when no judge is reachable",
     ),
+    only: str = typer.Option(
+        "", help="Comma-separated methods to run, adding them to rows already scored"
+    ),
 ) -> None:
     """Score items with every uncertainty baseline."""
     from halluscope.config import get_settings
     from halluscope.uq.runner import run_uq
 
     left_out = {m.strip() for m in skip.split(",") if m.strip()}
-    methods = [m for m in get_settings().uq.methods if m not in left_out]
+    wanted = {m.strip() for m in only.split(",") if m.strip()}
+    methods = [
+        m for m in get_settings().uq.methods if m not in left_out and (not wanted or m in wanted)
+    ]
     path = run_uq(
         model_key=model, items_path=items, split=split, out_dir=out, limit=limit, methods=methods
     )
@@ -137,11 +143,59 @@ def behavior(
     model: str = typer.Option("qwen"),
     items: Path = typer.Option(Path("data/augmented/items.jsonl")),
     out: Path = typer.Option(Path("results")),
+    tag: str = typer.Option(
+        "", help="Suffix for the results file name; defaults to the dataset build"
+    ),
 ) -> None:
     """Generate the model's own answers and judge whether it asked or silently assumed."""
     from halluscope.gate.behavior import run_behavior
 
-    path = run_behavior(model_key=model, items_path=items, out_dir=out)
+    path = run_behavior(model_key=model, items_path=items, out_dir=out, tag=tag)
+    console.print(f"wrote {path}")
+
+
+@app.command()
+def transfer(
+    src: str = typer.Option("qwen", help="Model whose gap-probe run fixes the layer"),
+    dst: str = typer.Option("qwen2b", help="Model to test the same recipe on; capture it first"),
+    items: Path = typer.Option(Path("data/augmented/items_minimal.jsonl")),
+    pooling: str = typer.Option("last"),
+    out: Path = typer.Option(Path("results")),
+    tag: str = typer.Option(
+        "", help="Suffix for the results file name; defaults to the dataset build"
+    ),
+) -> None:
+    """Same probe recipe on a second model at the matched depth, with CKA between the two."""
+    from halluscope.probes.experiments import run_transfer
+
+    path = run_transfer(src, dst, items, out_dir=out, pooling=pooling, tag=tag)
+    console.print(f"wrote {path}")
+
+
+@app.command()
+def steer(
+    model: str = typer.Option("qwen"),
+    items: Path = typer.Option(Path("data/augmented/items_minimal.jsonl")),
+    pooling: str = typer.Option("last"),
+    out: Path = typer.Option(Path("results")),
+    limit: int = typer.Option(32, help="Test items, half specified and half with a gap"),
+    alphas: str = typer.Option("-2,-1,0,1,2", help="Push sizes in train-set standard deviations"),
+    tag: str = typer.Option(
+        "", help="Suffix for the results file name; defaults to the dataset build"
+    ),
+) -> None:
+    """Push the residual stream along the gap direction while generating and count clarifying questions."""
+    from halluscope.probes.experiments import run_steer
+
+    path = run_steer(
+        model,
+        items,
+        out_dir=out,
+        pooling=pooling,
+        tag=tag,
+        limit=limit,
+        alphas=tuple(float(a) for a in alphas.split(",")),
+    )
     console.print(f"wrote {path}")
 
 
