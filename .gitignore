@@ -29,3 +29,4 @@ ui/dist/
 # editors
 .vscode/
 .idea/
+results/smoke/
