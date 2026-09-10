@@ -1,4 +1,5 @@
 {
+  "dataset": "items_minimal",
   "model": "Qwen/Qwen3.5-4B",
   "split": "test",
   "summary": {

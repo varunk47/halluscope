@@ -48,10 +48,30 @@ export default {
           from: { opacity: "0", transform: "translateY(4px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        pop: {
+          from: { opacity: "0", transform: "translateY(6px) scale(0.98)", filter: "blur(4px)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)", filter: "blur(0)" },
+        },
+        shimmer: {
+          from: { backgroundPosition: "200% 0" },
+          to: { backgroundPosition: "-200% 0" },
+        },
+        scan: {
+          from: { transform: "translateX(-100%)" },
+          to: { transform: "translateX(100%)" },
+        },
+        tokenIn: {
+          from: { opacity: "0", filter: "blur(3px)" },
+          to: { opacity: "1", filter: "blur(0)" },
+        },
       },
       animation: {
         pulseDot: "pulseDot 1.6s ease-in-out infinite",
         rise: "rise 200ms ease-out both",
+        pop: "pop 260ms cubic-bezier(0.16, 1, 0.3, 1) both",
+        shimmer: "shimmer 1.8s linear infinite",
+        scan: "scan 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+        tokenIn: "tokenIn 220ms ease-out both",
       },
     },
   },

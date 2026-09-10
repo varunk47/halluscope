@@ -1,0 +1,1560 @@
+{
+  "families_checked": 192,
+  "families_rejected": 12,
+  "rejected": [
+    "agents-0005-p1",
+    "evaluation-0001-p1",
+    "evaluation-0003-p1",
+    "evaluation-0003-p2",
+    "evaluation-0004-p3",
+    "evaluation-0006-p1",
+    "finetuning-0002-p2",
+    "finetuning-0005-p1",
+    "rag-0002-p2",
+    "rag-0008-p2",
+    "serving-0001-p1",
+    "serving-0008-p2"
+  ],
+  "verdicts": {
+    "agents-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations consistent with definitions; variant b omits gap details and requires guessing; variant c adds logging without conflict; variant d contradicts by demanding no human loop while keeping human review."
+    },
+    "agents-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; requires guessing. Variant c adds observability without conflict. Variant d conflicts by demanding no human approvals while keeping mandatory review. No off-domain content."
+    },
+    "agents-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the concrete step and cost limits and exact behavior; variant c is consistent; variant d contradicts by saying no cap but also hard stop at 40 calls; no off-domain content."
+    },
+    "agents-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (limits and output spec) and thus requires guessing; variant c adds a logging detail without conflict; variant d contains a direct contradiction about tool invocation bounds; no variant mentions physics/mechanics/materials/simulation."
+    },
+    "agents-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap; variant c adds logging without conflict; variant d contradicts by demanding no args while keeping params."
+    },
+    "agents-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Evaluations based on the specified gap: missing parameters, defaults, allowed values, and return shape."
+    },
+    "agents-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap annotation."
+    },
+    "agents-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "agents-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "agents-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (what stored, how much, retrieval, user control). Variant c adds a privacy rule that does not conflict with earlier statements, so it is consistent. Variant d's final turn contradicts the earlier requirement to persist context across sessions by stating nothing may be persisted beyond a single session."
+    },
+    "agents-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided definitions."
+    },
+    "agents-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact worker categories, fallback target, confidence threshold, and forwarding limit. Variant d conflicts by forbidding Slack messages while requiring a Slack-oncall fallback. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "agents-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "agents-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all three gap details; variant c adds logging without conflict; variant d changes fallback target causing contradiction; no off-domain content."
+    },
+    "agents-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits which replies are sensitive and what the human review gate entails; cannot be answered without guessing. Variant c is consistent; variant d contradicts by requiring no pause while keeping approval gate. No off-domain content."
+    },
+    "agents-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided definitions."
+    },
+    "agents-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both which actions are irreversible and what the confirmation step looks like; thus cannot be answered without guessing. Variant c adds a JSON snapshot requirement without conflict. Variant d conflicts by removing confirmation for escalate/ban while earlier required it for all four. No off-domain content."
+    },
+    "agents-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations match expectations; variant b omits gap details; variant c consistent; variant d contradicts baseline usage."
+    },
+    "agents-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c is consistent; variant d contradicts by forbidding no-delegation while earlier turn requires it; no off-domain content."
+    },
+    "agents-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact gap details; variant c is consistent; variant d contradicts earlier turn regarding session length filtering and tenant exclusion; no off-domain content."
+    },
+    "data-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variants."
+    },
+    "data-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All checks performed as per definitions."
+    },
+    "data-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations match expectations."
+    },
+    "data-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; cannot be answered without guessing. Variant c adds sharding but retains evaluation set, consistent. Variant d contradicts by saying cannot use real log lines while also keeping them as evaluation set. No off-domain content."
+    },
+    "data-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits gap details; variant c consistent; variant d contradicts annotator count."
+    },
+    "data-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging but keeps earlier specs; variant d contradicts by stating only one annotator available while requiring three annotators per item."
+    },
+    "data-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits exact ratios, cap, and sampling rules, requiring guessing; variant c is consistent; variant d contradicts by both excluding and retaining synthetic troubleshooting instructions; no off-domain content."
+    },
+    "data-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided definitions."
+    },
+    "data-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definition and variant texts."
+    },
+    "data-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details; variant c adds a normalization step without conflict; variant d contradicts by requiring full names to stay visible while also being replaced."
+    },
+    "data-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both the specific identifier (snapshot ID) and manifest type (row ID manifest). Variant c is consistent; variant d contradicts by banning per-run metadata while earlier turn requires a manifest file. No off-domain content."
+    },
+    "data-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All variants evaluated; b omits gap details, c consistent, d contradicts, no off-domain content."
+    },
+    "data-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all three gap details; variant c is consistent; variant d contradicts by requiring local NAS only while keeping Quilt on GCS; no off-domain content."
+    },
+    "data-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definitions."
+    },
+    "data-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "data-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (method, fraction, human specs). Variant c adds a logging request without conflict. Variant d contains a direct contradiction about relabeling. No off-domain content."
+    },
+    "data-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; cannot be answered without guessing. Variant c adds time recording without conflict. Variant d introduces binary labeling conflicting with earlier 4-point scale labeling. No domain violations."
+    },
+    "data-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c is consistent; variant d contradicts earlier turn regarding seeing candidate views; no off-domain content."
+    },
+    "data-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0001-p1": {
+      "b_omits_gap": false,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b states the judge API (Gemini) so it does not omit all gap details; thus it does not fully omit the gap. Because it omits set size, order policy, and CI definition, it cannot be completed without guessing, making b_is_answerable_without_guessing false. Variant c's final turn adds logging but does not conflict with earlier instructions, so it is consistent. Variant d's final turn bans external API calls while requiring Gemini, which contradicts the earlier turn that relies on Gemini (an external API). No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "evaluation-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All variants evaluated according to the gap annotation; variant b omits the gap details, making it unanswerable without guessing; variant c is consistent; variant d contains a direct contradiction regarding LLM usage."
+    },
+    "evaluation-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging requirement without conflict; variant d changes temperature from 0 to 0.9 causing conflict."
+    },
+    "evaluation-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits exact decoding parameters, seed, model identifier, and number of runs; variant c adds logging git SHA without conflict; variant d changes temperature from 0 to 0.9 causing contradiction."
+    },
+    "evaluation-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All variants assessed according to definitions; no off-domain content found."
+    },
+    "evaluation-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided variant texts."
+    },
+    "evaluation-0003-p2": {
+      "b_omits_gap": false,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Evaluations based on the provided variant texts."
+    },
+    "evaluation-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all three gap details (confidence elicitation, dataset/size, calibration metric). Variant c adds per-intent breakdowns without conflict. Variant d contradicts by both rejecting and retaining explicit confidence scores. No variant mentions physics/mechanics/materials/simulation."
+    },
+    "evaluation-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided text."
+    },
+    "evaluation-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap; variant c is consistent; variant d contradicts; no off-domain content."
+    },
+    "evaluation-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits gap details; variant c shows inconsistency by changing reference corpus and omitting cutoff; variant d shows contradiction regarding external index vs private training data."
+    },
+    "evaluation-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds consistent detail; variant d introduces contradictory requirement; no off-domain content."
+    },
+    "evaluation-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the specific judge models and agreement statistic, making it requiring guesswork. Variant c is consistent as it adds an additional judging set without contradicting the original. Variant d contradicts by implying both replacement and retention of the original judges. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "evaluation-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the precise rubric dimensions, exact judge models, and specific agreement metric; variant c adds a justification requirement without conflicting with earlier instructions; variant d contradicts earlier judge specification by imposing a single GPT-4.1 run while claiming to keep the Gemini/Llama setup."
+    },
+    "evaluation-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "Variant b omits the exact size, numeric pass criteria, and strict failure policy. Variant c adds a logging requirement that does not conflict with earlier specifications. Variant d adds a restriction against external embedding models while still requiring the same similarity threshold, which is not a direct contradiction. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "evaluation-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "evaluation-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (size, metrics, thresholds, tolerance) and thus requires guessing; variant c is consistent; variant d contradicts by saying never load baselines yet compare against them; no off-domain content."
+    },
+    "evaluation-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "evaluation-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the specific signals and weights, making it underspecified; variant c is consistent; variant d introduces a contradiction by stating human satisfaction data unavailable while retaining its weight; no off-domain content."
+    },
+    "evaluation-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided variant texts."
+    },
+    "evaluation-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap definition; variant c adds versioning but no conflict; variant d contradicts by stating metadata not stored while requiring matching against it."
+    },
+    "evaluation-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap definition; cannot be answered without guessing. Variant c adds a consistent request. Variant d contradicts by saying logged runs are not stored while requiring verification against them. No domain violations."
+    },
+    "evaluation-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details; variant c is consistent; variant d contradicts by stating descriptions are only numeric IDs while requiring substring checks."
+    },
+    "finetuning-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "finetuning-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds compatible settings; variant d contradicts by rejecting LoRA while keeping it."
+    },
+    "finetuning-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging without conflict; variant d contradicts by rejecting parameter-efficient tuning while keeping LoRA."
+    },
+    "finetuning-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both the benchmark names and threshold, making it underspecified; variant c is consistent; variant d contradicts by requesting delta computation while stating checkpoint unavailable; no off-domain content."
+    },
+    "finetuning-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both benchmark names and harm threshold; variant c conflicts due to missing reference checkpoint; variant d contradicts as well; no off-domain content."
+    },
+    "finetuning-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both the specific benchmarks and the numeric threshold, making it underspecified. Variant c is consistent; variant d contradicts by claiming no original logs while asking to compute deltas. No off-domain content."
+    },
+    "finetuning-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided variants."
+    },
+    "finetuning-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All variants evaluated according to definitions."
+    },
+    "finetuning-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definitions."
+    },
+    "finetuning-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds activation offloading without conflict; variant d conflicts on precision (bf16 vs fp16); no off-domain content."
+    },
+    "finetuning-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variant texts."
+    },
+    "finetuning-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations match expectations; variant b omits gap and requires guessing; variant c consistent; variant d contradictory; no off-domain content."
+    },
+    "finetuning-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details; cannot be completed without guessing. Variant c final turn conflicts with earlier turn (JSON vs plain prose). Variant d also conflicts (plain prose vs JSON target schema). No off-domain content."
+    },
+    "finetuning-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "finetuning-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "finetuning-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact leakage key, logging frequency, and specific hyperparameters; variant c adds a consistent request to archive metrics; variant d contradicts by stating optimizer settings are fixed while also requiring specific learning rate and weight decay; no variant mentions physics, mechanics, materials, or simulation."
+    },
+    "finetuning-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "finetuning-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "finetuning-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds a consistent instruction; variant d contradicts the serialization requirement."
+    },
+    "finetuning-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits teacher model, amount of synthetic data (80k), and temperature (0.6). Variant c confirms 3 epochs, consistent. Variant d conflicts by limiting to \u22641 epoch while referencing 3-epoch schedule. No off-domain content."
+    },
+    "finetuning-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "finetuning-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variant texts."
+    },
+    "prompting-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided variants."
+    },
+    "prompting-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds examples without conflict; variant d contradicts by demanding both natural language and strict JSON."
+    },
+    "prompting-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided definitions."
+    },
+    "prompting-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definition."
+    },
+    "prompting-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (number, selection method, balance). Variant c adds a system instruction but does not conflict with earlier specs. Variant d contradicts by demanding zero-shot while retaining examples. No domain off-topic mentions."
+    },
+    "prompting-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definition; variant b omits all gap details and requires guessing; variant c consistent; variant d contradictory; no off-domain content."
+    },
+    "prompting-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap; b requires guessing; c is consistent; d contradicts; no off-domain content."
+    },
+    "prompting-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details; variant c adds logging without conflict; variant d contains a direct contradiction about endpoint spec confidentiality."
+    },
+    "prompting-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details; cannot be answered without guessing. Variant c is consistent as the update adds logging without conflict. Variant d contradicts by stating catalog both must and must not appear in prompt. No variant mentions off-domain topics."
+    },
+    "prompting-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (abstention wording, knowledge allowed, verification). It cannot be completed without guessing, so b_is_answerable_without_guessing is false. Variant c is consistent as the second user request adds logging without conflict. Variant d contradicts by demanding concrete answers while requiring abstention. No variant mentions physics/mechanics/materials/simulation."
+    },
+    "prompting-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations completed according to the gap annotation."
+    },
+    "prompting-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (abstention wording, allowed knowledge, verification). It cannot be completed without guessing those details. Variant c is consistent; variant d contains a direct contradiction about abstaining. No variant mentions off\u2011domain topics."
+    },
+    "prompting-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b lacks all gap details; variant c adds a glossary without conflict; variant d contradicts by requiring both anonymization and exact preservation of user IDs."
+    },
+    "prompting-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds explanatory parentheticals without altering identifiers, thus consistent; variant d contradicts by requiring rewriting while preserving exact identifiers."
+    },
+    "prompting-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details (target style, identifiers, formatting, length) and thus requires guessing. Variant c adds a date normalization note without conflict. Variant d contradicts by demanding product name standardization while earlier required them unchanged. No variant mentions physics/mechanics/materials/simulation."
+    },
+    "prompting-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided definitions."
+    },
+    "prompting-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "prompting-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging without conflict; variant d contradicts by demanding all traffic to control while preserving split."
+    },
+    "prompting-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging token count without conflict; variant d adds detailed reasoning which conflicts with dropping chain-of-thought exemplar."
+    },
+    "prompting-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds a non-conflicting constraint; variant d contradicts by requiring justification after earlier instruction to drop it; no off-domain content."
+    },
+    "prompting-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds a consistency constraint (no justification) that does not conflict; variant d adds a justification requirement that conflicts with removing chain-of-thought; no off-domain content."
+    },
+    "prompting-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (scope, issue types, output structure, no-findings handling). It therefore requires guessing to complete, making b_is_answerable_without_guessing false. Variant c adds a non-conflicting request (PR ID/author) while preserving earlier constraints, so it is consistent. Variant d adds a contradictory demand to treat naming/style as critical while also insisting to ignore them, creating a conflict. No variant references physics, mechanics, materials, or simulation, so off_domain is false."
+    },
+    "prompting-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits prioritization, issue types, and output schema, but includes wording/trigger for no-concern. Variant c is consistent; variant d contradicts by both requiring and skipping naming/formatting. No off-domain content present."
+    },
+    "prompting-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits gap details and requires guessing; variant c is consistent; variant d contradicts earlier turn; no off-domain content."
+    },
+    "rag-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "rag-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits metric names, cutoffs, and exact field name; variant c is consistent; variant d contradicts by removing label_doc_ids while still requiring computation against it."
+    },
+    "rag-0002-p2": {
+      "b_omits_gap": false,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b still mentions the labels field, so it does not omit all gap details; thus b_omits_gap is false. Because metric names and cutoffs are missing, answering requires guessing, making b_is_answerable_without_guessing false. Variant c's final turn is consistent with the earlier turn. Variant d's final turn contradicts the earlier turn by requesting removal of the labels field while still computing against it. No variant references physics, mechanics, materials, or simulation."
+    },
+    "rag-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits metric, cutoff, and gold label source; variant c is consistent; variant d contradicts by removing gold labels while still asking for recall against gold."
+    },
+    "rag-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap details: fusion method (weighted reciprocal rank fusion), k=75, dense weight 0.7, cutoff top 15."
+    },
+    "rag-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definition; variant b omits gap and requires guessing; variant c consistent; variant d contradicts by restricting to BM25 only while claiming to keep fusion; no off-domain content."
+    },
+    "rag-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (model, input/output counts, hardware, latency). Variant c adds logging without changing earlier specs, so consistent. Variant d changes hardware from GPU to CPU and tightens latency, contradicting earlier turn. No variant mentions physics/mechanics/materials/simulation."
+    },
+    "rag-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits gap details as intended; variant c is consistent; variant d shows clear contradiction; no off-domain content."
+    },
+    "rag-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c is consistent as final turn relaxes constraints without contradiction; variant d contradicts on hardware (GPU vs CPU only)."
+    },
+    "rag-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all three gap details; variant c adds logging without conflict; variant d contradicts by forbidding fingerprints while requiring fingerprint-based detection."
+    },
+    "rag-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging without conflict; variant d conflicts by forbidding checksum persistence while requiring checksum detection."
+    },
+    "rag-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (change detection, deletion handling, refresh frequency) making it not answerable without guessing. Variant c adds logging but retains earlier specifications, so consistent. Variant d's requirement to avoid storing checksums conflicts with needing previous-run checksums for change detection. No domain violations."
+    },
+    "rag-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "rag-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "rag-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided text."
+    },
+    "rag-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations completed."
+    },
+    "rag-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact similarity cutoff (0.28) and minimum passage count (3), making it underspecified; variant c is consistent; variant d contradicts by demanding both always normal answers and abstain firing under the same conditions; no off-domain content."
+    },
+    "rag-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact cutoff and minimum passage count, making it underspecified; variants c and d are internally consistent/contradictory as designed; no off-domain content present."
+    },
+    "rag-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "rag-0008-p2": {
+      "b_omits_gap": false,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b mentions nested lists and metadata but omits extraction library and specific metadata fields, requiring guessing to complete."
+    },
+    "rag-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits parsing library, table representation, and metadata fields; variant c adds runtime logging without conflict; variant d contradicts by both disallowing and requiring trafilatura."
+    },
+    "safety-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations consistent with gap definition."
+    },
+    "safety-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (safety filter, tag set, refusal behavior, logging policy). Completing it requires guessing those details, so b_is_answerable_without_guessing is false. Variant c adds aggregation but does not conflict with the initial logging constraint. Variant d's final turn contradicts the earlier turn by both allowing all prompts and blocking tagged prompts. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "safety-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided annotations."
+    },
+    "safety-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Evaluations based on the provided variant texts."
+    },
+    "safety-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All variants stay within the domain of AI safety evaluation; no off-domain content detected."
+    },
+    "safety-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b lacks specific attack set, concrete defense, and precise success metric, making it underspecified. Variants c and d are consistent/contradictory as described. No off-domain content present."
+    },
+    "safety-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds storage instruction consistent with earlier details; variant d introduces contradictory requirement about attack generator being both same model as evaluated and from a different vendor."
+    },
+    "safety-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (exact refusal message, test set sizes, precise refusal targets). Variant c is consistent; variant d contradicts by requiring both answering and refusing detailed trade questions. No off-domain content."
+    },
+    "safety-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variant texts."
+    },
+    "safety-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact boundary, precise refusal wording, concrete test set sizes, and refusal rate targets as per gap; completing it would require guessing. Variant c adds logging requirement without conflict. Variant d contradicts by demanding exploit code provision while earlier turn refuses it. No domain off\u2011topic content present."
+    },
+    "safety-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations consistent with definitions."
+    },
+    "safety-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; c adds logging without conflict; d conflicts by demanding no masking while also requiring masking."
+    },
+    "safety-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; variant c adds logging but remains consistent; variant d contradicts by demanding no redaction while also requiring replacement."
+    },
+    "safety-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact rubric and numeric targets; variant c is consistent; variant d introduces a requirement that conflicts with the false refusal rate constraint; no domain violations."
+    },
+    "safety-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the specific prompt set, refusal criterion, and numeric targets; thus it is underspecified and requires guessing. Variants c and d are consistent/contradictory as designed. No off-domain content present."
+    },
+    "safety-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact refusal judge model and specific numerical false refusal target (uses 'suitable safety rubric' and 'reasonable false refusal rate'). Variant c adds a logging requirement but maintains the earlier false refusal rate target, so it is consistent. Variant d adds an automatic refusal trigger for self-harm queries, which likely increases refusals on the benign SafetyBench-Lite set and conflicts with the under\u20113% false refusal rate requirement. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "safety-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the gap details; cannot be completed without guessing. Variant c is consistent; variant d contradicts. No off-domain content."
+    },
+    "safety-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "safety-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All variants are within domain; variant b lacks threshold, wording, and criteria; variant c adds numeric confidence estimate without conflict; variant d conflicts by demanding confident tone while retaining doubt prefix."
+    },
+    "safety-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact confidence cutoff and precise wording; variant c is consistent; variant d contains a contradiction; no off-domain content."
+    },
+    "safety-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the exact confidence cutoff, wording of uncertainty marker, and evaluation thresholds, making it underspecified; variant c is consistent; variant d contradicts by requiring both avoidance of hedging phrases and keeping a hedging phrase; no domain violations."
+    },
+    "serving-0001-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": false,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0001-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (quantization level, context limit, concurrency, latency target) using vague phrasing, making it unanswerable without guessing. Variant c adds a metrics request that does not conflict with earlier specs. Variant d contradicts by demanding pure fp16 no quantization while retaining GPTQ 3-bit config. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "serving-0001-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definition."
+    },
+    "serving-0002-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both concrete serving optimization and evaluation protocol; cannot be answered without guessing. Variant c adds tracing but keeps measurement plan, consistent. Variant d disables continuous batching contradicting earlier enable. No variant mentions physics/mechanics/materials/simulation."
+    },
+    "serving-0002-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Evaluations based on the provided variant texts."
+    },
+    "serving-0002-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits both the specific optimization and measurement details; variant c adds monitoring without conflict; variant d introduces conflicting requirement for individualized policy headers."
+    },
+    "serving-0003-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0003-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on gap definition and variant content."
+    },
+    "serving-0003-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; cannot be answered without guessing. Variant c is consistent; variant d contradicts itself regarding calibration data source. No off-domain content."
+    },
+    "serving-0004-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variant descriptions."
+    },
+    "serving-0004-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details (transport, keepalive, end-of-stream, disconnect behavior). It cannot be completed without guessing those details, so b_is_answerable_without_guessing is false. Variant c adds a sequence-id requirement without contradicting earlier specs, so it's consistent. Variant d's requirement for a buffered, non-incremental JSON payload conflicts with the earlier streaming specification, so it contradicts. No variant mentions physics, mechanics, materials, or simulation."
+    },
+    "serving-0004-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits gap details; variant c adds correlation id without conflict; variant d conflicts by demanding non-streamed HTTPS payload while keeping WebSocket stream."
+    },
+    "serving-0005-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0005-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Evaluations based on gap definition and variant texts."
+    },
+    "serving-0005-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits all gap details; cannot be answered without guessing. Variant c adds logging but retains earlier limits, no conflict. Variant d demands unlimited throughput while also keeping limits, causing contradiction. No off-domain content."
+    },
+    "serving-0006-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided specifications."
+    },
+    "serving-0006-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0006-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided texts."
+    },
+    "serving-0007-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "Variant b omits the concrete thresholds; variant c is consistent; variant d contradicts by restricting 40B-instruct while also escalating to it."
+    },
+    "serving-0007-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided definitions."
+    },
+    "serving-0007-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0008-p1": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": ""
+    },
+    "serving-0008-p2": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": false,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variant descriptions."
+    },
+    "serving-0008-p3": {
+      "b_omits_gap": true,
+      "b_is_answerable_without_guessing": false,
+      "c_is_consistent": true,
+      "d_contradicts": true,
+      "off_domain": false,
+      "notes": "All evaluations based on provided gap and variant descriptions."
+    }
+  },
+  "cost": {
+    "calls": 197.0,
+    "spent_usd": 0.0
+  }
+}

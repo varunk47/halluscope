@@ -22,9 +22,10 @@ interface StreamState {
   mode: "ask" | "answer" | null;
   gate: GateEvent | null;
   text: string;
+  chunks: string[];
 }
 
-const EMPTY_STREAM: StreamState = { active: false, mode: null, gate: null, text: "" };
+const EMPTY_STREAM: StreamState = { active: false, mode: null, gate: null, text: "", chunks: [] };
 
 export default function Live() {
   const toast = useToast();
@@ -34,6 +35,7 @@ export default function Live() {
   const [presetId, setPresetId] = useState("");
   const [score, setScore] = useState<ScoreResponse | null>(null);
   const [scoring, setScoring] = useState(false);
+  const [justScored, setJustScored] = useState(false);
   const [stream, setStream] = useState<StreamState>(EMPTY_STREAM);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -47,7 +49,7 @@ export default function Live() {
   );
 
   useEffect(() => {
-    getItems({ limit: 64, source: "seed" })
+    getItems({ limit: 256, source: "seed" })
       .then((r) => setPresets(r.items))
       .catch((e: ApiError) => toast.error(`presets: ${e.message}`));
     return () => abortRef.current?.abort();
@@ -83,6 +85,8 @@ export default function Live() {
     try {
       const res = await scoreTurns(stripMeta(cleaned), true);
       setScore(res);
+      setJustScored(true);
+      window.setTimeout(() => setJustScored(false), 1400);
     } catch (e) {
       toast.error((e as ApiError).message);
     } finally {
@@ -96,7 +100,7 @@ export default function Live() {
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
-    setStream({ active: true, mode: force ?? null, gate: null, text: "" });
+    setStream({ active: true, mode: force ?? null, gate: null, text: "", chunks: [] });
     let gate: GateEvent | null = null;
     try {
       await chatStream(
@@ -106,7 +110,7 @@ export default function Live() {
             gate = g;
             setStream((s) => ({ ...s, gate: g, mode: g.mode }));
           },
-          onToken: (t) => setStream((s) => ({ ...s, text: s.text + t.text })),
+          onToken: (t) => setStream((s) => ({ ...s, text: s.text + t.text, chunks: [...s.chunks, t.text] })),
           onDone: (d) => {
             const meta: TurnMeta = { mode: d.mode, gate };
             setTurns([
@@ -137,8 +141,8 @@ export default function Live() {
         subtitle="Score reads the probe at every layer of the residual stream. Ask or answer lets the gate decide whether to clarify first."
         right={
           <>
-            <button type="button" className="btn-primary" onClick={onScore} disabled={busy}>
-              {scoring ? <Spinner label="scoring" /> : "Score"}
+            <button type="button" className="btn-primary min-w-[88px] justify-center" onClick={onScore} disabled={busy}>
+              {scoring ? <span className="shimmer-text">scoring</span> : justScored ? <Check /> : "Score"}
             </button>
             <button type="button" className="btn-risk" onClick={() => onChat()} disabled={busy}>
               {stream.active ? <Spinner label="streaming" /> : "Ask or answer"}
@@ -178,10 +182,43 @@ export default function Live() {
         </div>
 
         <div className="min-w-0 flex flex-col gap-4 md:sticky md:top-[72px]" data-reveal="readout">
-          {score ? <ScoreView score={score} /> : <Idle />}
+          {scoring && !score ? <Scanning /> : score ? <ScoreView score={score} /> : <Idle />}
         </div>
       </div>
     </div>
+  );
+}
+
+/** The strip's shape, before the strip: a light passes over where the bars will be. */
+function Scanning() {
+  return (
+    <>
+      <div className="panel p-5">
+        <div className="skel h-3 w-40" />
+        <div className="skel h-16 w-52 mt-3" />
+        <div className="skel h-2 w-full mt-6 rounded-full" />
+      </div>
+      <div className="panel p-5 pb-8">
+        <div className="skel h-3 w-56 mb-4" />
+        <div className="relative h-[150px] overflow-hidden rounded-lg">
+          <div className="absolute inset-0 flex items-end gap-[3px]">
+            {Array.from({ length: 33 }, (_, i) => (
+              <div key={i} className="flex-1 rounded-t-[2px] bg-panel-2" style={{ height: `${18 + ((i * 37) % 40)}%` }} />
+            ))}
+          </div>
+          <div className="absolute inset-y-0 w-1/3 animate-scan bg-gradient-to-r from-transparent via-safe/10 to-transparent" />
+        </div>
+      </div>
+      <div className="text-[12px] shimmer-text">reading 33 layers at the answer position</div>
+    </>
+  );
+}
+
+function Check() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-label="scored" className="animate-pop">
+      <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -260,14 +297,15 @@ function StreamBubble({ stream }: { stream: StreamState }) {
         {meta ? (
           <MetaBadge meta={meta} />
         ) : (
-          <span className="chip border-line-2 text-muted">
-            <span className="h-1.5 w-1.5 rounded-full bg-safe animate-pulseDot" />
-            reading the gate
-          </span>
+          <span className="chip border-line-2 shimmer-text">reading the gate</span>
         )}
       </div>
       <div className="px-3 pb-3 pt-1.5 text-[13.5px] leading-6 text-text whitespace-pre-wrap min-h-[40px]">
-        {stream.text}
+        {stream.chunks.map((c, i) => (
+          <span key={i} className="animate-tokenIn">
+            {c}
+          </span>
+        ))}
         <span className="inline-block w-[7px] h-[14px] align-[-2px] ml-0.5 bg-safe/80 animate-pulseDot" />
       </div>
     </div>

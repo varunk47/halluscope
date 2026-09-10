@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import type { GateEvent, Item, Role, Turn } from "../api";
+import PresetPalette from "./PresetPalette";
 import { RoleTag } from "./Primitives";
 
 export interface TurnMeta {
@@ -43,20 +44,7 @@ export default function DialogueBuilder({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <select
-          className="select min-w-[260px] flex-1"
-          value={presetId}
-          onChange={(e) => onPreset(e.target.value)}
-          disabled={disabled}
-          aria-label="load a preset dialogue"
-        >
-          <option value="">load a preset from the seed set</option>
-          {presets.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.id}, {p.label}: {snippet(p)}
-            </option>
-          ))}
-        </select>
+        <PresetPalette presets={presets} value={presetId} onPick={onPreset} disabled={disabled} />
         <button type="button" className="btn-ghost" onClick={() => onChange([{ role: "user", content: "" }])} disabled={disabled}>
           clear
         </button>
@@ -94,12 +82,6 @@ export default function DialogueBuilder({
       </div>
     </div>
   );
-}
-
-function snippet(item: Item): string {
-  const last = item.turns[item.turns.length - 1]?.content ?? "";
-  const s = last.replace(/\s+/g, " ").trim();
-  return s.length > 60 ? `${s.slice(0, 60)}...` : s;
 }
 
 function TurnEditor({

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ApiError, getResult, getResults, type ProbeFull, type ResultSummary } from "../api";
-import { Empty, PageHeader, Spinner } from "../components/Primitives";
+import { Empty, PageHeader } from "../components/Primitives";
 import ProbeView from "../components/results/ProbeView";
 import UqView from "../components/results/UqView";
 import BehaviorView from "../components/results/BehaviorView";
@@ -74,8 +74,19 @@ export default function Results() {
   if (list === null) {
     return (
       <div>
-        <PageHeader title="Results" />
-        <Spinner label="loading results" />
+        <PageHeader title="Results explorer" />
+        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-5 items-start">
+          <div className="panel p-3 flex flex-col gap-2">
+            {Array.from({ length: 7 }, (_, i) => (
+              <div key={i} className="skel h-9" style={{ width: `${70 + ((i * 23) % 30)}%` }} />
+            ))}
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="skel h-44" />
+            <div className="skel h-24" />
+            <div className="skel h-64" />
+          </div>
+        </div>
       </div>
     );
   }

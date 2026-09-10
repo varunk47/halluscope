@@ -1,0 +1,58 @@
+{
+  "judge_a": "results/verify_report_minimal.json",
+  "judge_b": "results/verify_report_minimal_nemotron.json",
+  "n_shared": 165,
+  "n_only_a": 0,
+  "n_only_b": 27,
+  "pass_rate_a": 0.9393939393939394,
+  "pass_rate_b": 0.9393939393939394,
+  "kappa_pass": 0.5741935483870968,
+  "kappa_by_field": {
+    "b_omits_gap": 0.0,
+    "c_is_consistent": 0.8509485094850953,
+    "d_contradicts": 0.0,
+    "off_domain": NaN
+  },
+  "disagree_on_pass": [
+    {
+      "family": "evaluation-0001-p1",
+      "a_passes": true,
+      "b_passes": false
+    },
+    {
+      "family": "evaluation-0003-p2",
+      "a_passes": true,
+      "b_passes": false
+    },
+    {
+      "family": "evaluation-0005-p2",
+      "a_passes": false,
+      "b_passes": true
+    },
+    {
+      "family": "finetuning-0002-p3",
+      "a_passes": false,
+      "b_passes": true
+    },
+    {
+      "family": "rag-0002-p2",
+      "a_passes": true,
+      "b_passes": false
+    },
+    {
+      "family": "rag-0006-p3",
+      "a_passes": false,
+      "b_passes": true
+    },
+    {
+      "family": "rag-0008-p2",
+      "a_passes": true,
+      "b_passes": false
+    },
+    {
+      "family": "serving-0004-p3",
+      "a_passes": false,
+      "b_passes": true
+    }
+  ]
+}

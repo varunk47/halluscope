@@ -16,7 +16,9 @@ import {
   ZAxis,
 } from "recharts";
 import { fmt, type HeadlineRow, type Metric, type ProbeFull, type ResultSummary } from "../../api";
-import { Panel, SectionLabel, Spinner, Stat } from "../Primitives";
+import { useEffect, useRef } from "react";
+import { rollNumber } from "../../lib/motion";
+import { Panel, SectionLabel, Stat } from "../Primitives";
 import { AXIS, C, ChartFrame, GRID, makeTooltip } from "../charts/theme";
 import { EmptyChart } from "../charts/TurnTrajectory";
 
@@ -102,9 +104,13 @@ export default function ProbeView({ summary, full }: { summary: ResultSummary; f
       </Panel>
 
       {!full ? (
-        <Panel>
-          <Spinner label="loading full result" />
-        </Panel>
+        <>
+          <div className="skel h-[268px]" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="skel h-[268px]" />
+            <div className="skel h-[268px]" />
+          </div>
+        </>
       ) : (
         <>
           <Panel>
@@ -162,10 +168,7 @@ function Headline({ rows }: { rows: HeadlineRow[] }) {
               <div className="text-[11.5px] text-dim mt-0.5">{PAIR_NOTE[r.pair] ?? ""}</div>
               <div className="mt-3 flex items-end gap-6">
                 <div>
-                  <div className={`font-display mono text-[36px] leading-none font-semibold tracking-tight ${tone}`}>
-                    {r.delta >= 0 ? "+" : ""}
-                    {r.delta.toFixed(3)}
-                  </div>
+                  <Delta value={r.delta} className={`font-display mono text-[36px] leading-none font-semibold tracking-tight ${tone}`} />
                   <div className="mono text-[11px] text-dim mt-1">
                     [{r.lo >= 0 ? "+" : ""}
                     {r.lo.toFixed(3)}, {r.hi >= 0 ? "+" : ""}
@@ -184,6 +187,19 @@ function Headline({ rows }: { rows: HeadlineRow[] }) {
         })}
       </div>
     </Panel>
+  );
+}
+
+/** The delta rolls to its value once, so the eye lands on the finding as it settles. */
+function Delta({ value, className }: { value: number; className: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    rollNumber(ref.current, value, (v) => `${v >= 0 ? "+" : ""}${v.toFixed(3)}`, 1.1);
+  }, [value]);
+  return (
+    <div ref={ref} data-value="0" className={className}>
+      +0.000
+    </div>
   );
 }
 

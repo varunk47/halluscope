@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { getHealth, type Health } from "../api";
+import { gsap, reducedMotion } from "../lib/motion";
 
 const LINKS = [
   { to: "/", label: "Live" },
@@ -12,6 +13,9 @@ const LINKS = [
 export default function TopBar() {
   const [health, setHealth] = useState<Health | null>(null);
   const [offline, setOffline] = useState(false);
+  const nav = useRef<HTMLElement>(null);
+  const pill = useRef<HTMLSpanElement>(null);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     let alive = true;
@@ -34,32 +38,49 @@ export default function TopBar() {
     };
   }, []);
 
+  // One pill slides between links instead of each link drawing its own underline.
+  useEffect(() => {
+    const el = nav.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!el || !pill.current || !nav.current) return;
+    const x = el.offsetLeft;
+    const w = el.offsetWidth;
+    if (reducedMotion() || !pill.current.dataset.placed) {
+      gsap.set(pill.current, { x, width: w, autoAlpha: 1 });
+      pill.current.dataset.placed = "1";
+      return;
+    }
+    gsap.to(pill.current, { x, width: w, duration: 0.35, ease: "power3.out", overwrite: true });
+  }, [pathname]);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-ink/85 backdrop-blur">
+    <header
+      className="sticky top-0 z-40 border-b border-line bg-ink/85 backdrop-blur"
+      style={{ viewTransitionName: "topbar" }}
+    >
       <div className="max-w-[1440px] mx-auto px-5 md:px-8 h-14 flex items-center gap-6">
         <NavLink to="/" className="flex items-center gap-2.5 min-w-0">
           <Mark />
           <span className="font-display text-[19px] font-semibold tracking-[-0.01em]">HalluScope</span>
         </NavLink>
 
-        <nav className="flex items-center gap-1 ml-2" aria-label="Main navigation">
+        <nav ref={nav} className="relative flex items-center gap-1 ml-2" aria-label="Main navigation">
+          <span
+            ref={pill}
+            aria-hidden="true"
+            className="absolute left-0 top-0 h-full rounded-lg bg-panel-2 opacity-0 pointer-events-none"
+          />
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               end={l.to === "/"}
               className={({ isActive }) =>
-                `relative px-3 py-1.5 text-[13.5px] rounded-lg transition ${
+                `relative z-10 px-3 py-1.5 text-[13.5px] rounded-lg transition-colors ${
                   isActive ? "text-text" : "text-muted hover:text-text"
                 }`
               }
             >
-              {({ isActive }) => (
-                <>
-                  {l.label}
-                  {isActive && <span className="absolute left-3 right-3 -bottom-[13px] h-px bg-safe" />}
-                </>
-              )}
+              {l.label}
             </NavLink>
           ))}
         </nav>
@@ -94,12 +115,7 @@ function StatusPill({ health, offline }: { health: Health | null; offline: boole
     );
   }
   if (!health) {
-    return (
-      <div className="chip border-line text-muted">
-        <span className="h-1.5 w-1.5 rounded-full bg-dim animate-pulseDot" />
-        connecting
-      </div>
-    );
+    return <div className="chip border-line shimmer-text">connecting</div>;
   }
   const model = health.model_loaded ?? "model loads on first score";
   const fitted = health.gate?.fitted;
