@@ -344,8 +344,8 @@ function ItemDetail({
         <LabelChip label={item.label} />
         <StatusChip status={item.review_status} />
         <span className="text-[11px] text-muted">
-          {item.topic} {"·"} family <span className="mono">{item.family}</span> {"·"} variant{" "}
-          <span className="mono">{item.variant}</span> {"·"} {item.source}
+          {item.topic}, family <span className="mono">{item.family}</span>, variant{" "}
+          <span className="mono">{item.variant}</span>, {item.source}
         </span>
         {item.reviewed_by && <span className="text-[11px] text-dim">reviewed by {item.reviewed_by}</span>}
         <div className="ml-auto flex items-center gap-1.5">
@@ -379,7 +379,7 @@ function ItemDetail({
         {draft.turns.map((t, i) => (
           <div
             key={i}
-            className={`rounded-md border px-3 py-2 ${
+            className={`rounded-lg border px-3 py-2 ${
               t.role === "user" ? "border-line bg-ink/60" : "border-incons/20 bg-[#141626]"
             }`}
           >

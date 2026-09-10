@@ -158,7 +158,15 @@ def run_verify(
     out_report: Path | None = None,
     workers: int = 4,
     resume: bool = False,
+    apply: bool = True,
 ) -> dict:
+    """Judge every complete augmented family and, when ``apply`` is set, mark
+    the failing ones rejected in the dataset file.
+
+    A second judge runs with ``apply`` off: its verdicts go to the report so
+    they can be compared with the first judge's, and disagreement is reported
+    rather than resolved by whichever model happened to run last.
+    """
     from halluscope.config import get_settings
 
     cfg = get_settings()
@@ -168,11 +176,12 @@ def run_verify(
     verdicts = verify_families(items, client, workers=workers, skip=set(done))
     verdicts.update(done)
     rejected = {f for f, v in verdicts.items() if v is not None and not passes(v)}
-    for it in items:
-        if it.family in rejected and it.review_status == "pending":
-            it.review_status = "rejected"
-            it.reviewed_by = "llm-verify"
-    save_items(items, items_path)
+    if apply:
+        for it in items:
+            if it.family in rejected and it.review_status == "pending":
+                it.review_status = "rejected"
+                it.reviewed_by = "llm-verify"
+        save_items(items, items_path)
     report = {
         "families_checked": len(verdicts),
         "families_rejected": len(rejected),

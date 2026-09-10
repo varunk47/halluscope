@@ -48,7 +48,7 @@ export default function TurnTrajectory({ probs }: { probs: number[] }) {
 
 export function EmptyChart({ text }: { text: string }) {
   return (
-    <div className="h-full w-full grid place-items-center rounded-md border border-dashed border-line text-[12px] text-dim">
+    <div className="h-full w-full grid place-items-center rounded-lg border border-dashed border-line text-[12px] text-dim">
       {text}
     </div>
   );

@@ -50,6 +50,11 @@ body {
   outline-offset: 2px;
 }
 
+/*
+ * Shape rule for the whole app: panels 12px (rounded-xl), controls and inner
+ * blocks 8px (rounded-lg), chips are pills, the kbd hint is 4px because it is
+ * 18px tall. Nothing else.
+ */
 @layer components {
   /* Small sentence-case label. Carries a hairline so it reads as a rule, not a badge. */
   .label {
@@ -87,7 +92,7 @@ body {
     @apply btn bg-transparent border-line text-muted hover:text-text hover:border-line-2;
   }
   .btn-xs {
-    @apply px-2 py-1 text-[11.5px] rounded-md;
+    @apply px-2 py-1 text-[11.5px];
   }
   .kbd {
     @apply mono inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded border border-line-2

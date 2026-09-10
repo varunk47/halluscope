@@ -87,7 +87,7 @@ export default function Results() {
         <Empty title="no results yet">
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
             {KIND_ORDER.map((k) => (
-              <div key={k} className="rounded-md border border-line bg-ink/60 p-3">
+              <div key={k} className="rounded-lg border border-line bg-ink/60 p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`chip ${KIND_TONE[k]}`}>{k}</span>
                   <span className="mono text-[12px] text-text">{KIND_CMD[k]}</span>
@@ -124,7 +124,7 @@ export default function Results() {
                     key={r.name}
                     type="button"
                     onClick={() => setParams({ r: r.name })}
-                    className={`relative w-full text-left rounded-md px-2 py-1.5 transition ${
+                    className={`relative w-full text-left rounded-lg px-2 py-1.5 transition ${
                       active ? "bg-panel-2 text-text" : "text-muted hover:text-text hover:bg-panel-2/60"
                     }`}
                   >

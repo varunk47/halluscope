@@ -51,6 +51,10 @@ def verify(
     resume: bool = typer.Option(
         False, help="Keep verdicts already in the report and judge only what is missing"
     ),
+    apply: bool = typer.Option(
+        True,
+        help="Write rejections into the dataset; off for a second judge whose verdicts are compared, not applied",
+    ),
 ) -> None:
     """LLM verification pass: reject augmented families whose variants do not match their labels."""
     from halluscope.data.verify import reapply as _reapply
@@ -60,7 +64,7 @@ def verify(
         r = _reapply(items, report)
         console.print(f"reapplied: {r}")
         return
-    r = run_verify(items, out_report=report, workers=workers, resume=resume)
+    r = run_verify(items, out_report=report, workers=workers, resume=resume, apply=apply)
     console.print(
         f"checked {r['families_checked']} families, rejected {r['families_rejected']}; {r['cost']}"
     )

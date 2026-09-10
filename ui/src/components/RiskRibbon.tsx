@@ -113,24 +113,15 @@ function Mini({ label, value, wide = false }: { label: string; value: string; wi
 export function GatePill({ fired }: { fired: boolean | null }) {
   if (fired === null) {
     return (
-      <div className="chip border-line-2 text-muted !px-3 !py-1.5 !text-[12.5px]">
-        <span className="h-1.5 w-1.5 rounded-full bg-dim" />
-        gate not fitted
-      </div>
+      <div className="chip border-line-2 text-muted !px-3 !py-1.5 !text-[12.5px]">gate not fitted</div>
     );
   }
   if (fired) {
     return (
-      <div className="chip border-risk/60 text-risk bg-risk/10 shadow-glow-risk !px-3 !py-1.5 !text-[12.5px]">
-        <span className="h-1.5 w-1.5 rounded-full bg-risk animate-pulseDot" />
-        gate fired, ask first
-      </div>
+      <div className="chip border-risk/70 text-risk bg-risk/10 !px-3 !py-1.5 !text-[12.5px]">gate fired, ask first</div>
     );
   }
   return (
-    <div className="chip border-safe/50 text-safe bg-safe/10 !px-3 !py-1.5 !text-[12.5px]">
-      <span className="h-1.5 w-1.5 rounded-full bg-safe" />
-      gate quiet, answer
-    </div>
+    <div className="chip border-safe/50 text-safe bg-safe/10 !px-3 !py-1.5 !text-[12.5px]">gate quiet, answer</div>
   );
 }

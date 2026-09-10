@@ -89,6 +89,10 @@ class AliasCfg(BaseModel):
 # spent thinking count against max_tokens, which is why every alias that can
 # reach it carries more headroom than a plain chat model would need.
 KIMI_K3 = "nvidia_nim/moonshotai/kimi-k3"
+# Nemotron 3 Super through the same endpoint. Kimi's shared free pool throttles
+# for hours after a short burst; Nemotron answered every call in the same
+# session, so it takes the bulk work and Kimi stays as a further fallback.
+NEMOTRON = "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"
 
 
 class JudgeCfg(BaseModel):
@@ -98,10 +102,11 @@ class JudgeCfg(BaseModel):
         # the genuine cross-family option here and leads that list; the older
         # OpenAI model stays last as a same-family fallback the report flags.
         "judge_primary": AliasCfg(
-            models=["openai/gpt-5.1", "openai/gpt-5", KIMI_K3], max_tokens=4096
+            models=["openai/gpt-5.1", "openai/gpt-5", NEMOTRON, KIMI_K3], max_tokens=4096
         ),
         "judge_secondary": AliasCfg(
             models=[
+                NEMOTRON,
                 KIMI_K3,
                 "anthropic/claude-sonnet-5",
                 "gemini/gemini-2.5-pro",
@@ -110,12 +115,18 @@ class JudgeCfg(BaseModel):
             max_tokens=4096,
         ),
         "simulated_user": AliasCfg(
-            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini", KIMI_K3],
+            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini", NEMOTRON, KIMI_K3],
             temperature=0.3,
             max_tokens=2048,
         ),
         "augmenter": AliasCfg(
-            models=["anthropic/claude-sonnet-5", "openai/gpt-5.1", "openai/gpt-5", KIMI_K3],
+            models=[
+                "anthropic/claude-sonnet-5",
+                "openai/gpt-5.1",
+                "openai/gpt-5",
+                NEMOTRON,
+                KIMI_K3,
+            ],
             temperature=0.9,
             max_tokens=8192,
         ),

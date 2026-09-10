@@ -32,8 +32,6 @@ export default {
         DEFAULT: "180ms",
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(34,211,238,0.25), 0 0 24px rgba(34,211,238,0.12)",
-        "glow-risk": "0 0 0 1px rgba(249,115,22,0.35), 0 0 28px rgba(239,68,68,0.18)",
         panel: "0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.35)",
         readout: "0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 60px -20px rgba(0,0,0,0.7)",
       },

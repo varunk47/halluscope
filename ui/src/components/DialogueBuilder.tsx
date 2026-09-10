@@ -53,7 +53,7 @@ export default function DialogueBuilder({
           <option value="">load a preset from the seed set</option>
           {presets.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.id} {"·"} {p.label} {"·"} {snippet(p)}
+              {p.id}, {p.label}: {snippet(p)}
             </option>
           ))}
         </select>
@@ -132,7 +132,7 @@ function TurnEditor({
     <div
       className={`group relative rounded-lg border transition ${
         user ? "border-line bg-panel" : "border-incons/20 bg-[#141626]"
-      } ${isLast && user ? "focus-within:border-safe/50 focus-within:shadow-glow" : "focus-within:border-line-2"}`}
+      } ${isLast && user ? "focus-within:border-safe/60" : "focus-within:border-line-2"}`}
     >
       <div className="flex items-center gap-2 px-3 pt-2">
         <span className="mono text-[10px] text-dim">{String(index + 1).padStart(2, "0")}</span>

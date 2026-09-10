@@ -96,18 +96,18 @@ uv run halluscope report                                # docs/results.md and do
 
 ## Hardware and honesty notes
 
-Everything here ran on one laptop GPU with 8 GB of VRAM. No multi-GPU or HPC claims are made. Qwen3.5-4B runs in nf4 at about 5 tokens per second, so sampling-based baselines are computed on a fixed subset of the test split (`uq.sampling_limit`) and the loop uses one seed for all four conditions; both are stated in the results tables. The primary judge is an OpenAI model and the second judge is Kimi K3 through NVIDIA NIM, a different model family, so agreement between them is not one model agreeing with itself. The provenance page shows which models actually answered each call.
+Everything here ran on one laptop GPU with 8 GB of VRAM. No multi-GPU or HPC claims are made. Qwen3.5-4B runs in nf4 at about 5 tokens per second, so sampling-based baselines are computed on a fixed subset of the test split (`uq.sampling_limit`) and the loop uses one seed for all four conditions; both are stated in the results tables. The primary judge is an OpenAI model and the second judge is Nemotron 3 Super through NVIDIA NIM, with Kimi K3 behind it, both different model families from the first, so agreement between judges is not one model agreeing with itself. The provenance page shows which models actually answered each call.
 
 ## Status, 10 September 2026
 
 | Piece | State |
 |---|---|
-| Dataset, two builds (free paraphrase, minimal edit), LLM verification | done; 27 families of the minimal build are being re-verified by Kimi K3 as NVIDIA NIM capacity allows, and the second judge's verdicts on the other 165 will give the cross-family kappa on verification itself |
+| Dataset, two builds (free paraphrase, minimal edit), LLM verification | done; a second judge (Nemotron 3 Super) is re-reading every family of the minimal build so the verification step itself gets a cross-family kappa, `scripts/judge_agreement.py` |
 | Activation capture, Qwen3.5-4B, both builds | done |
 | Gap probes with the paired comparison against text baselines | done, `docs/results.md` |
 | Behavior labels, will_ask and will_assume probes | done on the free build |
 | Uncertainty baselines | running on the minimal test split; semantic entropy and its probe wait on a reachable judge |
-| Clarify gate in the simulated-user loop, four conditions | not run yet; the simulated user is an API model |
+| Clarify gate in the simulated-user loop, four conditions | not run yet; queued behind verification on the same API allocation |
 | Cross-model transfer and activation steering | implemented, not run |
 
 The interview version of this table is that the method and the harness are complete and the remaining rows are compute and API time, not design.

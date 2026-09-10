@@ -64,7 +64,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             role="status"
-            className={`animate-rise flex items-start gap-3 rounded-md border px-3 py-2.5 text-[13px] shadow-panel ${TONE_CLASS[t.tone]}`}
+            className={`animate-rise flex items-start gap-3 rounded-lg border px-3 py-2.5 text-[13px] shadow-panel ${TONE_CLASS[t.tone]}`}
           >
             <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${TONE_DOT[t.tone]}`} />
             <span className="flex-1 leading-5 break-words">{t.text}</span>

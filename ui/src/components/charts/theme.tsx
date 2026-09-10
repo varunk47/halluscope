@@ -42,7 +42,7 @@ export function makeTooltip(format?: RowFmt, title?: (label: unknown) => ReactNo
     const { active, payload, label } = props;
     if (!active || !payload || payload.length === 0) return null;
     return (
-      <div className="rounded-md border border-line-2 bg-ink/95 px-3 py-2 text-[12px] shadow-panel">
+      <div className="rounded-lg border border-line-2 bg-ink/95 px-3 py-2 text-[12px] shadow-panel">
         <div className="mono text-muted mb-1">{title ? title(label) : String(label)}</div>
         {payload.map((p, i) => (
           <div key={i} className="flex items-center gap-2">

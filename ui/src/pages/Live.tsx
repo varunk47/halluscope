@@ -134,7 +134,7 @@ export default function Live() {
     <div ref={page}>
       <PageHeader
         title="Read the model before it answers"
-        subtitle="Write a request, or load one from the seed set. Score runs the linear probe at every layer of the residual stream; Ask or answer lets the conformal gate decide whether the assistant should clarify first."
+        subtitle="Score reads the probe at every layer of the residual stream. Ask or answer lets the gate decide whether to clarify first."
         right={
           <>
             <button type="button" className="btn-primary" onClick={onScore} disabled={busy}>

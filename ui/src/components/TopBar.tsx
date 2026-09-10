@@ -49,7 +49,7 @@ export default function TopBar() {
               to={l.to}
               end={l.to === "/"}
               className={({ isActive }) =>
-                `relative px-3 py-1.5 text-[13.5px] rounded-md transition ${
+                `relative px-3 py-1.5 text-[13.5px] rounded-lg transition ${
                   isActive ? "text-text" : "text-muted hover:text-text"
                 }`
               }
@@ -109,7 +109,6 @@ function StatusPill({ health, offline }: { health: Health | null; offline: boole
         className={`chip ${health.model_loaded ? "border-safe/40 text-safe bg-safe/10" : "border-line text-muted"}`}
         title={health.model_loaded ? `model ${health.model_loaded}` : "the scorer loads the model on first request"}
       >
-        <span className={`h-1.5 w-1.5 rounded-full ${health.model_loaded ? "bg-safe" : "bg-dim"}`} />
         <span className="mono max-w-[220px] truncate">{model}</span>
       </div>
       <div
@@ -125,7 +124,6 @@ function StatusPill({ health, offline }: { health: Health | null; offline: boole
           <span className="mono text-[10px] opacity-80">L{health.gate.layer}</span>
         )}
       </div>
-      <span className="hidden xl:inline mono text-[11px] text-dim">v{health.version}</span>
     </div>
   );
 }
