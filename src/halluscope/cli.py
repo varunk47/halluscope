@@ -47,6 +47,10 @@ def verify(
     reapply: bool = typer.Option(
         False, help="Recompute rejections from the saved report, no API calls"
     ),
+    workers: int = typer.Option(4, help="Parallel judge calls; drop to 1 on a throttled free tier"),
+    resume: bool = typer.Option(
+        False, help="Keep verdicts already in the report and judge only what is missing"
+    ),
 ) -> None:
     """LLM verification pass: reject augmented families whose variants do not match their labels."""
     from halluscope.data.verify import reapply as _reapply
@@ -56,7 +60,7 @@ def verify(
         r = _reapply(items, report)
         console.print(f"reapplied: {r}")
         return
-    r = run_verify(items, out_report=report)
+    r = run_verify(items, out_report=report, workers=workers, resume=resume)
     console.print(
         f"checked {r['families_checked']} families, rejected {r['families_rejected']}; {r['cost']}"
     )

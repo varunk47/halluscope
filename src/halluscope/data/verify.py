@@ -9,6 +9,7 @@ each family against its own annotations and families that fail are marked
 
 from __future__ import annotations
 
+import json
 import logging
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -68,13 +69,19 @@ def verify_prompt(fam: dict[str, Item]) -> list[dict[str, str]]:
 
 
 def verify_families(
-    items: list[Item], client: JudgeClient, alias: str = "judge_primary", workers: int = 4
+    items: list[Item],
+    client: JudgeClient,
+    alias: str = "judge_primary",
+    workers: int = 4,
+    skip: set[str] | None = None,
 ) -> dict[str, FamilyVerdict | None]:
     fams: dict[str, dict[str, Item]] = defaultdict(dict)
     for it in items:
         if it.source == "augmented":
             fams[it.family][it.variant] = it
-    complete = {f: v for f, v in fams.items() if set(v) == {"a", "b", "c", "d"}}
+    complete = {
+        f: v for f, v in fams.items() if set(v) == {"a", "b", "c", "d"} and f not in (skip or set())
+    }
 
     def one(f: str):
         try:
@@ -131,15 +138,35 @@ def reapply(items_path: Path, report_path: Path) -> dict:
     return {"families_rejected": len(rejected), "items_changed": changed}
 
 
+def _resume_from(report_path: Path | None) -> dict[str, FamilyVerdict]:
+    """Verdicts already on disk, so an interrupted run does not pay for them twice.
+
+    Free provider tiers throttle long runs into several sittings, and a family
+    that has already been judged does not become unjudged because the next one
+    hit a 429. Only real verdicts carry over; a null is a family that was never
+    actually looked at.
+    """
+    if report_path is None or not Path(report_path).exists():
+        return {}
+    saved = json.loads(Path(report_path).read_text(encoding="utf-8")).get("verdicts", {})
+    return {f: FamilyVerdict.model_validate(v) for f, v in saved.items() if v}
+
+
 def run_verify(
-    items_path: Path, client: JudgeClient | None = None, out_report: Path | None = None
+    items_path: Path,
+    client: JudgeClient | None = None,
+    out_report: Path | None = None,
+    workers: int = 4,
+    resume: bool = False,
 ) -> dict:
     from halluscope.config import get_settings
 
     cfg = get_settings()
     client = client or JudgeClient(cfg.judge, cost_log=cfg.paths.cost_log)
     items = load_items(items_path)
-    verdicts = verify_families(items, client)
+    done = _resume_from(out_report) if resume else {}
+    verdicts = verify_families(items, client, workers=workers, skip=set(done))
+    verdicts.update(done)
     rejected = {f for f, v in verdicts.items() if v is not None and not passes(v)}
     for it in items:
         if it.family in rejected and it.review_status == "pending":

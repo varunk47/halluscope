@@ -103,6 +103,22 @@ def _is_permanent(e: Exception) -> bool:
     )
 
 
+def _is_rate_limit(e: Exception) -> bool:
+    """A 429 that is worth waiting out rather than counting against the retry budget."""
+    name = type(e).__name__.lower()
+    msg = str(e).lower()
+    if _is_permanent(e):  # a spent account also answers 429; that one is not worth waiting for
+        return False
+    return "ratelimit" in name or "429" in msg or "too many requests" in msg
+
+
+# Free provider tiers answer a burst with 429 for minutes, not seconds. The
+# ordinary retry budget is three attempts inside twelve seconds, which is long
+# enough to fail and short enough to learn nothing, so rate limits get their own
+# schedule and do not consume the budget meant for genuine errors.
+RATE_LIMIT_BACKOFF = (5.0, 15.0, 30.0, 60.0, 60.0, 120.0)
+
+
 class JudgeClient:
     def __init__(
         self,
@@ -136,7 +152,9 @@ class JudgeClient:
         for model in acfg.models:
             if model in self._dead_models:
                 continue
-            for attempt in range(self.cfg.max_retries):
+            attempt = 0
+            throttled = 0
+            while attempt < self.cfg.max_retries:
                 t0 = time.time()
                 try:
                     kwargs: dict[str, Any] = {
@@ -165,7 +183,14 @@ class JudgeClient:
                     if _is_permanent(e):
                         self._dead_models.add(model)
                         break
-                    time.sleep(min(2.0 * (attempt + 1), 6.0))
+                    if _is_rate_limit(e) and throttled < len(RATE_LIMIT_BACKOFF):
+                        # Waiting out a throttle is not a failed attempt, so the
+                        # budget for real errors survives the wait.
+                        time.sleep(RATE_LIMIT_BACKOFF[throttled])
+                        throttled += 1
+                        continue
+                    attempt += 1
+                    time.sleep(min(2.0 * attempt, 6.0))
         raise JudgeError(f"all models failed for alias {alias!r}: {last_err}")
 
     # ---- structured -------------------------------------------------------------------
