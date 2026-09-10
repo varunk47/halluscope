@@ -132,7 +132,9 @@ export default function Results() {
                     <div className="mono text-[12px] truncate" title={r.name}>
                       {r.name}
                     </div>
-                    <div className="text-[10.5px] text-dim truncate">{r.model ?? "no model"}</div>
+                    <div className="text-[10.5px] text-dim truncate">
+                      {r.kind === "probe" && r.dataset ? `${r.dataset.replace(/^items_?/, "") || "items"} build` : (r.model ?? "no model")}
+                    </div>
                   </button>
                 );
               })}

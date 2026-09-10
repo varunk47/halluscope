@@ -119,7 +119,25 @@ def provenance() -> dict:
 # Serve the built UI when present (ui/dist), API routes take precedence.
 _dist = Path(__file__).resolve().parents[1] / "ui" / "dist"
 if _dist.exists():
-    app.mount("/", StaticFiles(directory=str(_dist), html=True), name="ui")
+    from fastapi.responses import FileResponse
+    from starlette.exceptions import HTTPException as StarletteHTTPException
+
+    class SpaFiles(StaticFiles):
+        """Static files, with the app shell for any path the router owns.
+
+        The UI is a single page whose routes live in the browser. Without this,
+        a refresh on /results, or a pasted link to one, answers 404.
+        """
+
+        async def get_response(self, path: str, scope):
+            try:
+                return await super().get_response(path, scope)
+            except StarletteHTTPException as e:
+                if e.status_code == 404 and "." not in Path(path).name:
+                    return FileResponse(_dist / "index.html")
+                raise
+
+    app.mount("/", SpaFiles(directory=str(_dist), html=True), name="ui")
 else:
 
     @app.get("/")

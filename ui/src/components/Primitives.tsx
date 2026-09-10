@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import type { Label, ReviewStatus, Role } from "../api";
 
+/** A small heading with a hairline running to the right, and an optional note at the end. */
 export function SectionLabel({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 mb-3">
-      <span className="label">{children}</span>
-      {right && <span className="text-[11px] text-muted">{right}</span>}
+    <div className="flex items-center gap-3 mb-3">
+      <span className="label whitespace-nowrap">{children}</span>
+      <span className="flex-1 h-px bg-line" />
+      {right && <span className="text-[11.5px] text-dim whitespace-nowrap">{right}</span>}
     </div>
   );
 }
@@ -32,12 +34,12 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
-      <div>
+    <div className="flex flex-wrap items-end justify-between gap-4 mb-7" data-reveal="header">
+      <div className="max-w-2xl">
         <h1 className="page-title">{title}</h1>
-        {subtitle && <p className="mt-1 text-[13px] text-muted max-w-2xl leading-5">{subtitle}</p>}
+        {subtitle && <p className="mt-2 text-[14px] text-muted leading-6">{subtitle}</p>}
       </div>
-      {right && <div className="flex items-center gap-2">{right}</div>}
+      {right && <div className="flex flex-wrap items-center gap-2">{right}</div>}
     </div>
   );
 }
@@ -73,18 +75,14 @@ export function StatusChip({ status }: { status: ReviewStatus }) {
 
 export function RoleTag({ role }: { role: Role }) {
   return (
-    <span
-      className={`label !tracking-[0.12em] ${role === "user" ? "text-safe" : "text-incons"}`}
-    >
-      {role}
-    </span>
+    <span className={`text-[12px] font-medium ${role === "user" ? "text-safe" : "text-incons"}`}>{role}</span>
   );
 }
 
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="panel grid-texture p-8 text-center">
-      <div className="text-[15px] font-medium text-text">{title}</div>
+      <div className="font-display text-[18px] font-semibold text-text">{title}</div>
       {children && <div className="mt-2 text-[13px] text-muted leading-5 max-w-lg mx-auto">{children}</div>}
     </div>
   );

@@ -125,11 +125,25 @@ export interface LotoEntry {
   n?: number;
 }
 
+export interface HeadlineRow {
+  probe: string;
+  pair: "single_turn_ab" | "multi_turn_cd" | string;
+  probe_auroc: number | null;
+  words_auroc: number | null;
+  baseline: string;
+  delta: number;
+  lo: number;
+  hi: number;
+  p: number;
+  n: number;
+}
 export interface ResultSummary {
   name: string;
   kind: ResultKind | string;
   model: string | null;
   // probe
+  dataset?: string | null;
+  headline?: HeadlineRow[];
   target?: string;
   pooling?: string;
   n_layers?: number;

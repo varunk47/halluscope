@@ -49,6 +49,8 @@ def dataset_label(r: dict) -> str:
     Newer files record it; older ones only carry it in the filename suffix, and
     a file with neither was run on the default build.
     """
+    if r.get("tag"):
+        return str(r["tag"])
     if r.get("dataset"):
         return str(r["dataset"]).removeprefix("items_") or "items"
     stem = Path(r.get("_file", "")).stem

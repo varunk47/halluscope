@@ -37,14 +37,10 @@ export default function TopBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-ink/85 backdrop-blur">
       <div className="max-w-[1440px] mx-auto px-5 md:px-8 h-14 flex items-center gap-6">
-        <div className="flex items-baseline gap-3 min-w-0">
-          <span className="text-[17px] font-semibold tracking-tight">
-            Hallu<span className="text-safe">Scope</span>
-          </span>
-          <span className="hidden lg:inline text-[12px] text-muted truncate">
-            internal-state probes for underspecified requests
-          </span>
-        </div>
+        <NavLink to="/" className="flex items-center gap-2.5 min-w-0">
+          <Mark />
+          <span className="font-display text-[19px] font-semibold tracking-[-0.01em]">HalluScope</span>
+        </NavLink>
 
         <nav className="flex items-center gap-1 ml-2" aria-label="Main navigation">
           {LINKS.map((l) => (
@@ -53,17 +49,15 @@ export default function TopBar() {
               to={l.to}
               end={l.to === "/"}
               className={({ isActive }) =>
-                `relative px-3 py-1.5 text-[13px] rounded-md transition ${
-                  isActive ? "text-text bg-panel-2" : "text-muted hover:text-text hover:bg-panel"
+                `relative px-3 py-1.5 text-[13.5px] rounded-md transition ${
+                  isActive ? "text-text" : "text-muted hover:text-text"
                 }`
               }
             >
               {({ isActive }) => (
                 <>
                   {l.label}
-                  {isActive && (
-                    <span className="absolute left-3 right-3 -bottom-[13px] h-px bg-safe" />
-                  )}
+                  {isActive && <span className="absolute left-3 right-3 -bottom-[13px] h-px bg-safe" />}
                 </>
               )}
             </NavLink>
@@ -75,6 +69,18 @@ export default function TopBar() {
         </div>
       </div>
     </header>
+  );
+}
+
+/** A residual stream read at one depth: a stack of layers with one lit. */
+function Mark() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+      {[3, 7, 11, 15].map((y, i) => (
+        <rect key={y} x="3" y={y} width="16" height="2.5" rx="1" fill={i === 2 ? "#22d3ee" : "#2a3644"} />
+      ))}
+      <circle cx="19.5" cy="12.25" r="2" fill="#22d3ee" />
+    </svg>
   );
 }
 
@@ -95,31 +101,23 @@ function StatusPill({ health, offline }: { health: Health | null; offline: boole
       </div>
     );
   }
-  const model = health.model_loaded ?? "no model loaded";
+  const model = health.model_loaded ?? "model loads on first score";
   const fitted = health.gate?.fitted;
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`chip ${
-          health.model_loaded
-            ? "border-safe/40 text-safe bg-safe/10"
-            : "border-line text-muted bg-panel"
-        }`}
+        className={`chip ${health.model_loaded ? "border-safe/40 text-safe bg-safe/10" : "border-line text-muted"}`}
         title={health.model_loaded ? `model ${health.model_loaded}` : "the scorer loads the model on first request"}
       >
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${health.model_loaded ? "bg-safe" : "bg-dim"}`}
-        />
+        <span className={`h-1.5 w-1.5 rounded-full ${health.model_loaded ? "bg-safe" : "bg-dim"}`} />
         <span className="mono max-w-[220px] truncate">{model}</span>
       </div>
       <div
-        className={`chip ${
-          fitted ? "border-safe/40 text-safe bg-safe/10" : "border-risk/40 text-risk bg-risk/10"
-        }`}
+        className={`chip ${fitted ? "border-safe/40 text-safe bg-safe/10" : "border-risk/40 text-risk bg-risk/10"}`}
         title={
           fitted
             ? `gate fitted at layer ${health.gate.layer}, threshold ${Number(health.gate.threshold).toFixed(3)}`
-            : health.gate?.reason ?? "gate not fitted"
+            : (health.gate?.reason ?? "gate not fitted")
         }
       >
         {fitted ? "gate fitted" : "gate not fitted"}

@@ -15,6 +15,7 @@ import LayerBars from "../components/charts/LayerBars";
 import TurnTrajectory from "../components/charts/TurnTrajectory";
 import EntropyLine from "../components/charts/EntropyLine";
 import { useToast } from "../components/Toast";
+import { gsap, reducedMotion, useGSAP } from "../lib/motion";
 
 interface StreamState {
   active: boolean;
@@ -27,6 +28,7 @@ const EMPTY_STREAM: StreamState = { active: false, mode: null, gate: null, text:
 
 export default function Live() {
   const toast = useToast();
+  const page = useRef<HTMLDivElement>(null);
   const [turns, setTurns] = useState<DialogTurn[]>([{ role: "user", content: "" }]);
   const [presets, setPresets] = useState<Item[]>([]);
   const [presetId, setPresetId] = useState("");
@@ -34,6 +36,15 @@ export default function Live() {
   const [scoring, setScoring] = useState(false);
   const [stream, setStream] = useState<StreamState>(EMPTY_STREAM);
   const abortRef = useRef<AbortController | null>(null);
+
+  // One reveal on arrival, nothing after: the bench settles into place once.
+  useGSAP(
+    () => {
+      if (reducedMotion()) return;
+      gsap.from("[data-reveal]", { y: 10, autoAlpha: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" });
+    },
+    { scope: page },
+  );
 
   useEffect(() => {
     getItems({ limit: 64, source: "seed" })
@@ -120,10 +131,10 @@ export default function Live() {
   const busy = scoring || stream.active;
 
   return (
-    <div>
+    <div ref={page}>
       <PageHeader
-        title="Live dialogue"
-        subtitle="Build a conversation, score the internal state at every layer, then let the gate decide whether to ask a clarifying question or answer."
+        title="Read the model before it answers"
+        subtitle="Write a request, or load one from the seed set. Score runs the linear probe at every layer of the residual stream; Ask or answer lets the conformal gate decide whether the assistant should clarify first."
         right={
           <>
             <button type="button" className="btn-primary" onClick={onScore} disabled={busy}>
@@ -150,7 +161,7 @@ export default function Live() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-5 items-start">
-        <div className="min-w-0">
+        <div className="min-w-0" data-reveal="dialogue">
           <SectionLabel right={`${turns.length} turn${turns.length === 1 ? "" : "s"}`}>dialogue</SectionLabel>
           <DialogueBuilder
             turns={turns}
@@ -166,22 +177,38 @@ export default function Live() {
           />
         </div>
 
-        <div className="min-w-0 flex flex-col gap-4 md:sticky md:top-[72px]">
-          {score ? (
-            <ScoreView score={score} />
-          ) : (
-            <Panel className="grid-texture">
-              <div className="label mb-2">read-out</div>
-              <p className="text-[13px] text-muted leading-5">
-                Press <span className="text-safe">Score</span> to run the linear probe at every layer of the
-                loaded model. The ribbon shows the probability at the best validation layer, the gate verdict,
-                the per-layer profile, the trajectory across user turns, and the logit-lens entropy.
-              </p>
-            </Panel>
-          )}
+        <div className="min-w-0 flex flex-col gap-4 md:sticky md:top-[72px]" data-reveal="readout">
+          {score ? <ScoreView score={score} /> : <Idle />}
         </div>
       </div>
     </div>
+  );
+}
+
+function Idle() {
+  return (
+    <Panel className="grid-texture">
+      <SectionLabel>readout</SectionLabel>
+      <p className="text-[13.5px] text-muted leading-6">
+        Nothing scored yet. Score reads the hidden state at the position where the assistant would start
+        answering and reports, layer by layer, how strongly it looks like an underspecified request. The
+        figure at the top is the best validation layer; the strip below it is the whole sweep.
+      </p>
+      <ul className="mt-4 grid grid-cols-3 gap-3 text-[12px] text-dim">
+        <li>
+          <span className="block text-safe mono text-[13px]">0.0</span>
+          fully specified
+        </li>
+        <li>
+          <span className="block text-muted mono text-[13px]">0.5</span>
+          probe boundary
+        </li>
+        <li>
+          <span className="block text-risk mono text-[13px]">1.0</span>
+          missing a needed detail
+        </li>
+      </ul>
+    </Panel>
   );
 }
 
@@ -190,7 +217,7 @@ function ScoreView({ score }: { score: ScoreResponse }) {
   return (
     <>
       <RiskRibbon score={score} />
-      <Panel>
+      <Panel className="pb-8">
         <LayerBars data={score.per_layer} bestLayer={score.best_layer} />
       </Panel>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -202,9 +229,11 @@ function ScoreView({ score }: { score: ScoreResponse }) {
         </Panel>
       </div>
       <Panel>
-        <SectionLabel right={`${uqEntries.length} signal${uqEntries.length === 1 ? "" : "s"}`}>uncertainty grid</SectionLabel>
+        <SectionLabel right={`${uqEntries.length} signal${uqEntries.length === 1 ? "" : "s"}`}>
+          uncertainty signals on the same prefix
+        </SectionLabel>
         {uqEntries.length === 0 ? (
-          <div className="text-[12px] text-dim">no uq signals returned</div>
+          <div className="text-[12px] text-dim">no uncertainty signals returned</div>
         ) : (
           <div className="grid grid-cols-2 gap-x-6 gap-y-2">
             {uqEntries.map(([k, v]) => (
@@ -225,15 +254,15 @@ function ScoreView({ score }: { score: ScoreResponse }) {
 function StreamBubble({ stream }: { stream: StreamState }) {
   const meta: TurnMeta | null = stream.mode ? { mode: stream.mode, gate: stream.gate } : null;
   return (
-    <div className="animate-rise rounded-lg border border-incons/30 bg-[#141626] shadow-glow">
+    <div className="animate-rise rounded-xl border border-incons/30 bg-[#131626]">
       <div className="flex items-center gap-2 px-3 pt-2">
-        <span className="label !tracking-[0.12em] text-incons">assistant</span>
+        <span className="text-[12px] font-medium text-incons">assistant</span>
         {meta ? (
           <MetaBadge meta={meta} />
         ) : (
           <span className="chip border-line-2 text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-safe animate-pulseDot" />
-            scoring gate
+            reading the gate
           </span>
         )}
       </div>

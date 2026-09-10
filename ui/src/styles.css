@@ -14,10 +14,9 @@ body,
 
 body {
   @apply bg-ink text-text font-sans antialiased;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
-  background-image:
-    radial-gradient(1200px 500px at 15% -10%, rgba(34, 211, 238, 0.06), transparent 60%),
-    radial-gradient(900px 400px at 95% 0%, rgba(249, 115, 22, 0.05), transparent 60%);
+  font-feature-settings: "ss01", "cv11";
+  /* one cold light source top-left, the rest of the bench in shadow */
+  background-image: radial-gradient(1100px 520px at 12% -12%, rgba(34, 211, 238, 0.07), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -35,66 +34,85 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2a3642 transparent;
+  scrollbar-color: #2a3644 transparent;
 }
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #2a3642;
+  background: #2a3644;
   border-radius: 8px;
 }
 
+:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.7);
+  outline-offset: 2px;
+}
+
 @layer components {
+  /* Small sentence-case label. Carries a hairline so it reads as a rule, not a badge. */
   .label {
-    @apply text-[11px] uppercase tracking-[0.14em] text-muted font-medium;
+    @apply text-[12px] text-muted font-medium;
   }
   .page-title {
-    @apply text-[22px] font-semibold tracking-tight text-text;
+    @apply font-display text-[30px] md:text-[34px] font-semibold tracking-[-0.02em] text-text leading-[1.05];
   }
   .panel {
-    @apply bg-panel border border-line rounded-lg shadow-panel;
+    @apply bg-panel border border-line rounded-xl shadow-panel;
   }
   .mono {
     @apply font-mono tabular-nums;
   }
   .input {
-    @apply bg-ink border border-line rounded-md px-3 py-2 text-[13px] text-text placeholder:text-dim
-      outline-none transition focus:border-safe/60 focus:shadow-glow;
+    @apply bg-ink border border-line rounded-lg px-3 py-2 text-[13px] text-text placeholder:text-dim
+      outline-none transition focus:border-safe/60;
   }
   .select {
     @apply input appearance-none pr-8 bg-no-repeat;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%238b98a5' stroke-width='1.5'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%238a97a6' stroke-width='1.5'/></svg>");
     background-position: right 10px center;
   }
   .btn {
-    @apply inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-[13px] font-medium
-      transition select-none disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-[13px] font-medium
+      transition select-none disabled:opacity-40 disabled:cursor-not-allowed active:translate-y-px;
   }
   .btn-primary {
-    @apply btn bg-safe/10 border-safe/40 text-safe hover:bg-safe/20 hover:border-safe/70 active:bg-safe/25;
+    @apply btn bg-safe text-ink border-safe hover:bg-[#4fdcf2] hover:border-[#4fdcf2];
   }
   .btn-risk {
-    @apply btn bg-risk/10 border-risk/40 text-risk hover:bg-risk/20 hover:border-risk/70 active:bg-risk/25;
+    @apply btn bg-risk/10 border-risk/50 text-risk hover:bg-risk/20 hover:border-risk;
   }
   .btn-ghost {
-    @apply btn bg-transparent border-line text-muted hover:text-text hover:border-line-2 active:bg-panel-2;
+    @apply btn bg-transparent border-line text-muted hover:text-text hover:border-line-2;
   }
   .btn-xs {
-    @apply px-2 py-0.5 text-[11px];
+    @apply px-2 py-1 text-[11.5px] rounded-md;
   }
   .kbd {
     @apply mono inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded border border-line-2
       bg-ink text-[10px] text-muted;
   }
   .chip {
-    @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium leading-4;
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11.5px] font-medium leading-4;
+  }
+}
+
+/* The layer strip is animated by GSAP on transform only; give the compositor a heads-up. */
+.layer-bar {
+  will-change: transform;
+  transform-origin: bottom;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-pulseDot {
+    animation: none;
   }
 }
 
 .recharts-cartesian-grid line {
-  stroke: #1f2933;
+  stroke: #1e2833;
 }
 .recharts-tooltip-cursor {
   fill: rgba(255, 255, 255, 0.04);

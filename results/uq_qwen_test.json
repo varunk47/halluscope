@@ -1,0 +1,938 @@
+{
+  "model": "Qwen/Qwen3.5-4B",
+  "split": "test",
+  "summary": {
+    "predictive_entropy": {
+      "n": 10,
+      "auroc": 0.8400000000000001,
+      "auroc_lo": 0.4285714285714286,
+      "auroc_hi": 1.0,
+      "auprc": 0.911111111111111,
+      "auprc_lo": 0.6111111111111112,
+      "auprc_hi": 1.0,
+      "accuracy": null,
+      "ece": null,
+      "reliability": {},
+      "mean_seconds": 29.18074514865875,
+      "n_generations": 1
+    },
+    "eigenscore": {
+      "n": 10,
+      "auroc": 0.48,
+      "auroc_lo": 0.0,
+      "auroc_hi": 0.9047619047619049,
+      "auprc": 0.6301587301587301,
+      "auprc_lo": 0.24152777777777779,
+      "auprc_hi": 0.9484523809523808,
+      "accuracy": null,
+      "ece": null,
+      "reliability": {},
+      "mean_seconds": 32.86015615463257,
+      "n_generations": 6
+    },
+    "ptrue": {
+      "n": 10,
+      "auroc": 0.64,
+      "auroc_lo": 0.24000000000000002,
+      "auroc_hi": 1.0,
+      "auprc": 0.6977777777777777,
+      "auprc_lo": 0.3219047619047619,
+      "auprc_hi": 1.0,
+      "accuracy": null,
+      "ece": null,
+      "reliability": {},
+      "mean_seconds": 29.58117687702179,
+      "n_generations": 1
+    },
+    "verbalized": {
+      "n": 10,
+      "auroc": 0.42000000000000004,
+      "auroc_lo": 0.0,
+      "auroc_hi": 0.8542410714285714,
+      "auprc": 0.5083333333333333,
+      "auprc_lo": 0.22437500000000005,
+      "auprc_hi": 0.9000793650793651,
+      "accuracy": null,
+      "ece": null,
+      "reliability": {},
+      "mean_seconds": 1.0531492471694945,
+      "n_generations": 1
+    },
+    "logit_lens_entropy": {
+      "n": 10,
+      "auroc": 0.8400000000000001,
+      "auroc_lo": 0.5,
+      "auroc_hi": 1.0,
+      "auprc": 0.8528571428571428,
+      "auprc_lo": 0.5,
+      "auprc_hi": 1.0,
+      "accuracy": null,
+      "ece": null,
+      "reliability": {},
+      "mean_seconds": 0.5129996538162231,
+      "n_generations": 0
+    }
+  },
+  "rows": [
+    {
+      "item_id": "agents-0007-a",
+      "label": "specified",
+      "topic": "agents",
+      "variant": "a",
+      "y": 0,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 33.82968854904175
+        },
+        "predictive_entropy": {
+          "value": 0.38355557580854904,
+          "n_generations": 1,
+          "seconds": 33.82968854904175
+        },
+        "logit_lens_entropy": {
+          "value": 7.568377614021301,
+          "n_generations": 0,
+          "seconds": 0.5137772560119629,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.76226806640625,
+            11.723165512084961,
+            10.774894714355469,
+            10.466472625732422,
+            10.994969367980957,
+            11.274335861206055,
+            11.068624496459961,
+            11.321131706237793,
+            11.320422172546387,
+            11.459212303161621,
+            11.388245582580566,
+            11.214303970336914,
+            11.024449348449707,
+            11.035861015319824,
+            11.034692764282227,
+            10.6314115524292,
+            10.374702453613281,
+            10.268203735351562,
+            10.840269088745117,
+            10.786014556884766,
+            10.792234420776367,
+            10.577733993530273,
+            10.38047981262207,
+            10.206439018249512,
+            9.930344581604004,
+            10.109569549560547,
+            9.515876770019531,
+            5.210118293762207,
+            8.37673568725586,
+            6.969538688659668,
+            7.953029632568359,
+            2.4818077087402344
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 33.2879593372345
+        },
+        "eigenscore": {
+          "value": 2.460473671461523,
+          "n_generations": 6,
+          "seconds": 35.410722494125366
+        },
+        "ptrue": {
+          "value": 0.29423507280999983,
+          "n_generations": 1,
+          "seconds": 34.257673501968384
+        },
+        "verbalized": {
+          "value": 0.30000000000000004,
+          "n_generations": 1,
+          "seconds": 1.1190602779388428
+        },
+        "_samples": {
+          "texts": [
+            "To implement this, modify your action handler logic to intercept UI buttons matching the keywords `submit`, `pay`, `confirm`, or `delete`.\n\n1.  **Pattern Matching**: Check if `button_text.lower()` contains any of the target keywords.\n2.  **Block & Log**: If matched, prevent the action execution immediately. Record the `page_url` and `button_text` in your event log.\n3.  **Trigger Approval**: Emit a specific `approval_request` event (e.g., `{\"type\": \"PROTECTED_ACTION_BLOCKED\", \"url\": \"...\", \"button\": \"...\"}`) to wait for an explicit user confirmation before proceeding.\n\n**Example Logic Snippet:**\n```python\nPROTECTED_KEYWORDS = [\"submit\", \"pay\",",
+            "To implement this, update your action handler to intercept clicks matching the regex `^(?:submit|pay|confirm|delete)$` (case-insensitive).\n\n**Implementation Steps:**\n1.  **Define Protected Patterns:** Create a set `PROTECTED_ACTIONS = {'submit', 'pay', 'confirm', 'delete'}`.\n2.  **Intercept & Log:** Before triggering the action, check if the button text matches. If yes:\n    *   Capture `current_page_url` and `button_text`.\n    *   Emit an **explicit approval event** (e.g., `bot.event.approve_action()` or a specific signal).\n    *   Log: `{\"url\": <url>, \"action\": <button_text>}`.\n3.",
+            "To implement this, modify your UI event handler to intercept clicks on buttons matching the patterns `submit`, `pay`, `confirm`, or `delete` (case-insensitive).\n\n1.  **Validation Check**: Before executing the click, check if the button's text matches any of the keywords.\n2.  **Blocking & Logging**: If a match is found, do not trigger the click. Instead, log the `page_url` and `button_text`.\n3.  **Approval Flow**: Trigger an explicit approval event (e.g., a prompt, a flag set on a queue, or an API call) requiring human or system verification before proceeding.\n\n**Pseudo-code Logic:**\n```python\nPROTECTED_PATTERNS = [\"submit\", \"pay\", \"confirm\",",
+            "I cannot modify the core logic of your application to hard-code specific button text patterns as protected actions or inject logging into your existing system. As an AI, I do not have access to your application's source code, server-side logic, or event handlers.\n\nTo implement this requirement, you must modify the code in your specific project. Here is the logic you need to implement in your UI event handler:\n\n```javascript\n// Pseudo-code for the event handler\nconst protectedKeywords = ['submit', 'pay', 'confirm', 'delete'];\nconst protectedActions = new Set();\n\nfunction handleButtonClick(button) {\n    const text = button.textContent.toLowerCase().trim();\n    \n    // Check if text matches protected keywords\n    if (protectedKeywords.some(keyword => text.includes(keyword))) {",
+            "Implement a guardrail pattern that intercepts navigation or state-change events triggered by UI elements matching the keywords `submit`, `pay`, `confirm`, or `delete`.\n\n**Implementation Logic:**\n1.  **Define Protected Regex:** Create a pattern matching these specific verbs.\n2.  **Intercept Action:** Hook into the `onsubmit` event (forms) or the `click` event (buttons).\n3.  **Inject Delay/Block:** If the selector text matches the protected pattern, halt the default action.\n4.  **Log Event:** Record the `window.location.href` (page URL) and the matched button text.\n5.  **Request Approval:** Trigger an explicit approval mechanism (e.g., a modal, a separate API call to a verification",
+            "To implement this, modify your agent's action filtering logic to detect these keywords and block execution without an explicit approval signal. Add logging to record the URL and button text for every blocked attempt.\n\n**Implementation Steps:**\n\n1.  **Define Protected Keywords:**\n    ```python\n    PROTECTED_KEYWORDS = [\"submit\", \"pay\", \"confirm\", \"delete\"]\n    ```\n\n2.  **Update Action Execution Logic:**\n    Before executing a button click, check the button text against the keywords. If a match is found, trigger an approval check instead of execution.\n\n    ```python\n    def handle_button_click(agent, button_text, page_url):\n        if is_protected(button_text):\n            # Trigger explicit approval event\n            approval_event = agent.request_approval"
+          ],
+          "greedy": "To implement this, modify your UI interaction handler to intercept clicks on buttons matching the keywords `submit`, `pay`, `confirm`, or `delete`.\n\n**Implementation Logic:**\n1.  **Regex Pattern:** Use a case-insensitive regex to match the button text.\n2.  **Event Injection:** When a match is found, do not execute the click immediately. Instead, trigger a custom `approval_event` (e.g., `agent.protect_action`).\n3.  **Logging:** Inside the event handler, record the `page_url` and `button_text` to a log file or database before proceeding.\n\n**Example Code Snippet (Python/Playwright):**\n\n```python\nimport re\nimport logging\nfrom playwright.sync_api import sync_playwright\n\n# Configure"
+        }
+      }
+    },
+    {
+      "item_id": "agents-0007-b",
+      "label": "underspecified",
+      "topic": "agents",
+      "variant": "b",
+      "y": 1,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 32.636207818984985
+        },
+        "predictive_entropy": {
+          "value": 0.46173559911742645,
+          "n_generations": 1,
+          "seconds": 32.636207818984985
+        },
+        "logit_lens_entropy": {
+          "value": 7.264431476593018,
+          "n_generations": 0,
+          "seconds": 0.4869256019592285,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.756101608276367,
+            11.667085647583008,
+            10.70539379119873,
+            10.159753799438477,
+            11.11357307434082,
+            11.405046463012695,
+            11.068601608276367,
+            11.500944137573242,
+            11.42285442352295,
+            11.537576675415039,
+            11.458742141723633,
+            11.226503372192383,
+            11.041378021240234,
+            11.049869537353516,
+            11.05379867553711,
+            10.784917831420898,
+            10.583703994750977,
+            10.718851089477539,
+            10.776110649108887,
+            10.805116653442383,
+            10.667991638183594,
+            10.549816131591797,
+            10.607454299926758,
+            10.080418586730957,
+            10.217042922973633,
+            10.349292755126953,
+            9.398332595825195,
+            6.853313446044922,
+            8.286340713500977,
+            7.978109836578369,
+            3.987239360809326,
+            1.0457801818847656
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 33.030306816101074
+        },
+        "eigenscore": {
+          "value": 2.5538948792275487,
+          "n_generations": 6,
+          "seconds": 35.12606859207153
+        },
+        "ptrue": {
+          "value": 0.5000199508245748,
+          "n_generations": 1,
+          "seconds": 33.0655403137207
+        },
+        "verbalized": {
+          "value": 0.25,
+          "n_generations": 1,
+          "seconds": 1.1284308433532715
+        },
+        "_samples": {
+          "texts": [
+            "To prevent a browser agent from taking irreversible actions autonomously, implement the following controls:\n\n1.  **Explicit User Confirmation**: Require explicit user approval (e.g., via a modal, toast notification, or confirmation dialog) before executing destructive operations (e.g., `delete()`, `logout()`, `clear()`).\n2.  **Allowlist of Safe Actions**: Hard-code a whitelist of allowed actions. If the agent attempts an action not on this list, block it immediately.\n3.  **Pre-Execution Audit**: Before the agent executes a command, run it in a sandboxed preview mode or log the full action plan to a dry-run queue for human review.\n4.  **Circuit Breakers**: Implement a `stop()` signal mechanism where the agent must",
+            "To prevent a browser agent from executing irreversible actions (like deleting files, making purchases, or installing software) without confirmation, implement the following controls:\n\n1.  **High-Confidence Intent Filtering**: Only allow actions where the user's intent is 100% certain. If there is any ambiguity (e.g., \"remove *this* file\" vs. \"remove *that* file\"), block the action.\n2.  **Explicit User Confirmation Modal**: Before executing any destructive or high-stakes operation, pause the agent's loop and trigger a UI modal requiring the user to click \"Confirm Action.\"\n3.  **Command Whitelisting**: Restrict the agent's allowed API calls to a predefined whitelist. Exclude actions related to file deletion (`rm`, `del`",
+            "To prevent a browser agent from taking irreversible actions autonomously, implement a **constrained execution pipeline** with the following specific controls:\n\n1.  **Whitelist Allowed Actions**: Define a strict list of safe actions (e.g., `click`, `type`, `scroll`). Explicitly block high-risk actions like `back`, `forward`, `refresh`, `close tab`, or `download file` in your action schema or prompt instructions.\n2.  **User Confirmation Before Critical Steps**: For any action outside the whitelist, force a pause where the agent must generate a natural language explanation, and the final action requires an explicit human \"approve\" signal before execution.\n3.  **Isolated Execution Environment**: Run the browser agent in a sandboxed container (e.g., Docker)",
+            "Implement a strict **Guardrail/Policy Engine** that intercepts all agent actions before execution.\n\n1.  **Action Classification**: Use an LLM to classify every intended action (e.g., \"click,\" \"modify file,\" \"delete\") as `SAFE`, `RISKY`, or `BLOCKED`.\n2.  **Policy Enforcement**:\n    *   **Block**: Deny high-risk actions (e.g., deleting files, modifying config) immediately.\n    *   **Human-in-the-Loop**: For `RISKY` actions, pause execution and present a confirmation modal to the user.\n3.  **State Reversibility**: Ensure the agent logs all state changes. If an action fails or is revoked, revert the state to the pre-action snapshot",
+            "Implement strict guardrails at the agent's decision loop:\n\n1.  **Enable Explicit Confirmation:** Require a user prompt (or a \"Confirm\" button) before any destructive action (e.g., deleting files, terminating processes, sending emails).\n2.  **Add an \"Undo\" Mechanism:** For reversible actions, log the state change immediately but do not apply it until a final \"Execute\" signal is received.\n3.  **Isolate Environment:** Run the browser agent in a sandboxed environment (e.g., Docker container, VM, or isolated browser profile) with no network access or no write permissions to the host OS.\n4.  **Implement Rate Limits & Cooldowns:** Prevent rapid-fire actions that could trigger unintended side effects or rate limits.\n5",
+            "To prevent a browser agent from taking irreversible actions, implement these concrete controls:\n\n1.  **Explicit User Consent Gate**: Before any action with side effects (e.g., deleting files, sending emails, modifying DBs), force the agent to wait for a `confirm()` dialog or a specific `approve_action()` function call in your orchestration layer.\n2.  **Read-Only Sandbox Mode**: Run the agent in a sandboxed environment (e.g., Docker container with `--read-only`, or using Selenium/Playwright in headless mode) where it can only perform GET requests and DOM reads. Disable or block `click()`, `type()`, and form submissions.\n3.  **Action Whitelisting**: Maintain a strict whitelist of allowed actions (e.g.,"
+          ],
+          "greedy": "To prevent a browser agent from taking irreversible actions autonomously, implement the following controls:\n\n1.  **Explicit Confirmation**: Require a user confirmation step (e.g., \"Confirm deletion?\" or \"Proceed with navigation?\") before any destructive or state-changing action.\n2.  **Action Whitelisting**: Restrict the agent to a predefined list of safe actions (e.g., `click`, `type`, `scroll`) and block high-risk ones (e.g., `delete`, `logout`, `submit_form`) unless explicitly authorized.\n3.  **Reversible Wrappers**: Wrap destructive operations in a temporary state (e.g., \"Undo\" queue) or require a separate \"Execute\" command from the user.\n4.  **Rate Limiting & Throttling"
+        }
+      }
+    },
+    {
+      "item_id": "agents-0007-c",
+      "label": "specified",
+      "topic": "agents",
+      "variant": "c",
+      "y": 0,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 31.99738383293152
+        },
+        "predictive_entropy": {
+          "value": 0.35943325061575526,
+          "n_generations": 1,
+          "seconds": 31.99738383293152
+        },
+        "logit_lens_entropy": {
+          "value": 6.734385967254639,
+          "n_generations": 0,
+          "seconds": 0.5338237285614014,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.779172897338867,
+            11.656490325927734,
+            10.83908748626709,
+            10.433485984802246,
+            11.094655990600586,
+            11.279833793640137,
+            11.099212646484375,
+            11.347460746765137,
+            11.276321411132812,
+            11.440892219543457,
+            11.329790115356445,
+            11.152828216552734,
+            10.973661422729492,
+            10.995038986206055,
+            11.044979095458984,
+            10.680625915527344,
+            10.525802612304688,
+            10.561142921447754,
+            10.863542556762695,
+            10.858388900756836,
+            10.81704044342041,
+            10.491079330444336,
+            10.280746459960938,
+            10.23558235168457,
+            9.828340530395508,
+            9.831469535827637,
+            6.265733242034912,
+            4.6549506187438965,
+            7.365625858306885,
+            6.155630111694336,
+            6.704876899719238,
+            3.0684609413146973
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 31.85310411453247
+        },
+        "eigenscore": {
+          "value": 2.805843597066913,
+          "n_generations": 6,
+          "seconds": 33.89607882499695
+        },
+        "ptrue": {
+          "value": 0.40735786704764665,
+          "n_generations": 1,
+          "seconds": 32.34274506568909
+        },
+        "verbalized": {
+          "value": 0.30000000000000004,
+          "n_generations": 1,
+          "seconds": 1.1750133037567139
+        },
+        "_samples": {
+          "texts": [
+            "I cannot implement code directly in this chat, but here is the implementation strategy and code snippet to apply this protection immediately in your agent loop.\n\n### Implementation Strategy\n1.  **Intercept**: Hook into the button click event or the form submission call.\n2.  **Guardian**: Check if the button text matches `[Submit, Pay, Confirm, Delete]`.\n3.  **Block**: If it matches, trigger an `await approval_event()` instead of executing.\n4.  **Evidence**: Before the event resolves (or if it rejects), capture a screenshot.\n5.  **Log**: Record `URL`, `Button Text`, and `Screenshot Path` to the log file.\n\n### Code Snippet (Python/Asyncio Example)\n\n```python",
+            "To implement this protection in the browser agent, you need to intercept form submission events (specifically `submit` or `click` on protected buttons), pause execution, capture a screenshot, and log the context before proceeding.\n\nHere is the logic and code pattern to achieve this:\n\n### 1. Define Protected Elements\nCreate a regex or a set of selectors to identify buttons that require approval.\n\n```python\nPROTECTED_BUTTONS = [\n    r\"(?:submit|pay|confirm|delete)\", # Regex pattern\n    # Or specific selectors: [data-action=\"submit\"], [id*=\"confirm\"]\n]\n\nPROTECTED_ACTION_URLS = [\"/pay\", \"/confirm\", \"/delete\"]\n```\n\n### 2. Implementation Strategy\n1.  **Intercept",
+            "I cannot execute code or modify your environment directly. However, here is the implementation pattern to apply to your browser agent.\n\n### Implementation Plan\n\n1.  **Define Protected Button Regex**: Create a pattern to match `submit`, `pay`, `confirm`, or `delete` (case-insensitive, including common suffixes like `_btn`, `_action`, `_submit`).\n2.  **Create a \"Human-in-the-Loop\" Gate**:\n    *   When the agent detects a form interaction, check if the target button matches the protected pattern.\n    *   If **yes**: Pause execution. Trigger an explicit approval event (e.g., `agent.pause(\"PROTECTED_ACTION_REQUIRED\")`).\n    *   If **no**: Proceed with the click.\n3.",
+            "I cannot execute code directly in this chat, but here is the implementation logic you can apply to your browser agent (e.g., using Playwright, Selenium, or Puppeteer).\n\n### Implementation Strategy\n\n1.  **Define Protected Patterns**: Maintain a set of keywords (e.g., `[\"submit\", \"pay\", \"confirm\", \"delete\"]`) and regex patterns to detect them in button text.\n2.  **Intercept & Log**: Before clicking, check the button text. If it matches, trigger the protection flow.\n3.  **Screenshot**: Capture the current page state.\n4.  **Block**: Do not click.\n5.  **Log**: Record URL, button text, and timestamp.\n\n### Code Logic (Python/Playwright Example",
+            "Implementing screenshotting for every protected action attempt adds significant overhead (GPU usage, disk I/O) and may violate browser security policies (CORS) if the agent tries to capture a remote site's UI.\n\n**Recommendation:** Do not attempt to take screenshots inside the browser agent loop for remote forms. Instead, use the **`page.screenshot()`** method only when the agent is **outside** the browser context (e.g., in a local runner) or rely on **`page.evaluate`** to inspect the DOM.\n\nHowever, if you must enforce the logic strictly within the browser automation, here is the implementation pattern using Playwright.\n\n### Implementation Strategy\n\n1.  **Define Protected Patterns:** Regex for `submit`, `pay`, `confirm`, `delete`.",
+            "Here is the updated logic integration.\n\n### Implementation Plan\n\n1.  **Define Protected Buttons**: Explicitly list keywords (`submit`, `pay`, `confirm`, `delete`) and regex patterns to catch variations (e.g., `submit-btn`, `pay-button`).\n2.  **Pre-Action Hook**: Intercept all click events. If the target matches a protected button, trigger the snapshot and logging flow.\n3.  **Visual Verification**: Capture a screenshot of the current DOM state.\n4.  **Logging**: Record `timestamp`, `url`, `button_text`, and `screenshot_path`.\n5.  **Execution Guard**:\n    *   **Strict Mode**: Block the click entirely if an explicit \"Approve\" event (e.g., a specific"
+          ],
+          "greedy": "Here is the implementation strategy to protect buttons and integrate screenshot logging.\n\n### 1. Define Protected Patterns\nCreate a set of keywords that trigger protection.\n```python\nPROTECTED_KEYWORDS = ['submit', 'pay', 'confirm', 'delete']\n```\n\n### 2. Implement Screenshot & Logging Hook\nModify your browser agent's action loop to intercept clicks on these buttons.\n\n```python\nimport base64\nimport datetime\nfrom PIL import Image\nimport io\n\ndef capture_and_log_action(browser_agent, element, url, action_text):\n    \"\"\"\n    Captures a screenshot, logs metadata, and blocks the action if protected.\n    \"\"\"\n    timestamp = datetime.datetime.now().strftime(\"%Y%m%d_%H%M%S_%f\")"
+        }
+      }
+    },
+    {
+      "item_id": "agents-0007-d",
+      "label": "inconsistent",
+      "topic": "agents",
+      "variant": "d",
+      "y": 1,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 30.75244641304016
+        },
+        "predictive_entropy": {
+          "value": 0.42648625097681203,
+          "n_generations": 1,
+          "seconds": 30.75244641304016
+        },
+        "logit_lens_entropy": {
+          "value": 7.110884875059128,
+          "n_generations": 0,
+          "seconds": 0.5054061412811279,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.765381813049316,
+            11.685056686401367,
+            10.925891876220703,
+            10.25692367553711,
+            10.96957778930664,
+            11.270439147949219,
+            11.079449653625488,
+            11.331972122192383,
+            11.27112102508545,
+            11.418355941772461,
+            11.298152923583984,
+            11.120498657226562,
+            10.947038650512695,
+            10.97036361694336,
+            10.985004425048828,
+            10.592207908630371,
+            10.536317825317383,
+            10.649711608886719,
+            10.862774848937988,
+            10.927380561828613,
+            10.832303047180176,
+            10.472469329833984,
+            10.172931671142578,
+            10.161090850830078,
+            9.399402618408203,
+            8.753705978393555,
+            9.653368949890137,
+            6.7649335861206055,
+            7.472452640533447,
+            7.780755043029785,
+            4.807302474975586,
+            2.255157709121704
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 34.81407833099365
+        },
+        "eigenscore": {
+          "value": 2.6477530821400657,
+          "n_generations": 6,
+          "seconds": 36.783226013183594
+        },
+        "ptrue": {
+          "value": 0.5926885558466722,
+          "n_generations": 1,
+          "seconds": 31.145307064056396
+        },
+        "verbalized": {
+          "value": 0.30000000000000004,
+          "n_generations": 1,
+          "seconds": 1.048976182937622
+        },
+        "_samples": {
+          "texts": [
+            "I cannot execute code directly. However, here is the logic and code snippet you can implement in your browser agent to enforce these rules:\n\n### Implementation Strategy\n\n1.  **Global State**: Maintain a `is_approved` boolean flag (default `false`).\n2.  **Action Filter**: Before any `click()` action on a form element, check if the element matches the protected set AND if `is_approved` is `false`.\n3.  **Approval Gate**: If the match occurs and not approved, trigger the explicit approval event (e.g., `approve_action()`) instead of proceeding.\n4.  **Logging**: Log `current_url` and `element.text` every time the approval gate is triggered.\n5.  **Checkout Flow**: Since the agent never",
+            "To protect the `pay` and `confirm` buttons while maintaining end-to-end flow, implement a state machine that allows all actions except these two, which require an explicit `human_approval` event.\n\nHere is the implementation strategy:\n\n### 1. Define Protected Actions\nCreate a set of actions that trigger the approval gate:\n```python\nPROTECTED_ACTIONS = {\"pay\", \"confirm\", \"submit\"}\n```\n\n### 2. Modify Action Selection Logic\nBefore executing an action, check if the target button text matches a protected keyword.\n\n```python\ndef select_action(agent, context):\n    # ... existing logic to find buttons ...\n    candidate_buttons = find_clickable_buttons(context)\n    \n    for btn_text in candidate_buttons:\n        # Skip if it",
+            "I cannot execute code or modify your agent's behavior directly. However, here is the implementation logic to apply to your browser agent:\n\n### 1. Define Safe/Unsafe Button Regexes\nMap specific keywords to actions.\n```regex\n(?i)(submit|pay|confirm|delete)\n```\n\n### 2. Implement the Approval Gate & Logging\nCreate a wrapper for button clicks. If a match is found, trigger a synchronous pause, log details, and await explicit approval before proceeding.\n\n```javascript\n// Pseudo-code for integration into your agent's clicker\nconst BUTTON_PROTECTION = {\n  PROTECTED_KEYWORDS: ['submit', 'pay', 'confirm', 'delete'],\n  LOGS: []\n};\n\nfunction executeAction(target) {",
+            "I cannot execute code directly in this chat, but here is the implementation logic you can apply to your browser agent.\n\n**Implementation Strategy:**\n1.  **Override Submit:** Intercept all `<button>`, `<input type=\"submit\">`, and `<a>` tags.\n2.  **Filter Logic:**\n    *   If `text` is in `['submit', 'pay', 'confirm', 'delete']` (case-insensitive), **block** the click.\n    *   If `text` is NOT in that list, proceed with the click.\n3.  **Approval Gate:** Trigger a specific event (e.g., `agent.approve_action`) before clicking. If this event is not triggered or fails, do not click.\n4.  **",
+            "Implementing an \"end-to-end no-pause\" strategy while protecting critical actions (Pay, Confirm, Delete) requires a **state-machine approach** rather than a simple `try/except` loop.\n\nHere is the concrete implementation strategy:\n\n### 1. Define Protected States\nCreate a strict set of states the agent is allowed in. If a protected action triggers, the agent must **never** execute it; instead, it must trigger a `PAUSE` state requiring an explicit human signal (or simulated approval event in testing) before proceeding.\n\n### 2. Implementation Logic (Python/Pseudo-code)\n\n```python\nfrom enum import Enum\n\nclass AgentState(Enum):\n    RUNNING = \"running\"\n    PAUSED = \"paused\"\n    ERROR = \"error",
+            "Here is the updated logic integration. The agent now runs a continuous loop for the full checkout flow, with a hard stop-and-log trigger only on specific protected buttons.\n\n### Implementation Strategy\n\n1.  **Continuous Flow:** The `execute_flow()` loop runs until completion or an explicit error, removing default pauses.\n2.  **Protected Button List:** Define a set of high-risk buttons (`['submit', 'pay', 'confirm', 'delete']`).\n3.  **Guard Mechanism:** Before clicking any button in the protected list:\n    *   Check for an explicit \"Approval Event\" (e.g., a command or signal).\n    *   If missing, **block** the click and **log** the URL and button text.\n    *   If present"
+          ],
+          "greedy": "Here is the updated logic for the browser agent. It now enforces a continuous flow with a hard stop-and-approval gate only for high-risk actions (`pay`, `confirm`, `delete`).\n\n### Implementation Strategy\n\n1.  **Continuous Flow**: The agent executes actions immediately without pausing unless a protected button is encountered.\n2.  **Protected Actions**: When the agent encounters a button matching `submit`, `pay`, `confirm`, or `delete`:\n    *   **Stop** execution immediately.\n    *   **Log**: Capture the current `URL` and the `button text`.\n    *   **Trigger Approval**: Send a signal to the approval system.\n    *   **Resume**: Only proceed if the approval is granted.\n3.  **Safe"
+        }
+      }
+    },
+    {
+      "item_id": "agents-0008-a",
+      "label": "specified",
+      "topic": "agents",
+      "variant": "a",
+      "y": 0,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 36.781519651412964
+        },
+        "predictive_entropy": {
+          "value": 0.40875215652688757,
+          "n_generations": 1,
+          "seconds": 36.781519651412964
+        },
+        "logit_lens_entropy": {
+          "value": 5.188558258116245,
+          "n_generations": 0,
+          "seconds": 0.4790925979614258,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.732295036315918,
+            11.730249404907227,
+            10.882326126098633,
+            10.54238510131836,
+            11.080486297607422,
+            11.332098007202148,
+            11.079851150512695,
+            11.203369140625,
+            11.176942825317383,
+            11.354562759399414,
+            11.289520263671875,
+            11.034721374511719,
+            11.042491912841797,
+            11.032271385192871,
+            10.918413162231445,
+            10.681424140930176,
+            10.420662879943848,
+            9.730118751525879,
+            9.850436210632324,
+            10.150508880615234,
+            8.920836448669434,
+            9.81473159790039,
+            3.8762028217315674,
+            5.293889045715332,
+            3.07786226272583,
+            3.2203094959259033,
+            7.55448055267334,
+            3.9580934047698975,
+            8.782323837280273,
+            7.868043899536133,
+            6.23093318939209,
+            0.8164194226264954
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 28.354174613952637
+        },
+        "eigenscore": {
+          "value": 2.9614114721300635,
+          "n_generations": 6,
+          "seconds": 30.12702441215515
+        },
+        "ptrue": {
+          "value": 0.5621930075727013,
+          "n_generations": 1,
+          "seconds": 37.104763984680176
+        },
+        "verbalized": {
+          "value": 1.0,
+          "n_generations": 1,
+          "seconds": 0.7544276714324951
+        },
+        "_samples": {
+          "texts": [
+            "I cannot execute this request. As an AI research assistant, I do not have the capability to:\n1.  **Generate 200 unique, labeled test prompts** dynamically within this chat interface.\n2.  **Run an external assistant** or a specific LLM tool-using agent at temperature 0.\n3.  **Perform automated evaluation metrics** (accuracy, false tool call rate, argument exact-match) in real-time.\n\nTo achieve your goal, you must:\n1.  **Provide the prompt list** (or write a script to generate them) in your preferred tool-use agent.\n2.  **Configure that agent** to run with `temperature: 0`.\n3.  **Use a logging mechanism** to capture tool calls vs.",
+            "I cannot generate 200 specific test prompts, execute the assistant, or report real-time metrics because **I do not have access to your specific RAG system, tool set, or the assistant instance you are testing.**\n\nAdditionally, my current context window does not support generating and then immediately running 200 distinct prompts in a single interaction to evaluate performance.\n\nTo get the metrics you need, you must:\n1.  **Provide the Tool Definitions:** Share the schema of your tools.\n2.  **Provide the Prompts:** Generate your 200 test cases (or provide a dataset).\n3.  **Run the Evaluation:** Execute the prompts against your specific tool configuration.\n4.  **Parse Results:** Extract the three metrics (Accuracy, False",
+            "I cannot write 200 test prompts, run the assistant, or generate the accuracy report because **I do not have access to your specific tool set, your custom LLM instance, or your evaluation pipeline.**\n\nAdditionally, as an AI text model, I **cannot execute code** or interact with an external assistant to run these tests in real-time.\n\nTo get the metrics you need, you must:\n1.  Generate your 200 prompts (manually or via script).\n2.  Run them through your evaluation script with `temperature=0`.\n3.  Log the results.\n4.  Calculate the metrics locally.\n\n**What I can do instead:**\nI can provide you with a **Python script** that generates a dataset of 2",
+            "I cannot generate 200 specific test prompts within this chat interface due to output length limits and the requirement for a live evaluation run. Additionally, as an AI text model, I cannot directly execute a script to run an LLM agent, monitor its tool calls in real-time, and calculate precision/recall/metric scores.\n\nHowever, I can provide you with the **exact code structure** to perform this evaluation programmatically. You can run this script locally to generate the prompts, execute them, and obtain the metrics you requested.\n\n### Python Script for Tool Use Evaluation\n\nThis script uses `langchain` (or similar) to instantiate an agent, run 200 prompts, and calculate the required metrics.\n\n```python\nimport json\nimport random\nfrom typing import List",
+            "I cannot generate 200 test prompts, execute the assistant, or report real-time evaluation metrics because I am an AI model, not a test execution environment. I cannot run your specific tool-enabled assistant or observe its actual behavior in a live loop.\n\nTo get the metrics you requested (Tool Selection Accuracy, False Tool Call Rate, Argument Exact-Match Rate), you must:\n\n1.  **Generate Prompts:** Create your own list of 200 diverse prompts (e.g., 100 requiring tools, 100 requiring no tools).\n2.  **Execute:** Run these prompts through your specific agent configuration at `temperature=0`.\n3.  **Analyze:** Compare the agent's output against your known ground truth for each prompt.",
+            "I cannot execute the requested task directly because I am an AI text model, not an automated evaluation framework with a tool interface. I cannot generate 200 unique test prompts, run an execution environment, or calculate real-time metrics like false tool call rates or argument exact-match rates in the way described.\n\nTo achieve these results, you would need to:\n1.  **Generate** the 200 prompts (I can provide a Python script to do this).\n2.  **Deploy** an evaluation framework (e.g., `litellm`, `evals`, or a custom script using the API).\n3.  **Execute** the tool calls with `temperature=0`.\n4.  **Parse** the output logs to calculate the specific metrics."
+          ],
+          "greedy": "I cannot generate 200 specific test prompts, execute a live evaluation run, or report real-time accuracy metrics for your specific assistant instance. As an AI text model, I do not have the capability to:\n\n1.  **Generate 200 unique, labeled test cases** in a single response (this would exceed output limits and lack context for your specific tool definitions).\n2.  **Run the assistant** at temperature 0 to observe its behavior.\n3.  **Access your system's tool definitions** or evaluate its actual performance.\n\nTo achieve this, you must follow this workflow:\n\n1.  **Generate Prompts**: Use a script (Python/SQL) to create 200 prompts covering edge cases (e.g., \"What is the"
+        }
+      }
+    },
+    {
+      "item_id": "agents-0008-b",
+      "label": "underspecified",
+      "topic": "agents",
+      "variant": "b",
+      "y": 1,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 10.244526863098145
+        },
+        "predictive_entropy": {
+          "value": 0.514978417400081,
+          "n_generations": 1,
+          "seconds": 10.244526863098145
+        },
+        "logit_lens_entropy": {
+          "value": 8.338783174753189,
+          "n_generations": 0,
+          "seconds": 0.5316352844238281,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.745258331298828,
+            11.661148071289062,
+            10.531726837158203,
+            9.823334693908691,
+            11.008874893188477,
+            11.353633880615234,
+            11.113330841064453,
+            11.423019409179688,
+            11.33297348022461,
+            11.493139266967773,
+            11.322967529296875,
+            11.284042358398438,
+            11.21837043762207,
+            11.23452377319336,
+            11.184372901916504,
+            11.053546905517578,
+            10.977165222167969,
+            11.013201713562012,
+            11.02092170715332,
+            11.030415534973145,
+            10.949304580688477,
+            10.785751342773438,
+            10.571523666381836,
+            9.597917556762695,
+            9.766244888305664,
+            10.408700942993164,
+            10.648567199707031,
+            8.996010780334473,
+            8.145915031433105,
+            9.28309440612793,
+            7.39093017578125,
+            2.0708019733428955
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 31.423096418380737
+        },
+        "eigenscore": {
+          "value": 3.4898863508387623,
+          "n_generations": 6,
+          "seconds": 33.10119652748108
+        },
+        "ptrue": {
+          "value": 0.4073575042352846,
+          "n_generations": 1,
+          "seconds": 10.5651273727417
+        },
+        "verbalized": {
+          "value": 0.5,
+          "n_generations": 1,
+          "seconds": 1.1195950508117676
+        },
+        "_samples": {
+          "texts": [
+            "I am ready. Please provide a specific task or scenario (e.g., \"debug a PyTorch script,\" \"optimize a LoRA training loop,\" or \"analyze a LangChain agent failure\"). I will identify the correct tool or library and execute the solution concisely.",
+            "To test tool selection, I will generate a synthetic dataset and then run a local Python script to analyze it. This demonstrates the ability to invoke external tools for data processing and analysis.",
+            "I cannot execute external code or run live experiments to test tool selection in real-time. However, I can simulate the logic for how an engineer should choose the right tool for specific ML/LLM tasks.\n\nHere is the decision logic for common scenarios:\n\n| Task | Recommended Tool/Approach | Why |\n| :--- | :--- | :--- |\n| **Data Cleaning/EDA** | `pandas`, `polars`, `numpy` | Fast, vectorized operations for tabular data. |\n| **Vector Database** | `Chroma`, `Qdrant`, `LanceDB` | Native LLM integration, good for RAG (Retrieval-Augmented Generation). |\n| **Hyperparameter Tuning** | `Optuna`, `",
+            "I do not have real-time access to your local environment, codebase, or system logs. Therefore, I cannot execute code or inspect your specific setup to verify if the \"right\" tools are being used.\n\nTo test this effectively, you should:\n1. **Define Criteria**: Specify what \"right tools\" means for your project (e.g., specific Python versions, library compatibility, or infrastructure settings).\n2. **Provide Context**: Share relevant configuration snippets, error logs, or project descriptions.\n3. **Run Tests**: Execute diagnostic commands in your terminal and share the output.\n\nOnce you provide these details, I can analyze them and recommend the appropriate tools or identify misconfigurations.",
+            "I will not pick any external tools because I do not have access to a browser, a code interpreter, or a file system in this specific chat session. I can only use my internal knowledge and reasoning capabilities.\n\nIf you have a specific task (e.g., \"simulate a tool call for a search query\" or \"explain how I would use a specific library\"), please provide the prompt, and I will demonstrate the correct approach or explain the tool selection logic.",
+            "Yes. I prioritize relevant tools like code interpreters, search, and file access when they directly solve the problem, and I avoid unnecessary steps to keep responses concrete and brief."
+          ],
+          "greedy": "I am ready. Please provide a specific task or scenario (e.g., \"debug a PyTorch model,\" \"optimize a LoRA training script,\" or \"explain the difference between RAG and fine-tuning\"). I will then select the appropriate tool and execute it."
+        }
+      }
+    },
+    {
+      "item_id": "agents-0008-c",
+      "label": "specified",
+      "topic": "agents",
+      "variant": "c",
+      "y": 0,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 29.271824836730957
+        },
+        "predictive_entropy": {
+          "value": 0.36775863346227383,
+          "n_generations": 1,
+          "seconds": 29.271824836730957
+        },
+        "logit_lens_entropy": {
+          "value": 5.549042522907257,
+          "n_generations": 0,
+          "seconds": 0.48869800567626953,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.810432434082031,
+            11.711877822875977,
+            10.995593070983887,
+            10.312871932983398,
+            11.134393692016602,
+            11.30527114868164,
+            11.019285202026367,
+            11.335367202758789,
+            11.303794860839844,
+            11.511163711547852,
+            11.400712013244629,
+            11.22407341003418,
+            11.008710861206055,
+            10.972806930541992,
+            10.960203170776367,
+            10.66163444519043,
+            10.576338768005371,
+            10.682394981384277,
+            10.890436172485352,
+            10.838247299194336,
+            10.762397766113281,
+            10.645804405212402,
+            7.467862129211426,
+            7.696460247039795,
+            5.897387504577637,
+            5.169037818908691,
+            9.714668273925781,
+            7.20052433013916,
+            4.58526611328125,
+            7.703932762145996,
+            2.3993048667907715,
+            1.7222185134887695
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 30.258188247680664
+        },
+        "eigenscore": {
+          "value": 3.1764780042130485,
+          "n_generations": 6,
+          "seconds": 32.293055057525635
+        },
+        "ptrue": {
+          "value": 0.7310733079821566,
+          "n_generations": 1,
+          "seconds": 29.58772349357605
+        },
+        "verbalized": {
+          "value": 0.30000000000000004,
+          "n_generations": 1,
+          "seconds": 0.9495110511779785
+        },
+        "_samples": {
+          "texts": [
+            "Here is a minimal, concrete implementation of the tool selection test using **LangChain** (standard for LLMs). This script generates 200 synthetic prompts, runs the model, and outputs the required metrics.\n\n### Prerequisites\n```bash\npip install langchain langchain-community langchain-community-tools\n```\n\n### The Test Script (`tool_selection_test.py`)\n\n```python\nimport json\nimport random\nfrom typing import List, Dict, Any, Optional\n\nfrom langchain_core.prompts import ChatPromptTemplate\nfrom langchain_core.language_models import BaseLanguageModel\nfrom langchain_core.output_parsers import PydanticParserError\nfrom langchain.tools import tool\nfrom pydantic import BaseModel, Field\n\n# ---------------------------------------------------------\n# 1. Define Tools (",
+            "To build this test, we need a dataset of 200 labeled requests (200 total: 150 with tools, 50 no-tool).\n\n**1. Dataset Construction**\n*   **Structure:** `prompt`, `ground_truth_tool` (None or specific tool name), `ground_truth_args` (dict).\n*   **Generation:** Use an LLM to generate diverse queries for a specific domain (e.g., a CRM system with tools: `search_users`, `update_status`, `export_report`).\n*   **Labeling:** Manually or semi-automatically label the correct tool and arguments for each prompt.\n\n**2. Evaluation Pipeline (Temperature=0)**\nFor each of the 200 prompts, run the assistant",
+            "Here is a minimal, concrete implementation to build the test suite.\n\n### 1. Data Generation Script\nCreate a Python script to generate 200 diverse prompts. This ensures you have coverage across domains and difficulty levels.\n\n```python\nimport random\nimport json\n\n# Simple mock data generator for demonstration\n# In production, replace these with your actual JSON dataset\ntools = [\"search\", \"calculator\", \"code_interpreter\", \"weather\", \"email\"]\ndomains = [\"finance\", \"tech\", \"travel\", \"coding\", \"general\"]\n\ndef generate_prompt(domain, tool=None):\n    if tool is None:\n        tool = random.choice(tools)\n    context = f\"User wants info on {domain}. Query: 'How do I {domain}",
+            "Here is a concrete implementation plan to build your tool selection test suite.\n\n### 1. Dataset Construction Strategy\nGenerate 200 synthetic prompts designed to stress-test specific failure modes:\n*   **No-Tool Cases (40%)**: Queries solvable with pure LLM reasoning (e.g., \"What is 2+2?\", \"Summarize this text\").\n*   **Single-Tool Cases (60%)**: Queries requiring exactly one tool (e.g., \"Get the weather for London,\" \"Calculate the factorial of 10\").\n*   **Multi-Tool Cases (0% for now, or add later if needed)**: Keep simple for initial accuracy metrics.\n*   **Hard/Edge Cases**: Ambiguous intent, partial tool knowledge",
+            "Here is a concrete implementation plan and Python code snippet to build the tool selection test dataset and evaluation pipeline.\n\n### 1. Dataset Construction Strategy\nTo generate the **200 labeled prompts**, we will use a synthetic generation approach to ensure coverage:\n*   **No-Tool Cases (30%):** Simple questions (e.g., \"Who wrote Hamlet?\", \"What is the capital of France?\").\n*   **Single-Tool Cases (50%):** Direct mapping (e.g., \"Get weather for Tokyo\", \"Search for 'Python tutorials'\").\n*   **Multi-Tool Cases (20%):** Sequential logic (e.g., \"Get weather, then email me\").\n*   **Argument Complexity:** Vary the number of arguments and types",
+            "Here is a concrete implementation plan and code skeleton for building a Tool Selection Test with the specified metrics.\n\n### 1. Test Data Structure\nCreate a JSON file (e.g., `test_set.json`) containing 200 samples. Each sample must include:\n*   `input`: The prompt.\n*   `ground_truth_tool`: The correct tool name (or `\"none\"` for no-tool cases).\n*   `ground_truth_args`: The exact expected arguments (optional, but needed for exact match).\n\n**Example Schema:**\n```json\n{\n  \"input\": \"Calculate the area of a circle with radius 5.\",\n  \"ground_truth_tool\": \"calculator\",\n  \"ground_truth_args\": {\"radius\": 5}\n}\n```"
+          ],
+          "greedy": "Here is a concrete implementation plan and code skeleton for your tool selection test.\n\n### 1. Test Data Generation Strategy\nSince you have 200 labeled prompts, you need a script to parse them, extract the ground truth (GT) tool and arguments, and run the inference.\n\n**Data Structure Assumption:**\n*   `prompts`: List of 200 text strings.\n*   `gt_tools`: List of 200 strings (e.g., `[\"search\", \"calculator\", \"none\"]`).\n*   `gt_args`: List of 200 lists of strings (e.g., `[\"query: 'weather'\"]`).\n\n### 2. Python Implementation\n\n```python\nimport json\nimport re\nfrom typing import"
+        }
+      }
+    },
+    {
+      "item_id": "agents-0008-d",
+      "label": "inconsistent",
+      "topic": "agents",
+      "variant": "d",
+      "y": 1,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 26.00920796394348
+        },
+        "predictive_entropy": {
+          "value": 0.3353695041175541,
+          "n_generations": 1,
+          "seconds": 26.00920796394348
+        },
+        "logit_lens_entropy": {
+          "value": 6.160133063793182,
+          "n_generations": 0,
+          "seconds": 0.53424072265625,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.771718978881836,
+            11.721160888671875,
+            11.021732330322266,
+            10.328632354736328,
+            11.05358600616455,
+            11.261479377746582,
+            10.965189933776855,
+            11.315909385681152,
+            11.31204891204834,
+            11.454751968383789,
+            11.377195358276367,
+            11.224496841430664,
+            10.986919403076172,
+            10.972746849060059,
+            10.969087600708008,
+            10.795234680175781,
+            10.662633895874023,
+            10.719528198242188,
+            10.908533096313477,
+            10.841205596923828,
+            10.751108169555664,
+            10.478911399841309,
+            8.985559463500977,
+            7.614363670349121,
+            6.664300918579102,
+            6.874911308288574,
+            9.744717597961426,
+            6.850999355316162,
+            5.669551849365234,
+            8.400152206420898,
+            3.3102822303771973,
+            1.7661490440368652
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 28.381947994232178
+        },
+        "eigenscore": {
+          "value": 3.0348591854150357,
+          "n_generations": 6,
+          "seconds": 31.11739683151245
+        },
+        "ptrue": {
+          "value": 0.5312278832984729,
+          "n_generations": 1,
+          "seconds": 26.74320101737976
+        },
+        "verbalized": {
+          "value": 0.25,
+          "n_generations": 1,
+          "seconds": 1.23335599899292
+        },
+        "_samples": {
+          "texts": [
+            "Here is a minimal Python class to evaluate tool selection under your constraints (single tool, forced call, 200 prompts).\n\n```python\nimport json\nfrom collections import Counter\nfrom typing import List, Dict, Any\n\nclass ToolSelectionEvaluator:\n    def __init__(self, tool_spec: Dict[str, Any], prompt_data: List[Dict[str, Any]]):\n        \"\"\"\n        tool_spec: { \"name\": \"my_tool\", \"description\": \"...\" }\n        prompt_data: List of dicts with keys 'input_text', 'ground_truth_action' (None if no-tool case)\n        \"\"\"\n        self.tool_name = tool_spec[\"name\"]\n        self.prompts = prompt_data\n\n    def evaluate(self) -> Dict[str, Any",
+            "To build this test, we need a dataset of **200 labeled prompts** with ground truth labels: `NO_TOOL` (50%) and `REQUIRE_TOOL` (50%).\n\nSince the model **must call the tool** and has only **one tool**, \"tool selection\" reduces to **argument generation accuracy** and **false call rate** (FAR).\n\n### 1. Dataset Construction (200 Prompts)\n*   **Group A (No-Tool):** 100 prompts requiring factual retrieval or reasoning solvable via LLM output only.\n    *   *Label:* `NO_TOOL`\n    *   *Expected Behavior:* Model calls the tool but must provide **no arguments** (or a null/empty argument).",
+            "Here is the minimal test suite structure to validate your specific constraints.\n\n### 1. Test Data Construction\nCreate a dataset `test_prompts.json` containing 200 entries with the following schema:\n```json\n{\n  \"id\": \"int\",\n  \"prompt\": \"string\",\n  \"ground_truth\": \"bool\" // true = no tool needed, false = tool required\n}\n```\n*   **Split:** ~190 cases where `ground_truth` is `false` (tool required) and ~10 where `ground_truth` is `true` (no tool needed).\n\n### 2. Test Script (Python)\nRun this script against your assistant logic. It enforces `temperature=0`, forces tool invocation,",
+            "Here is the **Tool Selection Test** build specification based on your constraints.\n\n### 1. Dataset Construction\n*   **Total Prompts:** 200\n*   **Composition:**\n    *   **No-Tool Cases:** 100 (Ground truth: `None`)\n    *   **Tool-Required Cases:** 100 (Ground truth: `Tool X` called)\n*   **Execution:** Model run at `temperature=0` (deterministic) on all 200 prompts.\n\n### 2. Test Logic & Scoring Rules\nSince the model **must** call the tool and has **only one** tool available (let's call it `search_tool`), the metrics are calculated as follows:\n\n|",
+            "To build this test, I will create a Python script that generates 200 synthetic prompts split evenly (100 no-tool, 100 tool-requiring) and evaluates the model's deterministic (temperature=0) selection behavior.\n\nHere is the implementation:\n\n```python\nimport json\nimport random\nimport string\n\n# Configuration\nTOTAL_PROMPTS = 200\nNO_TOOL_COUNT = 100\nTOOL_REQUIRING_COUNT = 100\nTOOL_NAME = \"calculator\"  # The single available tool\nTOOL_SCHEMA = {\n    \"type\": \"object\",\n    \"properties\": {\n        \"expression\": {\"type\": \"string\", \"description\": \"Math expression to solve\"}\n    },",
+            "Here is a concrete test setup tailored to your constraints (single tool, no \"no-call\" option) to measure False Call Rate (FCR) and Argument Exact Match (AEM) on your 200 labeled prompts.\n\n### 1. Data Structure\nYour dataset must be structured to isolate the single tool's arguments.\n\n```json\n// Example entry\n{\n  \"prompt\": \"What is the capital of France?\",\n  \"ground_truth\": {\n    \"tool_name\": \"search_engine\", // The only available tool\n    \"arguments\": {\n      \"query\": \"capital of France\",\n      \"limit\": 5\n    }\n  }\n}\n```\n\n### 2. Evaluation Pipeline\nSince the model cannot refuse the tool"
+          ],
+          "greedy": "Here is a concrete test suite design for your single-tool, mandatory-call scenario.\n\n### 1. Test Data Construction (200 Prompts)\nSplit the 200 prompts into two deterministic sets:\n*   **Set A (No-Tool Required):** 100 prompts where the task is purely semantic (e.g., \"Explain quantum entanglement,\" \"Summarize this text\").\n*   **Set B (Tool Required):** 100 prompts where the task explicitly requires the tool (e.g., \"Calculate the average of [list],\" \"Search for [query]\").\n\n### 2. Evaluation Metrics & Logic\nSince the model **must** call the tool, the evaluation logic is:\n*   **True Positive (TP):**"
+        }
+      }
+    },
+    {
+      "item_id": "data-0007-a",
+      "label": "specified",
+      "topic": "data",
+      "variant": "a",
+      "y": 0,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 27.47462296485901
+        },
+        "predictive_entropy": {
+          "value": 0.2943743008539716,
+          "n_generations": 1,
+          "seconds": 27.47462296485901
+        },
+        "logit_lens_entropy": {
+          "value": 4.364501856267452,
+          "n_generations": 0,
+          "seconds": 0.5697343349456787,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.744524002075195,
+            11.718215942382812,
+            10.990005493164062,
+            10.624214172363281,
+            11.04170036315918,
+            11.298065185546875,
+            10.965911865234375,
+            11.270217895507812,
+            11.308143615722656,
+            11.453487396240234,
+            11.38490104675293,
+            11.22016716003418,
+            10.97532844543457,
+            10.983573913574219,
+            10.932596206665039,
+            10.252801895141602,
+            10.231341361999512,
+            10.521856307983398,
+            10.592116355895996,
+            9.039583206176758,
+            10.318801879882812,
+            10.232389450073242,
+            3.9529480934143066,
+            2.4658586978912354,
+            4.071939945220947,
+            3.6245980262756348,
+            10.114906311035156,
+            5.819108963012695,
+            2.2689170837402344,
+            6.402027130126953,
+            1.6672141551971436,
+            0.9473032355308533
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 28.652790546417236
+        },
+        "eigenscore": {
+          "value": 2.8760911658217836,
+          "n_generations": 6,
+          "seconds": 30.838399648666382
+        },
+        "ptrue": {
+          "value": 0.46881600606372864,
+          "n_generations": 1,
+          "seconds": 27.869538068771362
+        },
+        "verbalized": {
+          "value": 0.30000000000000004,
+          "n_generations": 1,
+          "seconds": 1.1649158000946045
+        },
+        "_samples": {
+          "texts": [
+            "Here is a concise, concrete implementation plan using `cleanlab` and a DeBERTa model (via `transformers` or `sentence-transformers`).\n\n### Prerequisites\n```bash\npip install cleanlab transformers torch\n```\n\n### Implementation Steps\n\n1.  **Train 5-Fold DeBERTa Classifier**:\n    *   Use `sklearn.model_selection.KFold` to train 5 distinct models.\n    *   Aggregate predictions (e.g., via majority voting or simple averaging) to get the final model `clf_final`.\n    *   Ensure `clf_final` has `predict_proba` enabled.\n\n2.  **Identify Low-Confidence Samples**:\n    *   Iterate through your dataset.\n    *   Calculate confidence: `1 -",
+            "Here is a concrete Python implementation using `cleanlab`, `transformers`, and `scikit-learn` to achieve your workflow.\n\n### Prerequisites\n```bash\npip install cleanlab transformers torch scikit-learn pandas\n```\n\n### Implementation\n\n```python\nimport numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import KFold, StratifiedKFold\nfrom transformers import DeBERTaTokenizer, DeBERTaForSequenceClassification\nimport torch\nfrom cleanlab.classification import LabelNoiseEstimator\nfrom tqdm import tqdm\n\n# --- Configuration ---\nMODEL_NAME = \"cardiffnlp/twitter-deberta-xlm-v*base\" # Or your specific DeBERTa model\nBATCH_SIZE = 16\nNUM_FOLDS = 5",
+            "Here is the concrete workflow to estimate label noise and relabel your dataset using cleanlab with a DeBERTa model.\n\n### Prerequisites\n1.  **Model**: Load your trained 5-fold DeBERTa classifier (ensure it has `.predict_proba` or `.predict_proba_batch`).\n2.  **Dataset**: Load your raw dataset (`df`).\n3.  **Tools**: `cleanlab`, `transformers`, `torch`.\n\n### Step-by-Step Implementation\n\n#### 1. Estimate Label Noise (Out-of-Fold Self-Confidence)\nWe use `cleanlab.LabelError` with the `out_of_fold` setting. This estimates error by checking if the model's prediction on a held-out fold differs from the label, effectively simulating out-of-fold",
+            "Here is the concrete workflow to implement this using `cleanlab` and `transformers` (for DeBERTa):\n\n### 1. Setup & Inference Loop\nLoad your DeBERTa model and split your dataset into 5 folds. Iterate through each fold, training a classifier on 4 folds and generating predictions on the held-out 5th fold.\n\n### 2. Calculate Out-of-Fold Probabilities\nFor every sample, store the probability of its true label from the DeBERTa model trained on different data. This creates a \"consensus\" probability.\n\n### 3. Identify Low-Confidence Samples\nCompute the minimum probability across the 5-fold predictions for each sample. Flag the bottom 5% (or any percentile `p`).\n\n```python",
+            "Here is the concrete workflow to estimate label noise and implement the relabeling loop using `cleanlab`:\n\n### 1. Preprocessing & Training\nEnsure your data is in a `cleanlab.Data` object.\n*   **Model**: Train a `DeBERTa` classifier (e.g., `transformers` + `sklearn` wrapper or `cleanlab`'s `GaussianNoise` if using a neural net).\n*   **Fold Splitting**: Use `sklearn.model_selection.KFold` with `shuffle=True, n_splits=5`.\n*   **Prediction Storage**: For each fold $k$, train a model $M_k$ on folds $\\{1..5\\} \\setminus \\{k\\}$ and predict on the held-out",
+            "Here is the concrete workflow to implement label noise estimation and relabeling with cleanlab.\n\n### 1. Pre-requisites\nEnsure you have `cleanlab`, `transformers` (for DeBERTa), and `scikit-learn`.\n\n```bash\npip install cleanlab transformers scikit-learn\n```\n\n### 2. Implementation Workflow\n\n#### Step A: Train the DeBERTa Classifier (5-Fold Cross-Validation)\nTrain a DeBERTa model 5 times, using 80% of the data for training and 20% for validation in each fold. Aggregate the **out-of-fold probabilities** (validation set predictions) for noise estimation.\n\n```python\nimport torch\nfrom transformers import DebertaV2Model, Debert"
+          ],
+          "greedy": "Here is a concrete, step-by-step implementation plan using `cleanlab` and `transformers` (DeBERTa).\n\n### Prerequisites\nEnsure you have the necessary libraries installed:\n```bash\npip install cleanlab transformers torch scikit-learn\n```\n\n### Implementation Steps\n\n#### 1. Setup & Training (5-Fold Cross-Validation)\nTrain a DeBERTa model 5 times, using different folds for validation. Collect the **out-of-fold predictions** (predictions made by the model trained on data *excluding* the current fold).\n\n```python\nimport torch\nfrom transformers import AutoTokenizer, AutoModel\nfrom sklearn.model_selection import KFold\nimport cleanlab\nimport numpy as np\n\n# Load model and tokenizer\nmodel_name = \"microsoft/de"
+        }
+      }
+    },
+    {
+      "item_id": "data-0007-b",
+      "label": "underspecified",
+      "topic": "data",
+      "variant": "b",
+      "y": 1,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 32.810022592544556
+        },
+        "predictive_entropy": {
+          "value": 0.42192415695916524,
+          "n_generations": 1,
+          "seconds": 32.810022592544556
+        },
+        "logit_lens_entropy": {
+          "value": 7.6365832686424255,
+          "n_generations": 0,
+          "seconds": 0.4866628646850586,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.784173011779785,
+            11.709877014160156,
+            10.733030319213867,
+            9.82713508605957,
+            10.932512283325195,
+            11.3182373046875,
+            11.05013656616211,
+            11.356212615966797,
+            11.358373641967773,
+            11.470927238464355,
+            11.378148078918457,
+            11.18850326538086,
+            10.983999252319336,
+            10.921791076660156,
+            10.961883544921875,
+            10.666590690612793,
+            10.487504959106445,
+            10.540929794311523,
+            10.445852279663086,
+            10.691513061523438,
+            10.674962997436523,
+            10.477903366088867,
+            9.142265319824219,
+            9.803211212158203,
+            7.411203384399414,
+            8.0702486038208,
+            10.144530296325684,
+            6.8328680992126465,
+            9.074485778808594,
+            9.304427146911621,
+            8.103878021240234,
+            2.15102481842041
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 28.314284801483154
+        },
+        "eigenscore": {
+          "value": 2.5245529180315938,
+          "n_generations": 6,
+          "seconds": 29.908393144607544
+        },
+        "ptrue": {
+          "value": 0.7981997213857368,
+          "n_generations": 1,
+          "seconds": 33.13014888763428
+        },
+        "verbalized": {
+          "value": 1.0,
+          "n_generations": 1,
+          "seconds": 0.8382062911987305
+        },
+        "_samples": {
+          "texts": [
+            "I cannot see the specific dataset you are referring to. Please provide the **dataset file**, a **sample of the data**, or the **sentiment labels** you suspect are noisy.\n\nOnce provided, I will:\n1.  **Identify patterns**: Check for class imbalance, semantic contradictions (e.g., \"happy\" labeled as \"negative\"), or inconsistent sentiment scores.\n2.  **Apply cleaning**: Suggest specific strategies (e.g., label flipping, filtering outliers, or re-labeling based on model confidence).\n3.  **Provide code**: Give you a Python snippet to implement the cleaning logic immediately.",
+            "To fix noisy labels in a sentiment dataset, you need to distinguish between **label noise** (wrong ground truth) and **model bias** (learning from noisy training data). Since you haven't provided the specific dataset, here are the standard methods to detect and fix them:\n\n### 1. Detect Noisy Labels\n*   **Consensus Voting**: Train a small baseline model (e.g., BERT) on the data. Classify the \"out-of-distribution\" or ambiguous samples. If the majority of samples labeled as \"Positive\" are actually predicted as \"Neutral\" or \"Negative\" by a strong model, they are likely noisy.\n*   **Entropy Analysis**: Calculate the prediction entropy for each sample. Samples with high entropy (uncertainty) near the decision boundary are",
+            "I cannot directly access or modify your local files. However, here is the standard procedure to identify and fix noisy labels in a sentiment dataset:\n\n### 1. Identify Noise (Automated Detection)\nRun a quick check to flag obvious contradictions:\n*   **Self-Contradiction:** Check if the label contradicts the text sentiment (e.g., \"I love this\" labeled as negative). Use a lightweight model or rule-based scoring (e.g., `positive` words vs. `negative` words) to flag these.\n*   **Label Imbalance:** If your dataset has extreme skew (e.g., 99% positive), it may contain systematic noise or sampling bias.\n*   **Uncertainty Score:** If you are using an ensemble model, calculate the",
+            "I cannot locate the dataset file in your current context. Please **provide the dataset** (paste the text, upload a file, or specify the column names) so I can analyze it.\n\nOnce you provide the data, I will:\n1.  **Identify noise**: Look for inconsistencies (e.g., mismatched text/label, obvious typos, or sentiment reversal).\n2.  **Fix or flag**: Remove obvious errors or correct them based on context.\n3.  **Output**: Return the cleaned dataset in the same format.",
+            "I cannot access your local files or external datasets directly. Please **paste the sample data (CSV or JSON)** or describe the **label column name** you are using.\n\nOnce you provide the data, I will:\n1.  **Identify noise**: Check for label conflicts (e.g., positive text labeled negative), low confidence scores, or out-of-distribution samples.\n2.  **Apply fixes**:\n    *   **Filter**: Remove obvious errors.\n    *   **Re-label**: Use a small validation set or rule-based logic to correct ambiguous cases.\n3.  **Provide code**: Generate a Python script (using `pandas` and `langdetect`/`transformers`) to automate this process for your full dataset.",
+            "To fix noisy labels in a sentiment dataset, apply these steps:\n\n1.  **Inspect Distribution**: Plot label histograms. Look for extreme imbalance (e.g., 99% \"positive\") or bimodal clusters that don't align with text semantics.\n2.  **Filter Outliers**: Remove samples where the text sentiment contradicts the label (e.g., \"Great movie!\" labeled as negative).\n    *   *Heuristic*: Use a small, trusted model or rule-based classifier to predict sentiment; flag/label samples with high prediction probability mismatch.\n3.  **Re-label via Consensus**: For ambiguous samples, aggregate predictions from multiple robust models (ensemble) or use human-in-the-loop for high-confidence re-labels.\n4.  **Rebalance**:"
+          ],
+          "greedy": "I cannot directly access your local files or the specific dataset you are working with. However, here is the standard protocol to identify and fix noisy labels in a sentiment dataset:\n\n### 1. Identify Noisy Labels\n*   **Human-in-the-Loop (HITL):** Have 3\u20135 annotators review a random sample (e.g., 100\u2013500 samples) of your current labels.\n*   **Consensus Check:** Flag samples where annotators disagree (e.g., 2 say \"Positive,\" 1 says \"Negative\").\n*   **Model Uncertainty:** Train a small, high-confidence model (e.g., DistilBERT). Flag samples where the model's confidence score is low (e.g., `max(probs) <"
+        }
+      }
+    }
+  ]
+}

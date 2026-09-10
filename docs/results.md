@@ -104,6 +104,17 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | Qwen/Qwen3.5-4B | judge agreement (kappa, silently assumed) | 523 | | | 0.55 |
 
 
+## Uncertainty baselines
+
+| model | split | method | AUROC [95% CI] | AUPRC [95% CI] | generations | mean seconds/item |
+|---|---|---|---|---|---|---|
+| Qwen/Qwen3.5-4B | test | predictive_entropy | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1 | 29.37 |
+| Qwen/Qwen3.5-4B | test | logit_lens_entropy | 0.778 [0.250, 1.000] | 0.806 [0.333, 1.000] | 0 | 0.51 |
+| Qwen/Qwen3.5-4B | test | ptrue | 0.667 [0.111, 1.000] | 0.756 [0.250, 1.000] | 1 | 29.75 |
+| Qwen/Qwen3.5-4B | test | eigenscore | 0.556 [0.000, 1.000] | 0.700 [0.250, 1.000] | 6 | 34.07 |
+| Qwen/Qwen3.5-4B | test | verbalized | 0.333 [0.000, 0.833] | 0.467 [0.167, 0.967] | 1 | 1.06 |
+
+
 ## Figures
 
 ![layer_sweep_qwen_gap_last_free](figures/layer_sweep_qwen_gap_last_free.png)
@@ -121,3 +132,5 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 ![layer_sweep_qwen_will_assume_last_items](figures/layer_sweep_qwen_will_assume_last_items.png)
 
 ![reliability_qwen_will_assume_last_items](figures/reliability_qwen_will_assume_last_items.png)
+
+![uq_uq_qwen_test](figures/uq_uq_qwen_test.png)

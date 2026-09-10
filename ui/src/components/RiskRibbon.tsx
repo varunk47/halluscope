@@ -1,64 +1,89 @@
+import { useEffect, useRef } from "react";
 import type { ScoreResponse } from "../api";
+import { gsap, reducedMotion, rollNumber, useGSAP } from "../lib/motion";
 import { riskColor } from "./charts/theme";
 
 /**
- * The headline read-out for a scored dialogue: the probability at the best
- * layer as a large number, a scale with a marker at the probe's 0.5 boundary,
- * and the gate verdict. The conformal gate itself thresholds the raw decision
- * score, so that threshold is shown alongside the probability rather than on
- * the probability scale.
+ * The instrument's face. One large figure, the probability at the best
+ * validation layer, rolls up from zero when a score lands; the marker slides
+ * along the scale to meet it; the verdict stamps in last. The conformal gate
+ * thresholds the raw decision score, not this probability, so that threshold
+ * is shown beside the figure rather than on the scale.
  */
 export default function RiskRibbon({ score }: { score: ScoreResponse }) {
+  const scope = useRef<HTMLDivElement>(null);
+  const numRef = useRef<HTMLSpanElement>(null);
   const p = score.prob_best;
   const pct = p === null ? null : Math.max(0, Math.min(1, p));
-  const color = pct === null ? "#8b98a5" : riskColor(pct);
+  const color = pct === null ? "#8a97a6" : riskColor(pct);
   const decisionBest = score.per_layer.find((l) => l.layer === score.best_layer)?.decision ?? null;
 
+  useEffect(() => {
+    if (pct !== null) rollNumber(numRef.current, pct * 100, (v) => v.toFixed(1));
+  }, [pct]);
+
+  useGSAP(
+    () => {
+      if (pct === null) return;
+      if (reducedMotion()) {
+        gsap.set(".marker", { left: `${pct * 100}%` });
+        gsap.set(".verdict", { scale: 1, autoAlpha: 1 });
+        return;
+      }
+      const tl = gsap.timeline();
+      tl.to(".marker", { left: `${pct * 100}%`, duration: 0.9, ease: "power3.out" }, 0);
+      tl.fromTo(
+        ".verdict",
+        { scale: 0.85, autoAlpha: 0 },
+        { scale: 1, autoAlpha: 1, duration: 0.45, ease: "back.out(2)" },
+        0.55,
+      );
+    },
+    { scope, dependencies: [pct, score.gate_fired] },
+  );
+
   return (
-    <div className="relative overflow-hidden rounded-lg border border-line bg-panel shadow-panel">
+    <div ref={scope} className="relative overflow-hidden rounded-xl border border-line bg-panel shadow-readout">
       <div
-        className="absolute inset-0 opacity-[0.12] pointer-events-none"
-        style={{
-          background: `radial-gradient(600px 160px at 20% 0%, ${color}, transparent 70%)`,
-        }}
+        className="absolute inset-0 opacity-[0.14] pointer-events-none transition-colors duration-700"
+        style={{ background: `radial-gradient(520px 180px at 12% 0%, ${color}, transparent 70%)` }}
       />
-      <div className="relative p-5 flex flex-wrap items-end gap-x-8 gap-y-4">
-        <div className="min-w-[200px]">
+      <div className="relative px-5 pt-5 pb-4 flex flex-wrap items-end gap-x-8 gap-y-4">
+        <div className="min-w-[210px]">
           <div className="label">
-            P(underspecified) at layer{" "}
-            <span className="mono text-text">{score.best_layer ?? "?"}</span>
+            underspecified, read at layer <span className="mono text-text">{score.best_layer ?? "?"}</span>
           </div>
-          <div className="flex items-baseline gap-2 mt-1">
+          <div className="flex items-baseline gap-1.5 mt-1">
             <span
-              className="mono text-[52px] leading-none font-medium tracking-tight transition-colors"
+              ref={numRef}
+              data-value="0"
+              className="font-display mono text-[64px] leading-none font-semibold tracking-[-0.03em] transition-colors duration-700"
               style={{ color }}
             >
-              {pct === null ? "n/a" : (pct * 100).toFixed(1)}
+              {pct === null ? "n/a" : "0.0"}
             </span>
-            {pct !== null && <span className="mono text-[20px] text-muted">%</span>}
+            {pct !== null && <span className="mono text-[22px] text-muted">%</span>}
           </div>
         </div>
 
-        <GatePill fired={score.gate_fired} />
+        <div className="verdict">
+          <GatePill fired={score.gate_fired} />
+        </div>
 
         <div className="ml-auto grid grid-cols-2 gap-x-6 gap-y-2 text-right">
           <Mini label="decision" value={decisionBest === null ? "n/a" : decisionBest.toFixed(3)} />
-          <Mini
-            label="conformal thr"
-            value={score.threshold === null ? "n/a" : score.threshold.toFixed(3)}
-          />
+          <Mini label="conformal threshold" value={score.threshold === null ? "n/a" : score.threshold.toFixed(3)} />
           <Mini label="model" value={score.model || "n/a"} wide />
         </div>
       </div>
 
       <div className="relative px-5 pb-5">
         <div className="relative h-2 rounded-full bg-ribbon-scale opacity-90">
-          {/* threshold marker at the probe's 0.5 boundary */}
           <div className="absolute top-[-5px] bottom-[-5px] w-px bg-text/70" style={{ left: "50%" }} />
           {pct !== null && (
             <div
-              className="absolute -top-[5px] h-[18px] w-[3px] rounded-sm bg-white shadow-[0_0_0_2px_#0b0f14] transition-[left]"
-              style={{ left: `calc(${pct * 100}% - 1.5px)` }}
+              className="marker absolute -top-[5px] h-[18px] w-[3px] -ml-[1.5px] rounded-sm bg-white shadow-[0_0_0_2px_#0a0e14]"
+              style={{ left: 0 }}
             />
           )}
         </div>
@@ -77,7 +102,7 @@ export default function RiskRibbon({ score }: { score: ScoreResponse }) {
 function Mini({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
   return (
     <div className={wide ? "col-span-2" : ""}>
-      <div className="label !text-[10px]">{label}</div>
+      <div className="text-[11px] text-dim">{label}</div>
       <div className="mono text-[13px] text-text truncate max-w-[260px]" title={value}>
         {value}
       </div>
@@ -88,7 +113,7 @@ function Mini({ label, value, wide = false }: { label: string; value: string; wi
 export function GatePill({ fired }: { fired: boolean | null }) {
   if (fired === null) {
     return (
-      <div className="chip border-line-2 text-muted !px-3 !py-1.5 !text-[12px]">
+      <div className="chip border-line-2 text-muted !px-3 !py-1.5 !text-[12.5px]">
         <span className="h-1.5 w-1.5 rounded-full bg-dim" />
         gate not fitted
       </div>
@@ -96,16 +121,16 @@ export function GatePill({ fired }: { fired: boolean | null }) {
   }
   if (fired) {
     return (
-      <div className="chip border-risk/60 text-risk bg-risk/10 shadow-glow-risk !px-3 !py-1.5 !text-[12px] uppercase tracking-wider">
+      <div className="chip border-risk/60 text-risk bg-risk/10 shadow-glow-risk !px-3 !py-1.5 !text-[12.5px]">
         <span className="h-1.5 w-1.5 rounded-full bg-risk animate-pulseDot" />
-        gate fired: ask
+        gate fired, ask first
       </div>
     );
   }
   return (
-    <div className="chip border-safe/50 text-safe bg-safe/10 !px-3 !py-1.5 !text-[12px]">
+    <div className="chip border-safe/50 text-safe bg-safe/10 !px-3 !py-1.5 !text-[12.5px]">
       <span className="h-1.5 w-1.5 rounded-full bg-safe" />
-      gate quiet: answer
+      gate quiet, answer
     </div>
   );
 }

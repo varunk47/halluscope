@@ -9,6 +9,16 @@ When a user asks an AI assistant to do a task whose specification is incomplete 
 
 Results tables with intervals are generated into [`docs/results.md`](docs/results.md) by `halluscope report`.
 
+## What was found
+
+The number to read first is not an AUROC, it is a difference. On the minimal-edit build of the dataset, where the specified and underspecified variants of a request differ only in the missing detail, the linear probe on Qwen3.5-4B separates a contradicted multi-turn request from a consistent one at AUROC 0.949, and a bag-of-words model of the same final turn manages 0.890. Resampled together on the same 92 test items, the probe's edge is +0.059 with a 95 percent interval of [-0.001, +0.133], p = 0.056; the MLP probe's edge is +0.060 at p = 0.030. That is a real but underpowered signal that the residual stream carries something about the earlier turn that the words of the last one do not.
+
+The first build of the dataset told a different story, and that is the more useful lesson. There the probe scored 1.000 and the bag of words 0.997, a difference of +0.003 at p = 0.69: the paraphrases had leaked the label into the wording, and a headline of "AUROC 1.000" would have measured the writing, not the model. Tightening the dataset until the words stopped giving the answer away is what made the probe number mean anything.
+
+Two supporting results are cleaner. A probe trained on what the model went on to do, rather than on the dataset label, predicts whether it will ask a clarifying question at AUROC 0.899 against 0.778 for the text baseline, and whether it will silently assume at 0.881 against 0.657, both reading from deep layers. And the recognition-action gap is measured, not asserted: on underspecified requests the model asks 18 percent of the time and silently assumes 70 percent of the time, with cross-family judge agreement kappa 0.55 on the silent-assumption label.
+
+The single-turn pair is decidable from the words by construction, since a specified request literally contains the numbers, so its probe result is reported as a sanity check and not as a finding. Cross-pair transfer sits at chance, which says the two pairs are separated by unrelated cues rather than one shared notion of a gap.
+
 ## What is in the box
 
 | Piece | Where | What it does |
@@ -86,7 +96,21 @@ uv run halluscope report                                # docs/results.md and do
 
 ## Hardware and honesty notes
 
-Everything here ran on one laptop GPU with 8 GB of VRAM. No multi-GPU or HPC claims are made. Qwen3.5-4B runs in nf4 at about 5 tokens per second, so sampling-based baselines are computed on a fixed subset of the test split (`uq.sampling_limit`) and the loop uses one seed for all four conditions; both are stated in the results tables. Judges default to OpenAI models; a second family (Anthropic or Gemini) is used when a key is present and the provenance page shows which models actually answered.
+Everything here ran on one laptop GPU with 8 GB of VRAM. No multi-GPU or HPC claims are made. Qwen3.5-4B runs in nf4 at about 5 tokens per second, so sampling-based baselines are computed on a fixed subset of the test split (`uq.sampling_limit`) and the loop uses one seed for all four conditions; both are stated in the results tables. The primary judge is an OpenAI model and the second judge is Kimi K3 through NVIDIA NIM, a different model family, so agreement between them is not one model agreeing with itself. The provenance page shows which models actually answered each call.
+
+## Status, 10 September 2026
+
+| Piece | State |
+|---|---|
+| Dataset, two builds (free paraphrase, minimal edit), LLM verification | done; 27 families of the minimal build are being re-verified by Kimi K3 as NVIDIA NIM capacity allows, and the second judge's verdicts on the other 165 will give the cross-family kappa on verification itself |
+| Activation capture, Qwen3.5-4B, both builds | done |
+| Gap probes with the paired comparison against text baselines | done, `docs/results.md` |
+| Behavior labels, will_ask and will_assume probes | done on the free build |
+| Uncertainty baselines | running on the minimal test split; semantic entropy and its probe wait on a reachable judge |
+| Clarify gate in the simulated-user loop, four conditions | not run yet; the simulated user is an API model |
+| Cross-model transfer and activation steering | implemented, not run |
+
+The interview version of this table is that the method and the harness are complete and the remaining rows are compute and API time, not design.
 
 ## References
 

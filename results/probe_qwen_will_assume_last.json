@@ -3,6 +3,8 @@
   "model_key": "qwen",
   "target": "will_assume",
   "pooling": "last",
+  "dataset": "items",
+  "tag": "",
   "exclude_seeds": false,
   "n_items": 362,
   "n_layers": 33,

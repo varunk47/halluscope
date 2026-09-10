@@ -111,11 +111,20 @@ def uq(
     split: str = typer.Option("test"),
     out: Path = typer.Option(Path("results")),
     limit: int | None = typer.Option(None, help="Only the first N items of the split"),
+    skip: str = typer.Option(
+        "",
+        help="Comma-separated methods to leave out, e.g. semantic_entropy when no judge is reachable",
+    ),
 ) -> None:
     """Score items with every uncertainty baseline."""
+    from halluscope.config import get_settings
     from halluscope.uq.runner import run_uq
 
-    path = run_uq(model_key=model, items_path=items, split=split, out_dir=out, limit=limit)
+    left_out = {m.strip() for m in skip.split(",") if m.strip()}
+    methods = [m for m in get_settings().uq.methods if m not in left_out]
+    path = run_uq(
+        model_key=model, items_path=items, split=split, out_dir=out, limit=limit, methods=methods
+    )
     console.print(f"wrote {path}")
 
 

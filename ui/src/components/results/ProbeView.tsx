@@ -15,7 +15,7 @@ import {
   YAxis,
   ZAxis,
 } from "recharts";
-import { fmt, type Metric, type ProbeFull, type ResultSummary } from "../../api";
+import { fmt, type HeadlineRow, type Metric, type ProbeFull, type ResultSummary } from "../../api";
 import { Panel, SectionLabel, Spinner, Stat } from "../Primitives";
 import { AXIS, C, ChartFrame, GRID, makeTooltip } from "../charts/theme";
 import { EmptyChart } from "../charts/TurnTrajectory";
@@ -41,9 +41,11 @@ export default function ProbeView({ summary, full }: { summary: ResultSummary; f
 
   return (
     <div className="flex flex-col gap-4">
+      {summary.headline && summary.headline.length > 0 && <Headline rows={summary.headline} />}
       <Panel>
         <div className="flex flex-wrap gap-x-10 gap-y-3">
           <Stat label="model" value={<span className="text-[14px]">{summary.model ?? "n/a"}</span>} />
+          <Stat label="dataset" value={summary.dataset?.replace(/^items_?/, "") || "items"} />
           <Stat label="target" value={summary.target ?? "n/a"} />
           <Stat label="pooling" value={summary.pooling ?? "n/a"} />
           <Stat label="layers" value={summary.n_layers ?? "n/a"} />
@@ -56,7 +58,11 @@ export default function ProbeView({ summary, full }: { summary: ResultSummary; f
               hint="train / val / test"
             />
           )}
-          <Stat label="best test AUROC" value={bestTest ? bestTest.toFixed(3) : "n/a"} tone="safe" />
+          <Stat
+            label="best test AUROC"
+            value={bestTest ? bestTest.toFixed(3) : "n/a"}
+            hint="separability alone; the paired delta above is the finding"
+          />
         </div>
       </Panel>
 
@@ -122,6 +128,65 @@ export default function ProbeView({ summary, full }: { summary: ResultSummary; f
   );
 }
 
+const PAIR_TITLE: Record<string, string> = {
+  single_turn_ab: "single turn: specified vs underspecified",
+  multi_turn_cd: "multi turn: consistent vs contradicted",
+};
+const PAIR_NOTE: Record<string, string> = {
+  single_turn_ab: "decidable from the words by construction, so a sanity check",
+  multi_turn_cd: "answerable only from the earlier turn, so the real question",
+};
+
+/**
+ * The finding, before the table. A bare AUROC says how separable the labels
+ * are; only the paired delta against a bag of words says whether the hidden
+ * state adds anything over the text. Shown for the linear probe; the other
+ * two are in the full JSON.
+ */
+function Headline({ rows }: { rows: HeadlineRow[] }) {
+  const linear = rows.filter((r) => r.probe === "linear");
+  if (linear.length === 0) return null;
+  return (
+    <Panel>
+      <SectionLabel right={`paired bootstrap against ${linear[0].baseline.replace(/_/g, " ")}`}>
+        does the hidden state beat the words?
+      </SectionLabel>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {linear.map((r) => {
+          const gain = r.delta > 0;
+          const clear = r.p < 0.05;
+          const tone = !gain ? "text-risk-hot" : clear ? "text-safe" : "text-text";
+          return (
+            <div key={r.pair} className="rounded-lg border border-line bg-ink/50 p-4">
+              <div className="text-[13px] text-text">{PAIR_TITLE[r.pair] ?? r.pair}</div>
+              <div className="text-[11.5px] text-dim mt-0.5">{PAIR_NOTE[r.pair] ?? ""}</div>
+              <div className="mt-3 flex items-end gap-6">
+                <div>
+                  <div className={`font-display mono text-[36px] leading-none font-semibold tracking-tight ${tone}`}>
+                    {r.delta >= 0 ? "+" : ""}
+                    {r.delta.toFixed(3)}
+                  </div>
+                  <div className="mono text-[11px] text-dim mt-1">
+                    [{r.lo >= 0 ? "+" : ""}
+                    {r.lo.toFixed(3)}, {r.hi >= 0 ? "+" : ""}
+                    {r.hi.toFixed(3)}] p={r.p.toFixed(3)} n={r.n}
+                  </div>
+                </div>
+                <dl className="ml-auto grid grid-cols-2 gap-x-5 text-right">
+                  <dt className="text-[11px] text-dim">probe</dt>
+                  <dt className="text-[11px] text-dim">words</dt>
+                  <dd className="mono text-[15px] text-text">{fmt.num(r.probe_auroc)}</dd>
+                  <dd className="mono text-[15px] text-muted">{fmt.num(r.words_auroc)}</dd>
+                </dl>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
+
 function MetricRow({
   name,
   layer,
@@ -139,7 +204,7 @@ function MetricRow({
     <tr className={`border-b border-line/60 last:border-b-0 ${muted ? "text-muted" : "text-text"}`}>
       <td className="px-5 py-2 font-sans">
         <span className={highlight ? "text-safe" : ""}>{name.replace(/_/g, " ")}</span>
-        {muted && <span className="ml-2 text-[10px] uppercase tracking-wider text-dim">baseline</span>}
+        {muted && <span className="ml-2 text-[11px] text-dim">baseline</span>}
       </td>
       <td className="text-right px-3 py-2">{layer ?? "-"}</td>
       <td className="text-right px-3 py-2">{fmt.ci(m)}</td>

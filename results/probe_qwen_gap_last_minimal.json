@@ -3,6 +3,8 @@
   "model_key": "qwen",
   "target": "gap",
   "pooling": "last",
+  "dataset": "items_minimal",
+  "tag": "minimal",
   "exclude_seeds": true,
   "n_items": 728,
   "n_layers": 33,
