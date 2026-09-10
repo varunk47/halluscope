@@ -107,6 +107,40 @@ def _pair_masks(te: list[Item], y_te: np.ndarray) -> dict[str, np.ndarray]:
     return out
 
 
+def probe_result_path(
+    results_dir: Path, model_key: str, target: str, pooling: str, items_path: Path | None = None
+) -> Path:
+    """The probe result that belongs to a dataset build.
+
+    Runs are tagged by build (``_minimal``, ``_free``), and a gate calibrated
+    from the free build's layer while judging the minimal build's items would
+    quietly mix two experiments. Prefer the file that names this build, then an
+    untagged run, then the newest match, and say what exists when none does.
+    """
+    results_dir = Path(results_dir)
+    stem = f"probe_{model_key}_{target}_{pooling}"
+    found = sorted(results_dir.glob(f"{stem}*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if items_path is not None:
+        ds = Path(items_path).stem
+        tag = ds.removeprefix("items").lstrip("_")
+        if tag and (results_dir / f"{stem}_{tag}.json").exists():
+            return results_dir / f"{stem}_{tag}.json"
+        for p in found:
+            try:
+                if json.loads(p.read_text(encoding="utf-8")).get("dataset") == ds:
+                    return p
+            except json.JSONDecodeError:
+                continue
+    if (results_dir / f"{stem}.json").exists():
+        return results_dir / f"{stem}.json"
+    if found:
+        return found[0]
+    raise FileNotFoundError(
+        f"no {stem}*.json in {results_dir}; run `halluscope probe --model {model_key} "
+        f"--target {target} --pooling {pooling}` first"
+    )
+
+
 def run_probe(
     model_key: str,
     items_path: Path,

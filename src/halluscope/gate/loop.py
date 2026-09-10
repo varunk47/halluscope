@@ -175,7 +175,11 @@ def summarize(records: list[LoopRecord]) -> dict:
 
 
 def build_probe_gate(
-    model_key: str, results_dir: Path, pooling: str, alpha: float
+    model_key: str,
+    results_dir: Path,
+    pooling: str,
+    alpha: float,
+    items_path: Path | None = None,
 ) -> tuple[GateFn, dict]:
     """Gate from the saved linear probe result: refit at the chosen layer, conformal threshold on validation."""
     import pickle
@@ -185,15 +189,20 @@ def build_probe_gate(
     from halluscope.data.splits import grouped_split
     from halluscope.gate.conformal import conformal_threshold
     from halluscope.probes.linear import LinearProbe
-    from halluscope.probes.run import gap_label
+    from halluscope.probes.run import gap_label, probe_result_path
 
     cfg = get_settings()
     spec = cfg.model_spec(model_key)
-    with open(results_dir / f"probe_{model_key}_gap_{pooling}.json", encoding="utf-8") as fh:
+    items_path = items_path or cfg.paths.data_dir / "augmented" / "items.jsonl"
+    with open(
+        probe_result_path(results_dir, model_key, "gap", pooling, items_path), encoding="utf-8"
+    ) as fh:
         res = json.load(fh)
     layer = int(res["probes"]["linear"]["best_layer"])
     cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
-    items = approved(load_items(cfg.paths.data_dir / "augmented" / "items.jsonl"))
+    # Calibrate on the same build the loop judges, so layer, threshold and
+    # tasks all describe one experiment.
+    items = approved(load_items(items_path))
     shas = shas_for(items)
     items = [i for i in items if cache.has(CaptureKey(spec.id, i.id, i.n_user_turns, shas[i.id]))]
     splits = grouped_split(items, seed=cfg.split.seed, fractions=cfg.split.fractions)
@@ -240,7 +249,7 @@ def run_loop_cli(
     client = JudgeClient(cfg.judge, cost_log=cfg.paths.cost_log)
     gate, gate_info = (None, {})
     if condition == "gate":
-        gate, gate_info = build_probe_gate(model_key, out_dir, pooling, cfg.gate.alpha)
+        gate, gate_info = build_probe_gate(model_key, out_dir, pooling, cfg.gate.alpha, items_path)
     loaded = load_model(spec)
 
     records: list[LoopRecord] = []
