@@ -156,6 +156,11 @@ def run_probe(
         "model_key": model_key,
         "target": target,
         "pooling": pooling,
+        # Which build of the dataset this was run on. Three probe files that all
+        # say "gap, last" are three different experiments, and a table that
+        # cannot tell them apart invites reading the saturated one as the result.
+        "dataset": Path(items_path).stem,
+        "tag": tag,
         "exclude_seeds": exclude_seeds,
         "n_items": len(items),
         "n_layers": n_layers,

@@ -98,6 +98,7 @@ def _is_permanent(e: Exception) -> bool:
         or "model_not_found" in msg
         or "insufficient_quota" in msg
         or "exceeded your current quota" in msg
+        or "no credits remaining" in msg
         or "billing" in msg
         or "credit balance" in msg
     )

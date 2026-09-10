@@ -43,21 +43,66 @@ def _load_all(results_dir: Path, prefix: str) -> list[dict]:
     return out
 
 
-def probe_table(probe_results: list[dict]) -> str:
+def dataset_label(r: dict) -> str:
+    """Which dataset build a probe file came from.
+
+    Newer files record it; older ones only carry it in the filename suffix, and
+    a file with neither was run on the default build.
+    """
+    if r.get("dataset"):
+        return str(r["dataset"]).removeprefix("items_") or "items"
+    stem = Path(r.get("_file", "")).stem
+    prefix = f"probe_{r.get('model_key')}_{r.get('target')}_{r.get('pooling')}_"
+    return stem.removeprefix(prefix) if stem.startswith(prefix) else "items"
+
+
+PAIR_NAMES = {"single_turn_ab": "single turn, a vs b", "multi_turn_cd": "multi turn, c vs d"}
+
+
+def headline_table(probe_results: list[dict]) -> str:
+    """Probe against the best surface baseline on identical test items, per pair.
+
+    This is the table to read first. A bare AUROC says how separable the labels
+    are; only the paired delta says whether reading the hidden state adds
+    anything over reading the words.
+    """
     lines = [
-        "| model | target | pooling | probe | layer | AUROC [95% CI] | AUPRC [95% CI] | acc | ECE |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| dataset | pair | probe | probe AUROC | words AUROC | delta [95% CI] | p | n |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for r in probe_results:
+        pvs = r.get("probe_vs_surface")
+        if not pvs:
+            continue
+        surface = r["baselines"].get(pvs["baseline"], {}).get("by_pair", {})
+        for probe, pairs in pvs["by_pair"].items():
+            for pair, d in pairs.items():
+                pa = r["probes"][probe].get("by_pair", {}).get(pair, {}).get("auroc")
+                sa = surface.get(pair, {}).get("auroc")
+                lines.append(
+                    f"| {dataset_label(r)} | {PAIR_NAMES.get(pair, pair)} | {probe} | "
+                    f"{pa:.3f} | {sa:.3f} | {d['delta']:+.3f} [{d['lo']:+.3f}, {d['hi']:+.3f}] | "
+                    f"{d['p']:.3f} | {d['n']} |"
+                )
+    return "\n".join(lines)
+
+
+def probe_table(probe_results: list[dict]) -> str:
+    lines = [
+        "| dataset | target | probe | layer | AUROC [95% CI] | AUPRC [95% CI] | acc | ECE |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for r in probe_results:
+        ds = dataset_label(r)
         for name, p in r["probes"].items():
             t = p["test"]
             lines.append(
-                f"| {r['model_key']} | {r['target']} | {r['pooling']} | {name} | {p['best_layer']}/{r['n_layers'] - 1} | "
+                f"| {ds} | {r['target']} | {name} | {p['best_layer']}/{r['n_layers'] - 1} | "
                 f"{_fmt(t)} | {_fmt(t, 'auprc')} | {t.get('accuracy', float('nan')):.3f} | {t.get('ece', float('nan')):.3f} |"
             )
         for name, b in r["baselines"].items():
             lines.append(
-                f"| {r['model_key']} | {r['target']} | {r['pooling']} | baseline: {name} | - | {_fmt(b)} | {_fmt(b, 'auprc')} | "
+                f"| {ds} | {r['target']} | baseline: {name} | - | {_fmt(b)} | {_fmt(b, 'auprc')} | "
                 f"{b.get('accuracy') if b.get('accuracy') is not None else float('nan'):.3f} | {b.get('ece') if b.get('ece') is not None else float('nan'):.3f} |"
             )
     return "\n".join(lines)
@@ -65,12 +110,12 @@ def probe_table(probe_results: list[dict]) -> str:
 
 def loto_table(probe_results: list[dict]) -> str:
     lines = [
-        "| model | target | held-out topic | linear probe AUROC [95% CI] | n |",
+        "| dataset | target | held-out topic | linear probe AUROC [95% CI] | n |",
         "|---|---|---|---|---|",
     ]
     for r in probe_results:
         for topic, m in sorted(r.get("loto", {}).items()):
-            lines.append(f"| {r['model_key']} | {r['target']} | {topic} | {_fmt(m)} | {m['n']} |")
+            lines.append(f"| {dataset_label(r)} | {r['target']} | {topic} | {_fmt(m)} | {m['n']} |")
     return "\n".join(lines)
 
 
@@ -150,11 +195,11 @@ def fig_layer_sweep(r: dict, out: Path) -> Path:
     ax.set_xlabel("layer")
     ax.set_ylabel("AUROC")
     ax.set_ylim(0.4, 1.0)
-    ax.set_title(f"{r['model']}  target={r['target']}  pooling={r['pooling']}")
+    ax.set_title(f"{r['model']}  {dataset_label(r)}  target={r['target']}  pooling={r['pooling']}")
     ax.legend(fontsize=7, loc="lower right")
     ax.grid(alpha=0.2)
     fig.tight_layout()
-    path = out / f"layer_sweep_{r['model_key']}_{r['target']}_{r['pooling']}.png"
+    path = out / f"layer_sweep_{r['model_key']}_{r['target']}_{r['pooling']}_{dataset_label(r)}.png"
     fig.savefig(path)
     plt.close(fig)
     return path
@@ -174,7 +219,7 @@ def fig_reliability(r: dict, out: Path) -> Path | None:
     ax.set_ylabel("observed frequency")
     ax.set_title(f"reliability, ECE={p['test']['ece']:.3f}", fontsize=9)
     fig.tight_layout()
-    path = out / f"reliability_{r['model_key']}_{r['target']}_{r['pooling']}.png"
+    path = out / f"reliability_{r['model_key']}_{r['target']}_{r['pooling']}_{dataset_label(r)}.png"
     fig.savefig(path)
     plt.close(fig)
     return path
@@ -227,6 +272,16 @@ def build_report(
         "# Results\n",
         "Generated by `halluscope report`. Intervals are 1000-sample bootstrap 95 percent.\n",
     ]
+    if any(r.get("probe_vs_surface") for r in probes):
+        md += [
+            "## Does the hidden state beat the words?\n",
+            "Linear, mass-mean and MLP probes against the strongest bag-of-words baseline "
+            "(TF-IDF on the final turn), resampled together on the same test items. "
+            "The single-turn pair is decidable from the words by construction, so it is a "
+            "sanity check; the multi-turn pair is the question.\n",
+            headline_table(probes),
+            "\n",
+        ]
     if probes:
         md += [
             "## Probes\n",
