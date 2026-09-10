@@ -12,9 +12,19 @@ import { ChartFrame, riskColor } from "./theme";
 export default function LayerBars({
   data,
   bestLayer,
+  title = "P(underspecified) at every layer",
+  format = (v: number) => `${(v * 100).toFixed(1)}%`,
+  floor = 0,
+  color = riskColor,
 }: {
   data: LayerScore[];
   bestLayer: number | null;
+  title?: string;
+  format?: (v: number) => string;
+  /** value drawn as an empty bar; 0.5 for an AUROC strip so chance sits on the baseline */
+  floor?: number;
+  /** bar colour by value; the risk ramp for a probability, one flat tone for a reference curve */
+  color?: (v: number) => string;
 }) {
   const scope = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<LayerScore | null>(null);
@@ -40,13 +50,12 @@ export default function LayerBars({
 
   return (
     <ChartFrame
-      title="P(underspecified) at every layer"
+      title={title}
       right={
         shown ? (
           <span>
             layer {shown.layer}
-            <span className="text-text ml-2">{(shown.prob * 100).toFixed(1)}%</span>
-            <span className="text-dim ml-2">decision {shown.decision.toFixed(2)}</span>
+            <span className="text-text ml-2">{format(shown.prob)}</span>
           </span>
         ) : undefined
       }
@@ -63,13 +72,13 @@ export default function LayerBars({
                 key={d.layer}
                 className="relative flex-1 h-full flex items-end cursor-crosshair"
                 onMouseEnter={() => setHover(d)}
-                title={`layer ${d.layer}: ${(d.prob * 100).toFixed(1)}%`}
+                title={`layer ${d.layer}: ${format(d.prob)}`}
               >
                 <div
                   className="layer-bar w-full rounded-t-[2px]"
                   style={{
-                    height: `${Math.max(2, d.prob * 100)}%`,
-                    background: riskColor(d.prob),
+                    height: `${Math.max(2, ((d.prob - floor) / (1 - floor)) * 100)}%`,
+                    background: color(d.prob),
                     opacity: best ? 1 : hover?.layer === d.layer ? 0.9 : 0.42,
                     boxShadow: best ? "0 0 0 1px #e8eef4 inset" : undefined,
                   }}

@@ -3,7 +3,9 @@ import {
   ApiError,
   chatStream,
   getItems,
+  getResult,
   scoreTurns,
+  type ProbeFull,
   type GateEvent,
   type Item,
   type ScoreResponse,
@@ -26,12 +28,15 @@ interface StreamState {
 }
 
 const EMPTY_STREAM: StreamState = { active: false, mode: null, gate: null, text: "", chunks: [] };
+const OPENING_PRESET = "rag-0004-d";
+const REFERENCE_RESULT = "probe_qwen_gap_last_minimal";
 
 export default function Live() {
   const toast = useToast();
   const page = useRef<HTMLDivElement>(null);
   const [turns, setTurns] = useState<DialogTurn[]>([{ role: "user", content: "" }]);
   const [presets, setPresets] = useState<Item[]>([]);
+  const [reference, setReference] = useState<ProbeFull | null>(null);
   const [presetId, setPresetId] = useState("");
   const [score, setScore] = useState<ScoreResponse | null>(null);
   const [scoring, setScoring] = useState(false);
@@ -50,8 +55,20 @@ export default function Live() {
 
   useEffect(() => {
     getItems({ limit: 256, source: "seed" })
-      .then((r) => setPresets(r.items))
+      .then((r) => {
+        setPresets(r.items);
+        // Arrive with a request on the bench: a multi-turn contradiction, the
+        // case the whole project is about, rather than an empty box.
+        const first = r.items.find((p) => p.id === OPENING_PRESET) ?? r.items.find((p) => p.variant === "d");
+        if (first) {
+          setPresetId(first.id);
+          setTurns(first.turns.map((t) => ({ ...t })));
+        }
+      })
       .catch((e: ApiError) => toast.error(`presets: ${e.message}`));
+    getResult<ProbeFull>(REFERENCE_RESULT)
+      .then(setReference)
+      .catch(() => setReference(null));
     return () => abortRef.current?.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -147,19 +164,11 @@ export default function Live() {
             <button type="button" className="btn-risk" onClick={() => onChat()} disabled={busy}>
               {stream.active ? <Spinner label="streaming" /> : "Ask or answer"}
             </button>
-            <div className="flex items-center gap-1 pl-2 border-l border-line">
-              <button type="button" className="btn-ghost btn-xs" onClick={() => onChat("ask")} disabled={busy}>
-                force ask
+            {stream.active && (
+              <button type="button" className="btn-ghost" onClick={() => abortRef.current?.abort()}>
+                stop
               </button>
-              <button type="button" className="btn-ghost btn-xs" onClick={() => onChat("answer")} disabled={busy}>
-                force answer
-              </button>
-              {stream.active && (
-                <button type="button" className="btn-ghost btn-xs" onClick={() => abortRef.current?.abort()}>
-                  stop
-                </button>
-              )}
-            </div>
+            )}
           </>
         }
       />
@@ -182,7 +191,13 @@ export default function Live() {
         </div>
 
         <div className="min-w-0 flex flex-col gap-4 md:sticky md:top-[72px]" data-reveal="readout">
-          {scoring && !score ? <Scanning /> : score ? <ScoreView score={score} /> : <Idle />}
+          {scoring && !score ? (
+            <Scanning />
+          ) : score ? (
+            <ScoreView score={score} onForce={onChat} busy={busy} />
+          ) : (
+            <Idle reference={reference} />
+          )}
         </div>
       </div>
     </div>
@@ -222,38 +237,76 @@ function Check() {
   );
 }
 
-function Idle() {
+/**
+ * Before anything is scored the column still shows a reading: the linear
+ * probe's validation AUROC at every layer of the model, from the results
+ * file. It is the same strip the live score will draw, so the eye already
+ * knows where to look when the number lands.
+ */
+function Idle({ reference }: { reference: ProbeFull | null }) {
+  const linear = reference?.probes?.linear;
+  const curve = linear?.per_layer_val_auroc ?? {};
+  const layers = Object.keys(curve)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((l) => ({ layer: l, prob: curve[String(l)], decision: curve[String(l)] }));
+  const best = linear?.best_layer ?? null;
+  const bestAuroc = best !== null ? curve[String(best)] : undefined;
   return (
-    <Panel className="grid-texture">
-      <SectionLabel>readout</SectionLabel>
-      <p className="text-[13.5px] text-muted leading-6">
-        Nothing scored yet. Score reads the hidden state at the position where the assistant would start
-        answering and reports, layer by layer, how strongly it looks like an underspecified request. The
-        figure at the top is the best validation layer; the strip below it is the whole sweep.
-      </p>
-      <ul className="mt-4 grid grid-cols-3 gap-3 text-[12px] text-dim">
-        <li>
-          <span className="block text-safe mono text-[13px]">0.0</span>
-          fully specified
-        </li>
-        <li>
-          <span className="block text-muted mono text-[13px]">0.5</span>
-          probe boundary
-        </li>
-        <li>
-          <span className="block text-risk mono text-[13px]">1.0</span>
-          missing a needed detail
-        </li>
-      </ul>
-    </Panel>
+    <>
+      <div className="relative overflow-hidden rounded-xl border border-line bg-panel shadow-readout px-5 pt-5 pb-4">
+        <div className="label">the probe on the test set, before your request</div>
+        <div className="flex items-baseline gap-1.5 mt-1">
+          <span className="font-display mono text-[64px] leading-none font-semibold tracking-[-0.03em] text-text">
+            {bestAuroc !== undefined ? bestAuroc.toFixed(3) : "\u2014".replace("\u2014", "")}
+          </span>
+          {bestAuroc !== undefined && <span className="text-[13px] text-muted mb-2">validation AUROC at layer {best}</span>}
+        </div>
+        <p className="mt-3 text-[13px] text-muted leading-5 max-w-[46ch]">
+          Press Score and this face becomes the reading for the dialogue on the left: how strongly the hidden
+          state says a needed detail is missing.
+        </p>
+      </div>
+      <Panel className="pb-8">
+        {layers.length > 0 ? (
+          <LayerBars
+            data={layers}
+            bestLayer={best}
+            title="linear probe, validation AUROC by layer"
+            format={(v) => v.toFixed(3)}
+            floor={0.5}
+            color={() => "#22d3ee"}
+          />
+        ) : (
+          <div className="text-[12px] text-dim">no probe result on disk yet; run halluscope probe</div>
+        )}
+      </Panel>
+    </>
   );
 }
 
-function ScoreView({ score }: { score: ScoreResponse }) {
+function ScoreView({
+  score,
+  onForce,
+  busy,
+}: {
+  score: ScoreResponse;
+  onForce: (mode: "ask" | "answer") => void;
+  busy: boolean;
+}) {
   const uqEntries = Object.entries(score.uq);
   return (
     <>
       <RiskRibbon score={score} />
+      <div className="flex items-center gap-2 -mt-1 text-[12.5px] text-muted">
+        <span>try the other branch:</span>
+        <button type="button" className="btn-ghost btn-xs" onClick={() => onForce("ask")} disabled={busy}>
+          make it ask
+        </button>
+        <button type="button" className="btn-ghost btn-xs" onClick={() => onForce("answer")} disabled={busy}>
+          make it answer
+        </button>
+      </div>
       <Panel className="pb-8">
         <LayerBars data={score.per_layer} bestLayer={score.best_layer} />
       </Panel>

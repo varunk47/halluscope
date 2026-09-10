@@ -54,7 +54,6 @@ export default function DialogueBuilder({
         {turns.map((t, i) => (
           <TurnEditor
             key={i}
-            index={i}
             turn={t}
             isLast={i === turns.length - 1}
             disabled={disabled}
@@ -78,14 +77,12 @@ export default function DialogueBuilder({
         >
           + {nextRole === "user" ? "assistant" : "user"} turn
         </button>
-        <span className="ml-auto text-[11px] text-dim">dialogue must end on a user turn</span>
       </div>
     </div>
   );
 }
 
 function TurnEditor({
-  index,
   turn,
   isLast,
   disabled,
@@ -93,7 +90,6 @@ function TurnEditor({
   onText,
   onRemove,
 }: {
-  index: number;
   turn: DialogTurn;
   isLast: boolean;
   disabled?: boolean;
@@ -117,7 +113,6 @@ function TurnEditor({
       } ${isLast && user ? "focus-within:border-safe/60" : "focus-within:border-line-2"}`}
     >
       <div className="flex items-center gap-2 px-3 pt-2">
-        <span className="mono text-[10px] text-dim">{String(index + 1).padStart(2, "0")}</span>
         <button
           type="button"
           className="hover:opacity-80 transition"
