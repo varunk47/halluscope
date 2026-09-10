@@ -92,6 +92,48 @@ def bootstrap_ci(
     return float(point), float(lo), float(hi)
 
 
+def paired_bootstrap_delta(
+    fn: Callable[[np.ndarray, np.ndarray], float],
+    y_true: np.ndarray,
+    score_a: np.ndarray,
+    score_b: np.ndarray,
+    n: int = 1000,
+    seed: int = 0,
+    alpha: float = 0.05,
+) -> dict:
+    """Bootstrap the difference fn(a) - fn(b) resampling both on the same items.
+
+    Two separate intervals overlapping does not mean the difference is
+    indistinguishable from zero: the scores are computed on the same test items
+    and are correlated, so the comparison has to be paired to say anything. The
+    p value is the two-sided fraction of resamples on the wrong side of zero.
+    """
+    y_true = np.asarray(y_true)
+    score_a = np.asarray(score_a)
+    score_b = np.asarray(score_b)
+    point = fn(y_true, score_a) - fn(y_true, score_b)
+    rng = np.random.default_rng(seed)
+    N = len(y_true)
+    vals = []
+    for _ in range(n):
+        idx = rng.integers(0, N, N)
+        va, vb = fn(y_true[idx], score_a[idx]), fn(y_true[idx], score_b[idx])
+        if not (np.isnan(va) or np.isnan(vb)):
+            vals.append(va - vb)
+    if not vals:
+        return {"delta": point, "lo": float("nan"), "hi": float("nan"), "p": float("nan")}
+    arr = np.array(vals)
+    lo, hi = np.percentile(arr, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    frac = float(np.mean(arr <= 0)) if point > 0 else float(np.mean(arr >= 0))
+    return {
+        "delta": float(point),
+        "lo": float(lo),
+        "hi": float(hi),
+        "p": float(min(1.0, 2 * frac)),
+        "n": int(N),
+    }
+
+
 @dataclass
 class MetricsWithCI:
     n: int

@@ -21,6 +21,28 @@ def dialogue_text(item: Item, final_turn_only: bool = False) -> str:
     return "\n".join(f"{t.role}: {t.content}" for t in item.turns)
 
 
+def tfidf_scores(
+    train: list[Item],
+    y_train: np.ndarray,
+    test: list[Item],
+    final_turn_only: bool = False,
+    seed: int = 0,
+) -> np.ndarray:
+    """Fit bag-of-words on train, return P(gap) for each test item, in order.
+
+    Split out from ``tfidf_baseline`` so the same per-item scores can be compared
+    against a probe on identical items rather than through two separate intervals.
+    """
+    pipe = Pipeline(
+        [
+            ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1, sublinear_tf=True)),
+            ("clf", LogisticRegression(C=1.0, max_iter=5000, random_state=seed)),
+        ]
+    )
+    pipe.fit([dialogue_text(i, final_turn_only) for i in train], y_train)
+    return pipe.predict_proba([dialogue_text(i, final_turn_only) for i in test])[:, 1]
+
+
 def tfidf_baseline(
     train: list[Item],
     y_train: np.ndarray,
@@ -30,17 +52,8 @@ def tfidf_baseline(
     n_bootstrap: int = 1000,
     seed: int = 0,
 ) -> MetricsWithCI:
-    pipe = Pipeline(
-        [
-            ("tfidf", TfidfVectorizer(ngram_range=(1, 2), min_df=1, sublinear_tf=True)),
-            ("clf", LogisticRegression(C=1.0, max_iter=5000, random_state=seed)),
-        ]
-    )
-    pipe.fit([dialogue_text(i, final_turn_only) for i in train], y_train)
-    Xte = [dialogue_text(i, final_turn_only) for i in test]
-    score = pipe.decision_function(Xte)
-    prob = pipe.predict_proba(Xte)[:, 1]
-    return evaluate_scores(y_test, score, prob=prob, n_bootstrap=n_bootstrap, seed=seed)
+    prob = tfidf_scores(train, y_train, test, final_turn_only, seed)
+    return evaluate_scores(y_test, prob, prob=prob, n_bootstrap=n_bootstrap, seed=seed)
 
 
 def digit_count_baseline(

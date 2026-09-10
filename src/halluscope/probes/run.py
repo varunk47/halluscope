@@ -25,8 +25,13 @@ from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item
 from halluscope.data.splits import grouped_split, leave_one_topic_out
-from halluscope.eval.metrics import evaluate_scores
-from halluscope.probes.baselines import digit_count_baseline, length_baseline, tfidf_baseline
+from halluscope.eval.metrics import auroc, evaluate_scores, paired_bootstrap_delta
+from halluscope.probes.baselines import (
+    digit_count_baseline,
+    length_baseline,
+    tfidf_baseline,
+    tfidf_scores,
+)
 from halluscope.probes.linear import LinearProbe, MassMeanProbe
 from halluscope.probes.mlp import MLPProbe
 from halluscope.probes.sweep import layer_sweep
@@ -211,6 +216,32 @@ def run_probe(
     out["baselines"]["digit_count"] = digit_count_baseline(
         te, y_te, n_bootstrap=cfg.probe.n_bootstrap
     ).to_dict()
+
+    # Head to head on identical test items. The interesting question is not
+    # whether the probe clears chance, it is whether reading the hidden state
+    # beats reading the words, and only a paired comparison can answer that.
+    surface = {
+        name: tfidf_scores(tr, y_tr, te, final_turn_only=fo, seed=cfg.probe.seed)
+        for name, fo in (("tfidf_dialogue", False), ("tfidf_final_turn", True))
+    }
+    best_surface = max(surface, key=lambda k: auroc(y_te, surface[k]))
+    out["probe_vs_surface"] = {"baseline": best_surface, "overall": {}, "by_pair": {}}
+    masks = _pair_masks(te, y_te)
+    for name, d in out["probes"].items():
+        probs = np.array(d["test_prob"])
+        out["probe_vs_surface"]["overall"][name] = paired_bootstrap_delta(
+            auroc, y_te, probs, surface[best_surface], n=cfg.probe.n_bootstrap
+        )
+        out["probe_vs_surface"]["by_pair"][name] = {
+            pair: paired_bootstrap_delta(
+                auroc,
+                y_te[m],
+                probs[m],
+                surface[best_surface][m],
+                n=cfg.probe.n_bootstrap,
+            )
+            for pair, m in masks.items()
+        }
 
     if loto:
         best_layer = out["probes"]["linear"]["best_layer"]
