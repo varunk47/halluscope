@@ -3,73 +3,73 @@
   "split": "test",
   "summary": {
     "predictive_entropy": {
-      "n": 10,
-      "auroc": 0.8400000000000001,
-      "auroc_lo": 0.4285714285714286,
+      "n": 11,
+      "auroc": 0.8333333333333334,
+      "auroc_lo": 0.42857142857142855,
       "auroc_hi": 1.0,
-      "auprc": 0.911111111111111,
-      "auprc_lo": 0.6111111111111112,
+      "auprc": 0.8999999999999999,
+      "auprc_lo": 0.5909090909090909,
       "auprc_hi": 1.0,
       "accuracy": null,
       "ece": null,
       "reliability": {},
-      "mean_seconds": 29.18074514865875,
+      "mean_seconds": 29.256987181576815,
       "n_generations": 1
     },
     "eigenscore": {
-      "n": 10,
-      "auroc": 0.48,
+      "n": 11,
+      "auroc": 0.4333333333333333,
       "auroc_lo": 0.0,
-      "auroc_hi": 0.9047619047619049,
-      "auprc": 0.6301587301587301,
-      "auprc_lo": 0.24152777777777779,
-      "auprc_hi": 0.9484523809523808,
+      "auroc_hi": 0.8333333333333334,
+      "auprc": 0.5638888888888889,
+      "auprc_lo": 0.21574074074074073,
+      "auprc_hi": 0.8909090909090909,
       "accuracy": null,
       "ece": null,
       "reliability": {},
-      "mean_seconds": 32.86015615463257,
+      "mean_seconds": 33.20863142880526,
       "n_generations": 6
     },
     "ptrue": {
-      "n": 10,
-      "auroc": 0.64,
-      "auroc_lo": 0.24000000000000002,
-      "auroc_hi": 1.0,
-      "auprc": 0.6977777777777777,
-      "auprc_lo": 0.3219047619047619,
-      "auprc_hi": 1.0,
+      "n": 11,
+      "auroc": 0.6000000000000001,
+      "auroc_lo": 0.16666666666666669,
+      "auroc_hi": 0.9583333333333333,
+      "auprc": 0.6476190476190475,
+      "auprc_lo": 0.2777777777777778,
+      "auprc_hi": 0.9571428571428571,
       "accuracy": null,
       "ece": null,
       "reliability": {},
-      "mean_seconds": 29.58117687702179,
+      "mean_seconds": 29.658106977289375,
       "n_generations": 1
     },
     "verbalized": {
-      "n": 10,
-      "auroc": 0.42000000000000004,
-      "auroc_lo": 0.0,
-      "auroc_hi": 0.8542410714285714,
-      "auprc": 0.5083333333333333,
-      "auprc_lo": 0.22437500000000005,
-      "auprc_hi": 0.9000793650793651,
+      "n": 11,
+      "auroc": 0.48333333333333334,
+      "auroc_lo": 0.10714285714285715,
+      "auroc_hi": 0.839821428571428,
+      "auprc": 0.4901515151515151,
+      "auprc_lo": 0.22205387205387206,
+      "auprc_hi": 0.8909523809523809,
       "accuracy": null,
       "ece": null,
       "reliability": {},
-      "mean_seconds": 1.0531492471694945,
+      "mean_seconds": 1.0595759695226497,
       "n_generations": 1
     },
     "logit_lens_entropy": {
-      "n": 10,
-      "auroc": 0.8400000000000001,
-      "auroc_lo": 0.5,
+      "n": 11,
+      "auroc": 0.7,
+      "auroc_lo": 0.30000000000000004,
       "auroc_hi": 1.0,
-      "auprc": 0.8528571428571428,
-      "auprc_lo": 0.5,
+      "auprc": 0.6116666666666666,
+      "auprc_lo": 0.32047619047619047,
       "auprc_hi": 1.0,
       "accuracy": null,
       "ece": null,
       "reliability": {},
-      "mean_seconds": 0.5129996538162231,
+      "mean_seconds": 0.5176403739235618,
       "n_generations": 0
     }
   },
@@ -931,6 +931,92 @@
             "To fix noisy labels in a sentiment dataset, apply these steps:\n\n1.  **Inspect Distribution**: Plot label histograms. Look for extreme imbalance (e.g., 99% \"positive\") or bimodal clusters that don't align with text semantics.\n2.  **Filter Outliers**: Remove samples where the text sentiment contradicts the label (e.g., \"Great movie!\" labeled as negative).\n    *   *Heuristic*: Use a small, trusted model or rule-based classifier to predict sentiment; flag/label samples with high prediction probability mismatch.\n3.  **Re-label via Consensus**: For ambiguous samples, aggregate predictions from multiple robust models (ensemble) or use human-in-the-loop for high-confidence re-labels.\n4.  **Rebalance**:"
           ],
           "greedy": "I cannot directly access your local files or the specific dataset you are working with. However, here is the standard protocol to identify and fix noisy labels in a sentiment dataset:\n\n### 1. Identify Noisy Labels\n*   **Human-in-the-Loop (HITL):** Have 3\u20135 annotators review a random sample (e.g., 100\u2013500 samples) of your current labels.\n*   **Consensus Check:** Flag samples where annotators disagree (e.g., 2 say \"Positive,\" 1 says \"Negative\").\n*   **Model Uncertainty:** Train a small, high-confidence model (e.g., DistilBERT). Flag samples where the model's confidence score is low (e.g., `max(probs) <"
+        }
+      }
+    },
+    {
+      "item_id": "data-0007-c",
+      "label": "specified",
+      "topic": "data",
+      "variant": "c",
+      "y": 0,
+      "scores": {
+        "_greedy_seconds": {
+          "value": 30.019407510757446
+        },
+        "predictive_entropy": {
+          "value": 0.40875669799043174,
+          "n_generations": 1,
+          "seconds": 30.019407510757446
+        },
+        "logit_lens_entropy": {
+          "value": 8.826093912124634,
+          "n_generations": 0,
+          "seconds": 0.5640475749969482,
+          "per_layer": [
+            1.6503610977824934e-11,
+            11.78991985321045,
+            11.719532012939453,
+            10.994108200073242,
+            10.325450897216797,
+            11.080870628356934,
+            11.259190559387207,
+            10.955221176147461,
+            11.247842788696289,
+            11.263178825378418,
+            11.456693649291992,
+            11.346841812133789,
+            11.239370346069336,
+            11.063959121704102,
+            11.111486434936523,
+            11.139302253723145,
+            10.921753883361816,
+            10.846918106079102,
+            10.842042922973633,
+            10.9927978515625,
+            10.983325004577637,
+            10.850955963134766,
+            10.623831748962402,
+            10.37099552154541,
+            10.482414245605469,
+            9.003847122192383,
+            9.493043899536133,
+            10.754457473754883,
+            9.01789665222168,
+            10.114864349365234,
+            10.061466217041016,
+            8.549633026123047,
+            3.6135425567626953
+          ]
+        },
+        "_sampling_seconds": {
+          "value": 34.354307651519775
+        },
+        "eigenscore": {
+          "value": 3.205489263219946,
+          "n_generations": 6,
+          "seconds": 36.69338417053223
+        },
+        "ptrue": {
+          "value": 0.5312286746464379,
+          "n_generations": 1,
+          "seconds": 30.42740797996521
+        },
+        "verbalized": {
+          "value": 0.25,
+          "n_generations": 1,
+          "seconds": 1.1238431930541992
+        },
+        "_samples": {
+          "texts": [
+            "Add `confidence_scores=True` to `cleanlab.detect_label_noise` (or similar methods) to log all self-confidence values. Execute the 5-fold cross-validation, retrieve the full confidence array, and isolate the bottom 5% for human review.",
+            "To implement this with `cleanlab`, you need to enable the `self_confidence` parameter in the `LabelNoiseDetector` (or `LabelNoiseSampler` if using a custom model wrapper). This ensures all predictions are saved, not just the flagged ones.\n\nHere is the concrete implementation for the DeBERTa workflow:\n\n```python\nimport torch\nfrom cleanlab import LabelNoiseDetector\nfrom transformers import AutoTokenizer, AutoModelForSequenceClassification\nimport numpy as np\n\n# 1. Load Model & Tokenizer (DeBERTa)\nmodel_name = \"cardiffnlp/twitter-roberta-base-sentiment\" # Example DeBERTa-like model\ntokenizer = AutoTokenizer.from_pretrained(model_name)\nmodel = AutoModelForSequenceClassification.from_pretrained(model",
+            "Here is the updated workflow to detect and clean label noise using **cleanlab** with **DeBERTa**:\n\n### 1. Pipeline Overview\n1.  **Inference**: Run your 5-fold DeBERTa model.\n2.  **Scoring**: Extract `model.confidence` for all samples.\n3.  **Flagging**: Identify the bottom 5% based on confidence.\n4.  **Analysis**: Run `cleanlab.LabelNoiseDetection` on the **full dataset** to compute noise statistics.\n5.  **Human Review**: Present the flagged 5% to human annotators.\n6.  **Retraining**: Retrain the DeBERTa model on the corrected dataset.\n\n### 2. Python Implementation\n\n```python",
+            "Add `save_scores=True` to `cleanlab.noise_analysis` to log self-confidence for all rows. Run the 5-fold DeBERTa pipeline again, then retrain.",
+            "Implement the following in your preprocessing pipeline:\n\n1.  **Save Full Confidence Scores**: Use `cleanlab.utils.get_confidence` (or equivalent for DeBERTa) to generate a confidence score for **every** sample in your validation folds. Store this as a separate column in your DataFrame.\n2.  **Run Noise Analysis**: Execute `cleanlab.LabelNoiseDetection` using the full dataset (or the 5-fold split if using DeBERTa specifically for noise estimation):\n    ```python\n    from cleanlab import LabelNoiseDetection\n\n    # Ensure labels are integers\n    classifier = LabelNoiseDetection()\n    detector = classifier.detect_noise(\n        labels=y_train,\n        labels_true=y_true, # If available for self-training, else skip\n        features=X",
+            "Yes. Ensure `cleanlab`'s `self_confidence` metric is logged for all samples in the 5-fold out-of-fold evaluation, not just the flagged set. Proceed with the noise analysis."
+          ],
+          "greedy": "Understood.\n\n**Plan:**\n1.  **Run `cleanlab`**: Execute 5-fold out-of-fold DeBERTa inference.\n2.  **Save Confidence**: Store `self_confidence` for all samples (not just flagged).\n3.  **Analyze**: Run `cleanlab.noise_analysis` using the saved confidence scores.\n4.  **Threshold**: Flag the bottom 5% of confidence scores.\n5.  **Human-in-the-Loop**: Export flagged examples for relabeling.\n6.  **Retrain**: Retrain model with corrected labels.\n\nPlease provide the dataset path and the DeBERTa model file."
         }
       }
     }
