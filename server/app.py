@@ -89,16 +89,27 @@ def provenance() -> dict:
     if Path(cfg.paths.cost_log).exists():
         with open(cfg.paths.cost_log, encoding="utf-8") as fh:
             cost_rows = [json.loads(line) for line in fh if line.strip()]
+    # Per alias, and per model inside it. A model that was tried and refused
+    # every call (no key, no credit) is not a model that judged anything, so
+    # the page separates what answered from what was merely in the fallback list.
     by_alias: dict[str, dict] = {}
     for r in cost_rows:
-        a = by_alias.setdefault(r["alias"], {"calls": 0, "ok": 0, "cost_usd": 0.0, "models": set()})
-        a["calls"] += 1
-        a["ok"] += int(r.get("ok", False))
-        a["cost_usd"] += float(r.get("cost_usd", 0.0))
-        a["models"].add(r.get("model"))
+        a = by_alias.setdefault(r["alias"], {"calls": 0, "ok": 0, "cost_usd": 0.0, "per_model": {}})
+        m = a["per_model"].setdefault(r.get("model") or "?", {"calls": 0, "ok": 0, "cost_usd": 0.0})
+        for d in (a, m):
+            d["calls"] += 1
+            d["ok"] += int(r.get("ok", False))
+            d["cost_usd"] += float(r.get("cost_usd", 0.0))
     for a in by_alias.values():
-        a["models"] = sorted(m for m in a["models"] if m)
         a["cost_usd"] = round(a["cost_usd"], 4)
+        for m in a["per_model"].values():
+            m["cost_usd"] = round(m["cost_usd"], 4)
+        a["answered"] = sorted(
+            (k for k, m in a["per_model"].items() if m["ok"] > 0),
+            key=lambda k: -a["per_model"][k]["ok"],
+        )
+        a["refused"] = sorted(k for k, m in a["per_model"].items() if m["ok"] == 0)
+        a["models"] = a["answered"]
     return {
         "python": sys.version.split()[0],
         "platform": platform.platform(),

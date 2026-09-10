@@ -146,7 +146,7 @@ export default function Provenance() {
                     <th className="text-right font-medium px-3 py-2">calls</th>
                     <th className="text-right font-medium px-3 py-2">ok</th>
                     <th className="text-right font-medium px-3 py-2">cost usd</th>
-                    <th className="text-left font-medium px-3 py-2 pr-5">models</th>
+                    <th className="text-left font-medium px-3 py-2 pr-5">answered (ok of calls, usd)</th>
                   </tr>
                 </thead>
                 <tbody className="mono">
@@ -156,7 +156,28 @@ export default function Provenance() {
                       <td className="text-right px-3 py-2">{c.calls}</td>
                       <td className={`text-right px-3 py-2 ${c.ok === c.calls ? "text-safe" : "text-risk"}`}>{c.ok}</td>
                       <td className="text-right px-3 py-2">{c.cost_usd.toFixed(4)}</td>
-                      <td className="px-3 py-2 pr-5 text-muted text-[11px]">{c.models.join(", ")}</td>
+                      <td className="px-3 py-2 pr-5 text-[11px]">
+                        <div className="flex flex-col gap-0.5">
+                          {(c.answered ?? c.models).map((m) => {
+                            const pm = c.per_model?.[m];
+                            return (
+                              <div key={m} className="flex gap-2">
+                                <span className="text-text">{m}</span>
+                                {pm && (
+                                  <span className="text-dim">
+                                    {pm.ok} of {pm.calls}, {pm.cost_usd.toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {c.refused && c.refused.length > 0 && (
+                            <div className="text-dim mt-1">
+                              refused every call: {c.refused.join(", ")}
+                            </div>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

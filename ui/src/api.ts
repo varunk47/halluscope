@@ -191,7 +191,7 @@ export interface Provenance {
   n_bootstrap: number;
   gate_alpha: number;
   judge_aliases: Record<string, string[]>;
-  llm_calls: Record<string, { calls: number; ok: number; cost_usd: number; models: string[] }>;
+  llm_calls: Record<string, { calls: number; ok: number; cost_usd: number; models: string[]; answered?: string[]; refused?: string[]; per_model?: Record<string, { calls: number; ok: number; cost_usd: number }> }>;
   total_cost_usd: number;
 }
 
