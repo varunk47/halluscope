@@ -84,22 +84,40 @@ class AliasCfg(BaseModel):
     max_tokens: int = 1024
 
 
+# Kimi K3 through NVIDIA NIM. Written once so the ordering below reads as a list
+# of intentions rather than a repeated literal. It is a reasoning model: tokens
+# spent thinking count against max_tokens, which is why every alias that can
+# reach it carries more headroom than a plain chat model would need.
+KIMI_K3 = "nvidia_nim/moonshotai/kimi-k3"
+
+
 class JudgeCfg(BaseModel):
     aliases: dict[str, AliasCfg] = {
-        # Primary judge: OpenAI. Secondary judge must be a different family for
-        # cross-family agreement; it falls back to an older OpenAI model only when
-        # no Anthropic or Gemini key is present, and the report flags that.
-        "judge_primary": AliasCfg(models=["openai/gpt-5.1", "openai/gpt-5"]),
+        # Primary judge: OpenAI. Secondary judge must be a different family, since
+        # two GPT models agreeing measures one model's habits twice. Kimi K3 is
+        # the genuine cross-family option here and leads that list; the older
+        # OpenAI model stays last as a same-family fallback the report flags.
+        "judge_primary": AliasCfg(
+            models=["openai/gpt-5.1", "openai/gpt-5", KIMI_K3], max_tokens=4096
+        ),
         "judge_secondary": AliasCfg(
-            models=["anthropic/claude-sonnet-5", "gemini/gemini-2.5-pro", "openai/gpt-4.1"]
+            models=[
+                KIMI_K3,
+                "anthropic/claude-sonnet-5",
+                "gemini/gemini-2.5-pro",
+                "openai/gpt-4.1",
+            ],
+            max_tokens=4096,
         ),
         "simulated_user": AliasCfg(
-            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini"], temperature=0.3
+            models=["openai/gpt-5-mini", "openai/gpt-4.1-mini", KIMI_K3],
+            temperature=0.3,
+            max_tokens=2048,
         ),
         "augmenter": AliasCfg(
-            models=["anthropic/claude-sonnet-5", "openai/gpt-5.1", "openai/gpt-5"],
+            models=["anthropic/claude-sonnet-5", "openai/gpt-5.1", "openai/gpt-5", KIMI_K3],
             temperature=0.9,
-            max_tokens=4096,
+            max_tokens=8192,
         ),
     }
     max_retries: int = 3

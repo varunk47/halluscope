@@ -79,7 +79,14 @@ def _usage(resp: Any) -> tuple[int, int]:
 
 
 def _is_permanent(e: Exception) -> bool:
-    """Missing key, bad key, or unknown model: retrying the same model is pointless."""
+    """Missing key, bad key, unknown model, or a spent account: retrying is pointless.
+
+    Exhausted credits arrive as a rate-limit error, which the retry loop would
+    otherwise treat as a passing squall and sleep through on every single call.
+    Over a verification run that is minutes of waiting to rediscover the same
+    empty wallet, so a spent account counts as permanent and the alias falls
+    through to the next provider immediately.
+    """
     name = type(e).__name__.lower()
     msg = str(e).lower()
     return (
@@ -89,6 +96,10 @@ def _is_permanent(e: Exception) -> bool:
         or "api_key" in msg
         or "does not exist" in msg
         or "model_not_found" in msg
+        or "insufficient_quota" in msg
+        or "exceeded your current quota" in msg
+        or "billing" in msg
+        or "credit balance" in msg
     )
 
 
@@ -138,6 +149,12 @@ class JudgeClient:
                         kwargs["response_format"] = {"type": "json_object"}
                     resp = self._completion(**kwargs)
                     content = resp.choices[0].message.content or ""
+                    # A reasoning model can spend the whole budget thinking and
+                    # return nothing. That is a failed call, not an empty answer:
+                    # returning "" here would send the caller into three rounds of
+                    # JSON repair on a string that was never going to parse.
+                    if not content.strip():
+                        raise JudgeError(f"{model} returned empty content (budget {mt} tokens)")
                     self._log(alias, model, resp, time.time() - t0, tag, ok=True)
                     return content
                 except Exception as e:  # noqa: BLE001 - provider errors are heterogeneous
