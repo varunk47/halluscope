@@ -22,14 +22,14 @@ RES = ROOT / "results"
 COST = ROOT / "logs" / "llm_cost.jsonl"
 
 STEPS = [
-    ("behavior labels on the minimal build", 90),
-    ("behavior probes on the minimal build", 5),
+    ("behavior labels on the minimal build", 300),
+    ("behavior probes on the minimal build", 40),
     ("capture Qwen3.5-2B on the minimal build", 60),
     ("gap probe on Qwen3.5-2B", 5),
     ("cross-model transfer qwen -> qwen2b", 5),
     ("activation steering on qwen", 90),
-    ("semantic entropy on the train split, for the SEP probe", 120),
-    ("semantic entropy and SEP on the test split", 120),
+    ("semantic entropy on the train split, for the SEP probe", 200),
+    ("semantic entropy and SEP on the test split", 200),
     ("report", 2),
 ]
 
