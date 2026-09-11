@@ -8,6 +8,12 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 
 | dataset | pair | probe | probe AUROC | words AUROC | delta [95% CI] | p | n |
 |---|---|---|---|---|---|---|---|
+| minimal | single turn, a vs b | linear | 0.975 | 0.941 | +0.034 [-0.006, +0.081] | 0.110 | 92 |
+| minimal | multi turn, c vs d | linear | 0.842 | 0.890 | -0.049 [-0.133, +0.032] | 0.260 | 92 |
+| minimal | single turn, a vs b | massmean | 0.971 | 0.941 | +0.030 [-0.010, +0.074] | 0.152 | 92 |
+| minimal | multi turn, c vs d | massmean | 0.621 | 0.890 | -0.269 [-0.386, -0.153] | 0.000 | 92 |
+| minimal | single turn, a vs b | mlp | 0.980 | 0.941 | +0.039 [-0.002, +0.085] | 0.060 | 92 |
+| minimal | multi turn, c vs d | mlp | 0.836 | 0.890 | -0.054 [-0.148, +0.036] | 0.270 | 92 |
 | free | single turn, a vs b | linear | 1.000 | 0.977 | +0.023 [+0.004, +0.049] | 0.012 | 96 |
 | free | multi turn, c vs d | linear | 1.000 | 0.997 | +0.003 [+0.000, +0.012] | 0.690 | 96 |
 | free | single turn, a vs b | massmean | 0.961 | 0.977 | -0.015 [-0.066, +0.029] | 0.562 | 96 |
@@ -20,12 +26,31 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | minimal | multi turn, c vs d | massmean | 0.560 | 0.890 | -0.331 [-0.451, -0.214] | 0.000 | 92 |
 | minimal | single turn, a vs b | mlp | 0.996 | 0.941 | +0.055 [+0.022, +0.100] | 0.000 | 92 |
 | minimal | multi turn, c vs d | mlp | 0.950 | 0.890 | +0.060 [+0.002, +0.127] | 0.030 | 92 |
+| minimal | single turn, a vs b | linear | 0.890 | 0.700 | +0.190 [-0.096, +0.446] | 0.146 | 124 |
+| minimal | multi turn, c vs d | linear | 0.785 | 0.787 | -0.002 [-0.220, +0.169] | 1.000 | 124 |
+| minimal | single turn, a vs b | massmean | 0.965 | 0.700 | +0.266 [+0.075, +0.497] | 0.002 | 124 |
+| minimal | multi turn, c vs d | massmean | 0.841 | 0.787 | +0.054 [-0.127, +0.223] | 0.466 | 124 |
+| minimal | single turn, a vs b | mlp | 0.918 | 0.700 | +0.218 [-0.018, +0.442] | 0.068 | 124 |
+| minimal | multi turn, c vs d | mlp | 0.827 | 0.787 | +0.040 [-0.195, +0.239] | 0.628 | 124 |
+| minimal | single turn, a vs b | linear | 0.740 | 0.677 | +0.063 [-0.057, +0.183] | 0.318 | 124 |
+| minimal | multi turn, c vs d | linear | 0.640 | 0.642 | -0.003 [-0.137, +0.111] | 0.922 | 124 |
+| minimal | single turn, a vs b | massmean | 0.826 | 0.677 | +0.149 [+0.044, +0.253] | 0.006 | 124 |
+| minimal | multi turn, c vs d | massmean | 0.685 | 0.642 | +0.042 [-0.079, +0.169] | 0.524 | 124 |
+| minimal | single turn, a vs b | mlp | 0.812 | 0.677 | +0.135 [+0.029, +0.246] | 0.014 | 124 |
+| minimal | multi turn, c vs d | mlp | 0.755 | 0.642 | +0.112 [+0.001, +0.226] | 0.050 | 124 |
 
 
 ## Probes
 
 | dataset | target | probe | layer | AUROC [95% CI] | AUPRC [95% CI] | acc | ECE |
 |---|---|---|---|---|---|---|---|
+| minimal | gap | linear | 16/24 | 0.916 [0.875, 0.951] | 0.919 [0.874, 0.956] | 0.853 | 0.131 |
+| minimal | gap | massmean | 9/24 | 0.829 [0.771, 0.882] | 0.843 [0.776, 0.896] | 0.707 | 0.094 |
+| minimal | gap | mlp | 15/24 | 0.919 [0.877, 0.954] | 0.932 [0.893, 0.962] | 0.837 | 0.146 |
+| minimal | gap | baseline: tfidf_dialogue | - | 0.868 [0.816, 0.915] | 0.865 [0.804, 0.917] | 0.766 | 0.190 |
+| minimal | gap | baseline: tfidf_final_turn | - | 0.919 [0.877, 0.954] | 0.902 [0.839, 0.953] | 0.837 | 0.248 |
+| minimal | gap | baseline: length | - | 0.664 [0.581, 0.734] | 0.706 [0.620, 0.785] | nan | nan |
+| minimal | gap | baseline: digit_count | - | 0.715 [0.648, 0.782] | 0.646 [0.559, 0.733] | nan | nan |
 | free | gap | linear | 11/32 | 1.000 [0.999, 1.000] | 1.000 [0.999, 1.000] | 0.984 | 0.026 |
 | free | gap | massmean | 18/32 | 0.959 [0.931, 0.982] | 0.968 [0.945, 0.986] | 0.911 | 0.062 |
 | free | gap | mlp | 11/32 | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | 0.990 | 0.014 |
@@ -47,6 +72,13 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | items | will_ask | baseline: tfidf_final_turn | - | 0.705 [0.580, 0.820] | 0.323 [0.120, 0.543] | 0.882 | 0.033 |
 | items | will_ask | baseline: length | - | 0.655 [0.482, 0.817] | 0.238 [0.112, 0.492] | nan | nan |
 | items | will_ask | baseline: digit_count | - | 0.551 [0.398, 0.683] | 0.131 [0.068, 0.213] | nan | nan |
+| minimal | will_ask | linear | 30/32 | 0.835 [0.713, 0.927] | 0.432 [0.233, 0.647] | 0.923 | 0.066 |
+| minimal | will_ask | massmean | 22/32 | 0.883 [0.809, 0.943] | 0.551 [0.335, 0.735] | 0.948 | 0.034 |
+| minimal | will_ask | mlp | 23/32 | 0.865 [0.747, 0.951] | 0.533 [0.319, 0.718] | 0.911 | 0.077 |
+| minimal | will_ask | baseline: tfidf_dialogue | - | 0.614 [0.494, 0.734] | 0.125 [0.072, 0.237] | 0.923 | 0.022 |
+| minimal | will_ask | baseline: tfidf_final_turn | - | 0.752 [0.628, 0.852] | 0.186 [0.108, 0.365] | 0.923 | 0.013 |
+| minimal | will_ask | baseline: length | - | 0.517 [0.373, 0.662] | 0.124 [0.055, 0.279] | nan | nan |
+| minimal | will_ask | baseline: digit_count | - | 0.563 [0.460, 0.658] | 0.087 [0.053, 0.133] | nan | nan |
 | items | will_assume | linear | 30/32 | 0.844 [0.746, 0.916] | 0.864 [0.756, 0.939] | 0.773 | 0.218 |
 | items | will_assume | massmean | 19/32 | 0.881 [0.799, 0.943] | 0.889 [0.793, 0.957] | 0.795 | 0.128 |
 | items | will_assume | mlp | 30/32 | 0.832 [0.740, 0.907] | 0.853 [0.748, 0.934] | 0.705 | 0.241 |
@@ -54,12 +86,27 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | items | will_assume | baseline: tfidf_final_turn | - | 0.657 [0.545, 0.764] | 0.746 [0.628, 0.843] | 0.580 | 0.097 |
 | items | will_assume | baseline: length | - | 0.615 [0.497, 0.732] | 0.651 [0.515, 0.787] | nan | nan |
 | items | will_assume | baseline: digit_count | - | 0.562 [0.458, 0.660] | 0.591 [0.478, 0.698] | nan | nan |
+| minimal | will_assume | linear | 13/32 | 0.692 [0.623, 0.763] | 0.551 [0.451, 0.669] | 0.653 | 0.279 |
+| minimal | will_assume | massmean | 18/32 | 0.757 [0.700, 0.814] | 0.614 [0.515, 0.717] | 0.677 | 0.088 |
+| minimal | will_assume | mlp | 21/32 | 0.786 [0.725, 0.844] | 0.647 [0.546, 0.756] | 0.730 | 0.205 |
+| minimal | will_assume | baseline: tfidf_dialogue | - | 0.622 [0.550, 0.692] | 0.515 [0.417, 0.617] | 0.649 | 0.115 |
+| minimal | will_assume | baseline: tfidf_final_turn | - | 0.670 [0.604, 0.740] | 0.521 [0.430, 0.642] | 0.673 | 0.102 |
+| minimal | will_assume | baseline: length | - | 0.587 [0.516, 0.652] | 0.419 [0.342, 0.518] | nan | nan |
+| minimal | will_assume | baseline: digit_count | - | 0.585 [0.521, 0.650] | 0.415 [0.336, 0.493] | nan | nan |
 
 
 ### Leave-one-topic-out
 
 | dataset | target | held-out topic | linear probe AUROC [95% CI] | n |
 |---|---|---|---|---|
+| minimal | gap | agents | 0.929 [0.867, 0.975] | 92 |
+| minimal | gap | data | 0.915 [0.857, 0.964] | 96 |
+| minimal | gap | evaluation | 0.914 [0.844, 0.964] | 84 |
+| minimal | gap | finetuning | 0.937 [0.880, 0.975] | 84 |
+| minimal | gap | prompting | 0.756 [0.654, 0.840] | 96 |
+| minimal | gap | rag | 0.957 [0.913, 0.989] | 92 |
+| minimal | gap | safety | 0.896 [0.828, 0.950] | 96 |
+| minimal | gap | serving | 0.967 [0.930, 0.995] | 88 |
 | free | gap | agents | 1.000 [1.000, 1.000] | 92 |
 | free | gap | data | 1.000 [1.000, 1.000] | 92 |
 | free | gap | evaluation | 1.000 [1.000, 1.000] | 92 |
@@ -84,6 +131,14 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | items | will_ask | rag | 1.000 [1.000, 1.000] | 32 |
 | items | will_ask | safety | 0.933 [0.793, 1.000] | 32 |
 | items | will_ask | serving | 1.000 [1.000, 1.000] | 32 |
+| minimal | will_ask | agents | 0.993 [0.978, 1.000] | 124 |
+| minimal | will_ask | data | 0.724 [0.437, 0.943] | 128 |
+| minimal | will_ask | evaluation | 0.912 [0.851, 0.965] | 116 |
+| minimal | will_ask | finetuning | 0.926 [0.848, 0.995] | 116 |
+| minimal | will_ask | prompting | 0.885 [0.821, 0.940] | 128 |
+| minimal | will_ask | rag | 0.980 [0.933, 1.000] | 124 |
+| minimal | will_ask | safety | 0.592 [0.346, 0.799] | 128 |
+| minimal | will_ask | serving | 0.945 [0.881, 0.992] | 120 |
 | items | will_assume | agents | 0.781 [0.689, 0.859] | 124 |
 | items | will_assume | data | 0.846 [0.723, 0.958] | 46 |
 | items | will_assume | evaluation | 0.818 [0.656, 0.955] | 32 |
@@ -92,6 +147,14 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | items | will_assume | rag | 0.727 [0.526, 0.897] | 32 |
 | items | will_assume | safety | 0.917 [0.779, 1.000] | 32 |
 | items | will_assume | serving | 0.791 [0.573, 0.956] | 32 |
+| minimal | will_assume | agents | 0.646 [0.552, 0.740] | 124 |
+| minimal | will_assume | data | 0.677 [0.582, 0.766] | 128 |
+| minimal | will_assume | evaluation | 0.666 [0.560, 0.760] | 116 |
+| minimal | will_assume | finetuning | 0.642 [0.546, 0.740] | 116 |
+| minimal | will_assume | prompting | 0.687 [0.587, 0.783] | 128 |
+| minimal | will_assume | rag | 0.692 [0.594, 0.783] | 124 |
+| minimal | will_assume | safety | 0.811 [0.728, 0.881] | 128 |
+| minimal | will_assume | serving | 0.616 [0.515, 0.713] | 120 |
 
 
 ## Model behavior (asked, flagged, silently assumed)
@@ -102,6 +165,10 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | Qwen/Qwen3.5-4B | underspecified | 131 | 0.18 | 0.07 | 0.70 |
 | Qwen/Qwen3.5-4B | inconsistent | 130 | 0.16 | 0.32 | 0.57 |
 | Qwen/Qwen3.5-4B | judge agreement (kappa, silently assumed) | 523 | | | 0.55 |
+| Qwen/Qwen3.5-4B | specified | 492 | 0.08 | 0.06 | 0.25 |
+| Qwen/Qwen3.5-4B | underspecified | 246 | 0.11 | 0.01 | 0.57 |
+| Qwen/Qwen3.5-4B | inconsistent | 246 | 0.10 | 0.17 | 0.61 |
+| Qwen/Qwen3.5-4B | judge agreement (kappa, silently assumed) | 984 | | | 0.66 |
 
 
 ## Uncertainty baselines
@@ -109,10 +176,13 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | model | split | method | AUROC [95% CI] | AUPRC [95% CI] | generations | mean seconds/item |
 |---|---|---|---|---|---|---|
 | Qwen/Qwen3.5-4B | test | predictive_entropy | 0.721 [0.615, 0.816] | 0.686 [0.553, 0.835] | 1 | 26.21 |
+| Qwen/Qwen3.5-4B | test | semantic_entropy | 0.640 [0.527, 0.744] | 0.607 [0.485, 0.753] | 6 | 70.47 |
 | Qwen/Qwen3.5-4B | test | logit_lens_entropy | 0.577 [0.457, 0.692] | 0.607 [0.461, 0.747] | 0 | 0.50 |
 | Qwen/Qwen3.5-4B | test | verbalized | 0.575 [0.461, 0.686] | 0.572 [0.435, 0.702] | 1 | 0.98 |
 | Qwen/Qwen3.5-4B | test | ptrue | 0.559 [0.447, 0.682] | 0.581 [0.450, 0.733] | 1 | 26.54 |
+| Qwen/Qwen3.5-4B | test | sep | 0.510 [0.394, 0.622] | 0.545 [0.414, 0.689] | 0 | 0.00 |
 | Qwen/Qwen3.5-4B | test | eigenscore | 0.445 [0.328, 0.571] | 0.504 [0.371, 0.642] | 6 | 52.23 |
+| Qwen/Qwen3.5-4B | train | semantic_entropy | 0.556 [0.435, 0.665] | 0.530 [0.400, 0.672] | 6 | 71.31 |
 
 
 ## Clarify gate, simulated-user loop
@@ -137,7 +207,33 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 | Qwen/Qwen3.5-4B | prompt | 0 | inconsistent | 12 | 0.08 | 0.25 | 0.25 | 0.17 |
 
 
+## Cross-model transfer
+
+| dataset | source | target | reading | layer | AUROC [95% CI] | single turn | multi turn | CKA |
+|---|---|---|---|---|---|---|---|---|
+| minimal | qwen | qwen2b | source at its best layer | 16 | 0.980 [0.964, 0.994] | 0.998 [0.992, 1.000] | 0.949 [0.897, 0.984] |  |
+| minimal | qwen | qwen2b | target at matched depth | 12 | 0.902 [0.859, 0.942] | 0.986 [0.966, 0.999] | 0.790 [0.687, 0.873] | 0.677 |
+| minimal | qwen | qwen2b | target at its own best | 16 | 0.916 [0.875, 0.951] | 0.975 [0.945, 0.994] | 0.842 [0.755, 0.910] | 0.764 |
+
+
+## Activation steering
+
+Model Qwen/Qwen3.5-4B, minimal build, layer 16, 32 test items (16 specified, 16 with a gap). Alpha is in train-set standard deviations along the mass-mean direction; cells are the fraction of steered replies that ask a clarifying question.
+
+| label | -2.0 | -1.0 | +0.0 | +1.0 | +2.0 |
+|---|---|---|---|---|---|
+| specified | 0.25 | 0.25 | 0.00 | 0.00 | 0.00 |
+| underspecified | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| inconsistent | 0.12 | 0.25 | 0.12 | 0.00 | 0.00 |
+| all | 0.16 | 0.19 | 0.03 | 0.00 | 0.00 |
+
+
+
 ## Figures
+
+![layer_sweep_qwen2b_gap_last_minimal](figures/layer_sweep_qwen2b_gap_last_minimal.png)
+
+![reliability_qwen2b_gap_last_minimal](figures/reliability_qwen2b_gap_last_minimal.png)
 
 ![layer_sweep_qwen_gap_last_free](figures/layer_sweep_qwen_gap_last_free.png)
 
@@ -151,8 +247,18 @@ Linear, mass-mean and MLP probes against the strongest bag-of-words baseline (TF
 
 ![reliability_qwen_will_ask_last_items](figures/reliability_qwen_will_ask_last_items.png)
 
+![layer_sweep_qwen_will_ask_last_minimal](figures/layer_sweep_qwen_will_ask_last_minimal.png)
+
+![reliability_qwen_will_ask_last_minimal](figures/reliability_qwen_will_ask_last_minimal.png)
+
 ![layer_sweep_qwen_will_assume_last_items](figures/layer_sweep_qwen_will_assume_last_items.png)
 
 ![reliability_qwen_will_assume_last_items](figures/reliability_qwen_will_assume_last_items.png)
 
+![layer_sweep_qwen_will_assume_last_minimal](figures/layer_sweep_qwen_will_assume_last_minimal.png)
+
+![reliability_qwen_will_assume_last_minimal](figures/reliability_qwen_will_assume_last_minimal.png)
+
 ![uq_uq_qwen_test](figures/uq_uq_qwen_test.png)
+
+![uq_uq_qwen_train](figures/uq_uq_qwen_train.png)
