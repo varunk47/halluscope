@@ -3,6 +3,19 @@
 **Probing an LLM's internal state to catch underspecified and inconsistent requests before the assistant silently assumes.**
 
 
+## In two minutes
+
+An assistant that is missing a detail usually does not ask for it; it guesses and keeps going. HalluScope asks whether that moment is visible inside the model before it answers, and whether it can be turned into a question.
+
+- **Dataset.** 64 hand-written families of AI-engineering requests, each in four versions: complete, missing one detail, detail given in an earlier turn, detail given and then contradicted. LLM paraphrases take it to 1,024 dialogues; two judge models check every family; a second build keeps the paired versions nearly word-identical so the wording cannot give the label away.
+- **Probe.** A linear classifier on the residual stream at the answer position, chosen by validation across every layer, with family-grouped splits and bootstrap intervals.
+- **The test that matters.** On the contradiction case the probe beats a bag-of-words model of the same text (0.949 against 0.890, paired p about 0.06). On the first, looser dataset it scored a perfect 1.000, which turned out to be the wording leaking the label; tightening the data is the method.
+- **Against the standard toolkit.** Seven uncertainty and hallucination-detection baselines on the same items top out at 0.72; the probe reads 0.98. Those methods catch wrong answers; an incomplete request is a different object.
+- **As a gate.** In a simulated multi-turn loop the probe-driven gate matches always-asking on task outcome while asking nothing on requests that were already complete.
+- **What did not work.** Steering the residual stream along the probe direction does not make the model ask. Reported as the negative result it is.
+
+Everything ran on one 8 GB laptop GPU. `docs/results.md` has every number with its interval; the Live page in the UI scores a dialogue layer by layer and lets the gate decide.
+
 ## Abstract
 
 When a user asks an AI assistant to do a task whose specification is incomplete or self-contradictory, the assistant tends to fill the gap with its own assumption instead of asking. This project studies whether that moment is visible in the model's internal representations before it answers. We build UnderspecAI, a dataset of AI-engineering requests in families of four variants: fully specified, underspecified, specified through an earlier turn, and specified then contradicted. We capture residual-stream activations at every layer of open-weight models (Qwen3.5-4B in 4-bit, Qwen3.5-2B in bf16) at the position where the assistant would start answering, and train linear, mass-mean, and MLP probes with family-grouped splits, validation-only layer selection, and bootstrap intervals. We compare the probes to seven uncertainty baselines (predictive entropy, semantic entropy, EigenScore, P(True), verbalized confidence, a semantic entropy probe, and per-layer logit-lens entropy) on the same items, with cost. We measure the model's own behavior with cross-family LLM judges (asked, flagged, or silently assumed) and train a second probe on that behavioral label to quantify the recognition-action gap. Finally we turn the probe into a clarify gate with a split-conformal threshold on the false-question rate and evaluate it end to end in a simulated multi-turn loop against answer-immediately, always-ask, and prompt-only conditions.

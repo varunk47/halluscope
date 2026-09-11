@@ -36,6 +36,8 @@ def _summary(name: str, d: dict) -> dict:
                 "loto": d.get("loto", {}),
             }
         )
+    elif kind in ("transfer", "steer"):
+        base.update({k: v for k, v in d.items() if k != "rows"})
     elif kind in ("uq", "behavior", "loop"):
         base.update(
             {

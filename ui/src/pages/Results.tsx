@@ -6,20 +6,26 @@ import ProbeView from "../components/results/ProbeView";
 import UqView from "../components/results/UqView";
 import BehaviorView from "../components/results/BehaviorView";
 import LoopView from "../components/results/LoopView";
+import TransferView from "../components/results/TransferView";
+import SteerView from "../components/results/SteerView";
 import { useToast } from "../components/Toast";
 
-const KIND_ORDER = ["probe", "uq", "behavior", "loop"];
+const KIND_ORDER = ["probe", "uq", "behavior", "loop", "transfer", "steer"];
 const KIND_CMD: Record<string, string> = {
   probe: "halluscope probe",
   uq: "halluscope uq",
   behavior: "halluscope behavior",
   loop: "halluscope loop",
+  transfer: "halluscope transfer",
+  steer: "halluscope steer",
 };
 const KIND_BLURB: Record<string, string> = {
   probe: "linear, mass-mean and MLP probes on cached activations, with baselines, a layer sweep and leave-one-topic-out",
   uq: "sampling and prompting based uncertainty signals compared on the same split",
   behavior: "what the model does unprompted: asks, flags, or silently assumes, judged cross-family",
   loop: "the ask-or-answer loop end to end, graded per condition",
+  transfer: "the same probe recipe on a second model, with CKA between the two",
+  steer: "push the state along the gap direction while generating and count clarifying questions",
 };
 
 const KIND_TONE: Record<string, string> = {
@@ -27,6 +33,8 @@ const KIND_TONE: Record<string, string> = {
   uq: "text-incons border-incons/40 bg-incons/10",
   behavior: "text-risk border-risk/40 bg-risk/10",
   loop: "text-text border-line-2 bg-panel-2",
+  transfer: "text-safe border-safe/40 bg-safe/10",
+  steer: "text-incons border-incons/40 bg-incons/10",
 };
 
 export default function Results() {
@@ -182,6 +190,10 @@ function ResultBody({ summary, full }: { summary: ResultSummary; full: ProbeFull
       return <BehaviorView summary={summary} />;
     case "loop":
       return <LoopView summary={summary} />;
+    case "transfer":
+      return <TransferView summary={summary} />;
+    case "steer":
+      return <SteerView summary={summary} />;
     default:
       return (
         <Empty title={`unknown result kind: ${summary.kind}`}>
