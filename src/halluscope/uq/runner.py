@@ -128,8 +128,11 @@ def score_item(
             "judge_secondary" if "judge_secondary" in client.cfg.aliases else "judge_primary",
             ctx,
         )
+        texts = [g.text for g in s]
+        if hasattr(eq, "prefetch"):
+            eq.prefetch(texts)
         out["semantic_entropy"] = {
-            "value": semantic_entropy([g.text for g in s], eq),
+            "value": semantic_entropy(texts, eq),
             "n_generations": K,
             "seconds": out["_sampling_seconds"]["value"] + time.time() - t0,
         }

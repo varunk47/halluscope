@@ -64,6 +64,23 @@ def make_llm_equivalence(client, alias: str, context: str) -> Equiv:
 
     cache: dict[tuple[str, str], bool] = {}
 
+    def prefetch(texts: list[str], workers: int = 4) -> None:
+        """Judge every distinct pair up front, a few at a time.
+
+        The clustering below asks about pairs one after another, and each
+        answer takes several seconds from a hosted model. The K samples give
+        at most K(K-1)/2 pairs, so asking them all in parallel first costs a
+        few extra calls and cuts the wall time per item several-fold.
+        """
+        from concurrent.futures import ThreadPoolExecutor
+
+        uniq = sorted(set(texts))
+        pairs = [(a, b) for i, a in enumerate(uniq) for b in uniq[i + 1 :] if (a, b) not in cache]
+        if not pairs:
+            return
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            list(ex.map(lambda ab: equivalent(*ab), pairs))
+
     def equivalent(a: str, b: str) -> bool:
         key = (a, b) if a <= b else (b, a)
         if key in cache:
@@ -85,4 +102,5 @@ def make_llm_equivalence(client, alias: str, context: str) -> Equiv:
         cache[key] = bool(v.a_entails_b and v.b_entails_a)
         return cache[key]
 
+    equivalent.prefetch = prefetch  # type: ignore[attr-defined]
     return equivalent
