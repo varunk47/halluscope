@@ -8,6 +8,7 @@ and a summary table of AUROC, AUPRC, generations required, and seconds.
 from __future__ import annotations
 
 import json
+import logging
 import time
 from pathlib import Path
 
@@ -20,7 +21,7 @@ from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item
 from halluscope.data.splits import grouped_split
 from halluscope.eval.metrics import evaluate_scores
-from halluscope.judge.client import JudgeClient
+from halluscope.judge.client import JudgeClient, JudgeError
 from halluscope.models.chat import generate
 from halluscope.models.loader import LoadedModel, load_model
 from halluscope.probes.run import gap_label
@@ -29,6 +30,8 @@ from halluscope.uq.entropy import logit_lens_entropy, predictive_entropy
 from halluscope.uq.prompted import p_true, verbalized_confidence
 from halluscope.uq.semantic_entropy import make_llm_equivalence, semantic_entropy
 from halluscope.uq.sep import SEProbe
+
+log = logging.getLogger(__name__)
 
 
 def _sample_embeddings(loaded: LoadedModel, item: Item, texts: list[str], layer: int) -> np.ndarray:
@@ -129,10 +132,17 @@ def score_item(
             ctx,
         )
         texts = [g.text for g in s]
-        if hasattr(eq, "prefetch"):
-            eq.prefetch(texts)
+        try:
+            if hasattr(eq, "prefetch"):
+                eq.prefetch(texts)
+            value = semantic_entropy(texts, eq)
+        except JudgeError as e:
+            # The judge would not give a usable verdict on one pair after retries.
+            # That item goes without semantic entropy; the run does not stop.
+            log.warning("semantic entropy skipped for %s: %s", item.id, str(e)[:160])
+            value = float("nan")
         out["semantic_entropy"] = {
-            "value": semantic_entropy(texts, eq),
+            "value": value,
             "n_generations": K,
             "seconds": out["_sampling_seconds"]["value"] + time.time() - t0,
         }

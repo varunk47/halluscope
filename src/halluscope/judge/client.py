@@ -207,10 +207,17 @@ class JudgeClient:
         tag: str = "",
     ) -> T:
         """Return a validated ``schema`` instance. Repairs fenced JSON, retries on bad shape."""
-        schema_hint = json.dumps(schema.model_json_schema().get("properties", {}), indent=0)
+        # Shown as a filled-in shape rather than the JSON-schema fragment, which
+        # some models copy back verbatim, titles and all, instead of answering.
+        props = schema.model_json_schema().get("properties", {})
+        shape = {
+            k: f"<{v.get('type', 'value')}>"
+            + (f" {v['description']}" if v.get("description") else "")
+            for k, v in props.items()
+        }
         sys_extra = (
-            "Respond with a single JSON object and nothing else. "
-            f"Required keys and types:\n{schema_hint}"
+            "Respond with a single JSON object and nothing else, with these keys filled in "
+            f"with actual values (not a schema): {json.dumps(shape, indent=0)}"
         )
         msgs = list(messages)
         if msgs and msgs[0]["role"] == "system":

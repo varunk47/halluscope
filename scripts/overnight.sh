@@ -5,8 +5,11 @@
 cd "$(dirname "$0")/.." || exit 1
 PY=.venv/Scripts/python.exe
 MIN=data/augmented/items_minimal.jsonl
-step() { echo; echo "[$(date '+%F %T')] $*"; }
-run() { "$PY" -m halluscope.cli "$@" || { echo "[$(date '+%F %T')] FAILED: $*"; exit 1; }; }
+START=${1:-1}   # first step number to run; earlier ones are skipped
+N=0
+step() { N=$((N+1)); echo; echo "[$(date '+%F %T')] $*"; }
+skip() { [ "$N" -lt "$START" ]; }
+run() { skip && { echo "  (skipped)"; return 0; }; "$PY" -m halluscope.cli "$@" || { echo "[$(date '+%F %T')] FAILED: $*"; exit 1; }; }
 
 step "behavior labels on the minimal build"
 run behavior --model qwen --items $MIN

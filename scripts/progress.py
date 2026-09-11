@@ -109,7 +109,8 @@ def main() -> None:
     done_titles = [m[1] for m in marks]
     failed = [t for t in done_titles if t.startswith("FAILED")]
     finished = any(t.endswith("chain done") for t in done_titles)
-    current_ts, current = marks[-1]
+    steps_only = [m for m in marks if not m[1].startswith("FAILED")]
+    current_ts, current = steps_only[-1] if steps_only else marks[-1]
     started = datetime.strptime(current_ts, "%Y-%m-%d %H:%M:%S").timestamp()
     idx = next((i for i, (t, _) in enumerate(STEPS) if current.startswith(t)), None)
 
@@ -118,6 +119,8 @@ def main() -> None:
     for i, (title, mins) in enumerate(STEPS):
         if finished or (idx is not None and i < idx):
             mark = "done"
+        elif idx is not None and i == idx and failed:
+            mark = "FAILED, see below"
         elif idx is not None and i == idx:
             mark = f"running {int((time.time() - started) // 60)} min, about {mins} expected"
         else:
