@@ -10,7 +10,7 @@ from rich.console import Console
 
 from halluscope import __version__
 
-app = typer.Typer(no_args_is_help=True, add_completion=False, help="HalluScope v2")
+app = typer.Typer(no_args_is_help=True, add_completion=False, help="HalluScope")
 console = Console()
 
 

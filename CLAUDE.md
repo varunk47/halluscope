@@ -1,4 +1,4 @@
-# HalluScope v2: working notes for agents
+# HalluScope: working notes for agents
 
 - Python env: `.venv` (uv, Python 3.12). Use `C:\Users\varun\.local\bin\uv.exe` on this machine; the `uv` on PATH is stale. Run tools as `.venv/Scripts/python.exe -m ...` or `uv run ...`.
 - Caches live on D: (`.env` sets `HF_HOME=D:/dev-cache/hf`, `HALLUSCOPE_CACHE_DIR=D:/dev-cache/halluscope`). Do not move them to C:, which is nearly full.

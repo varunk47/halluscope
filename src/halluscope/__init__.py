@@ -1,3 +1,3 @@
-"""HalluScope v2: internal-state probing for underspecified task requests."""
+"""HalluScope: internal-state probing for underspecified task requests."""
 
-__version__ = "2.0.0a0"
+__version__ = "1.0.0"

@@ -1,4 +1,4 @@
-# HalluScope v2: interview questions and answers
+# HalluScope: interview questions and answers
 
 Written for Varun to rehearse. Answers are in first person and assume the interviewer has read the README. The numbers to quote are in the README section "What was found" and the first table of `docs/results.md`; say the delta against the text baseline, then the interval, and only then the bare AUROC if asked. The README status table is the honest answer to "what is not finished": the simulated-user loop, semantic entropy, cross-model transfer and steering are implemented but had not run when this was written.
 

@@ -1,4 +1,4 @@
-# HalluScope v2
+# HalluScope
 
 **Probing an LLM's internal state to catch underspecified and inconsistent requests before the assistant silently assumes.**
 

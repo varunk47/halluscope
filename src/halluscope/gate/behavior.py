@@ -97,11 +97,11 @@ def run_behavior(
         }
         if second_judge and "judge_secondary" in cfg.judge.aliases:
             try:
-                v2 = judge_answer(client, it, answer, "judge_secondary")
+                second = judge_answer(client, it, answer, "judge_secondary")
                 row["judge2"] = {
-                    "asked": v2.asked,
-                    "flagged": v2.flagged,
-                    "silently_assumed": v2.silently_assumed,
+                    "asked": second.asked,
+                    "flagged": second.flagged,
+                    "silently_assumed": second.silently_assumed,
                 }
             except Exception as e:  # noqa: BLE001
                 row["judge2_error"] = str(e)[:200]

@@ -1,6 +1,6 @@
 # HalluScope UI
 
-Front end for HalluScope v2: internal-state probes for underspecified requests.
+Front end for HalluScope: internal-state probes for underspecified requests.
 Vite, React 18, TypeScript, Tailwind CSS v3, Recharts, react-router-dom.
 
 ## Run

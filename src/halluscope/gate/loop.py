@@ -146,13 +146,13 @@ def run_dialogue(
     rec.grade, rec.assumption_made = v.grade, v.assumption_made
     if "judge_secondary" in client.cfg.aliases:
         try:
-            v2 = client.complete(
+            second = client.complete(
                 "judge_secondary",
                 correctness_prompt(judged_item, reference, answer),
                 CorrectnessVerdict,
                 tag=f"loop2:{item.id}",
             )
-            rec.grade2, rec.assumption_made2 = v2.grade, v2.assumption_made
+            rec.grade2, rec.assumption_made2 = second.grade, second.assumption_made
         except Exception:  # noqa: BLE001
             pass
     return rec
