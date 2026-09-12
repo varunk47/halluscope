@@ -2,7 +2,6 @@
 
 **Probing an LLM's internal state to catch underspecified and inconsistent requests before the assistant silently assumes.**
 
-
 ## In two minutes
 
 An assistant that is missing a detail usually does not ask for it; it guesses and keeps going. HalluScope asks whether that moment is visible inside the model before it answers, and whether it can be turned into a question.
