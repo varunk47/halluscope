@@ -25,12 +25,17 @@ from rich.progress import track
 from halluscope.config import get_settings
 from halluscope.data.io import approved, load_items
 from halluscope.data.schema import Item, Turn
-from halluscope.judge.client import JudgeClient
+from halluscope.judge.client import JudgeClient, JudgeError
 from halluscope.judge.rubrics import CorrectnessVerdict, correctness_prompt
 from halluscope.models.chat import SYSTEM_PROMPT, generate
 from halluscope.models.loader import LoadedModel, load_model
 
 GateFn = Callable[[Item, list[Turn]], bool]
+
+# Whole-dialogue retries before an item is given up on. The judge client
+# already retries the JSON repair internally; this covers the case where
+# every one of those repairs fails and the request needs starting over.
+_ITEM_ATTEMPTS = 3
 
 ASK_INSTRUCTION = (
     "The request may be missing information or contain conflicting requirements. "
@@ -56,6 +61,10 @@ class LoopRecord:
     assumption_made: bool | None = None
     grade2: str | None = None
     assumption_made2: bool | None = None
+    # Non-empty when the dialogue could not be completed, almost always because
+    # a judge returned unparseable JSON on every retry. Such a record carries no
+    # grade, so summarize() drops it rather than scoring it as incorrect.
+    error: str = ""
 
 
 def reference_request(item: Item, by_id: dict[str, Item]) -> str:
@@ -158,10 +167,78 @@ def run_dialogue(
     return rec
 
 
+def load_checkpoint(path: Path) -> dict[str, LoopRecord]:
+    """Finished records from a previous, interrupted run of the same condition."""
+    done: dict[str, LoopRecord] = {}
+    if not path.exists():
+        return done
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = LoopRecord(**json.loads(line))
+            except (json.JSONDecodeError, TypeError):
+                continue  # truncated final line from a hard kill
+            done[rec.item_id] = rec
+    return done
+
+
+def append_checkpoint(path: Path, rec: LoopRecord) -> None:
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(asdict(rec)) + "\n")
+
+
+def run_item(
+    loaded: LoadedModel,
+    client: JudgeClient,
+    item: Item,
+    reference: str,
+    condition: str,
+    gate: GateFn | None,
+    max_rounds: int = 2,
+    max_new_tokens: int = 256,
+    attempts: int = _ITEM_ATTEMPTS,
+) -> LoopRecord:
+    """One dialogue, retried on judge failure, never raising.
+
+    A run is hours of GPU and API time. Before this existed a single judge
+    returning unparseable JSON aborted the whole thing, which is how the
+    2026-09-19 ``always`` run lost 159 minutes at 57% complete.
+    """
+    last_err: Exception | None = None
+    for _ in range(attempts):
+        try:
+            return run_dialogue(
+                loaded,
+                client,
+                item,
+                reference,
+                condition,
+                gate,
+                max_rounds=max_rounds,
+                max_new_tokens=max_new_tokens,
+            )
+        except JudgeError as e:
+            last_err = e
+    # Record the failure rather than dropping the item silently, so the output
+    # says how many tasks it could not grade.
+    print(f"item {item.id} failed after {attempts} attempts: {last_err}")
+    return LoopRecord(
+        item_id=item.id,
+        label=item.label,
+        condition=condition,
+        asked=0,
+        error=f"{type(last_err).__name__}: {last_err}",
+    )
+
+
 def summarize(records: list[LoopRecord]) -> dict:
     out: dict = {}
+    graded = [r for r in records if not r.error]
     for label in ("all", "specified", "underspecified", "inconsistent"):
-        sub = [r for r in records if label == "all" or r.label == label]
+        sub = [r for r in graded if label == "all" or r.label == label]
         if not sub:
             continue
         out[label] = {
@@ -252,27 +329,51 @@ def run_loop_cli(
         gate, gate_info = build_probe_gate(model_key, out_dir, pooling, cfg.gate.alpha, items_path)
     loaded = load_model(spec)
 
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # A run is six hours of API calls and GPU time. Losing all of it to one
+    # malformed judge response is not acceptable, so every finished dialogue is
+    # appended to a checkpoint immediately and a restart picks up where it
+    # stopped. Greedy decoding makes a resumed run identical to an uninterrupted
+    # one, so this changes cost and not results.
+    ckpt = out_dir / f".loop_{model_key}_{condition}_s{seed}.partial.jsonl"
+    done = load_checkpoint(ckpt)
+    if done:
+        print(f"resuming from {ckpt.name}: {len(done)} of {len(items)} already done")
+
     records: list[LoopRecord] = []
     for it in track(items, description=f"loop {condition} seed {seed}"):
-        ref = reference_request(it, by_id)
-        records.append(
-            run_dialogue(
-                loaded,
-                client,
-                it,
-                ref,
-                condition,
-                gate,
-                max_rounds=cfg.gate.max_rounds,
-                max_new_tokens=cfg.uq.gen.max_new_tokens,
-            )
+        if it.id in done:
+            records.append(done[it.id])
+            continue
+        rec = run_item(
+            loaded,
+            client,
+            it,
+            reference_request(it, by_id),
+            condition,
+            gate,
+            max_rounds=cfg.gate.max_rounds,
+            max_new_tokens=cfg.uq.gen.max_new_tokens,
         )
-    out_dir.mkdir(parents=True, exist_ok=True)
+        records.append(rec)
+        append_checkpoint(ckpt, rec)
+
+    failed = [r.item_id for r in records if r.error]
     path = out_dir / f"loop_{model_key}_{condition}_s{seed}.json"
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(
             {
                 "model": spec.id,
+                # Record the build. The gate layer is read from whichever probe
+                # result matches this path, so a file that does not say which
+                # build it ran on cannot be checked later without re-deriving it
+                # from which families happen to appear in the split.
+                "dataset": items_path.name,
+                "split": split,
+                "n_items": len(records),
+                "n_failed": len(failed),
+                "failed_ids": failed,
                 "condition": condition,
                 "seed": seed,
                 "gate": gate_info,
@@ -283,4 +384,5 @@ def run_loop_cli(
             fh,
             indent=2,
         )
+    ckpt.unlink(missing_ok=True)
     return path

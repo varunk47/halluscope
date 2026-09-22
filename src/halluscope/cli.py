@@ -109,6 +109,33 @@ def probe(
 
 
 @app.command()
+def residualize(
+    model: str = typer.Option("qwen"),
+    items: Path = typer.Option(Path("data/augmented/items_minimal.jsonl")),
+    target: str = typer.Option("gap"),
+    pooling: str = typer.Option("last"),
+    out: Path = typer.Option(Path("results")),
+    lexical_components: int = typer.Option(
+        50, help="Latent bag-of-words dimensions to remove as well; 0 for handcrafted features only"
+    ),
+    tag: str = typer.Option("", help="Suffix for the results file name"),
+) -> None:
+    """Re-fit the probe after regressing length, digit count and wording out of the activations."""
+    from halluscope.probes.residualize import run_residual_probe
+
+    path = run_residual_probe(
+        model_key=model,
+        items_path=items,
+        target=target,
+        pooling=pooling,
+        out_dir=out,
+        lexical_components=lexical_components,
+        tag=tag,
+    )
+    console.print(f"wrote {path}")
+
+
+@app.command()
 def uq(
     model: str = typer.Option("qwen"),
     items: Path = typer.Option(Path("data/augmented/items.jsonl")),
@@ -183,6 +210,13 @@ def steer(
     tag: str = typer.Option(
         "", help="Suffix for the results file name; defaults to the dataset build"
     ),
+    random_controls: int = typer.Option(
+        0, help="Repeat the sweep along this many random unit directions at the same push norm"
+    ),
+    control_seed: int | None = typer.Option(None, help="Seed for the random control directions"),
+    resume: bool = typer.Option(
+        False, help="Keep generations already in the results file and only run what is missing"
+    ),
 ) -> None:
     """Push the residual stream along the gap direction while generating and count clarifying questions."""
     from halluscope.probes.experiments import run_steer
@@ -195,6 +229,9 @@ def steer(
         tag=tag,
         limit=limit,
         alphas=tuple(float(a) for a in alphas.split(",")),
+        random_controls=random_controls,
+        control_seed=control_seed,
+        resume=resume,
     )
     console.print(f"wrote {path}")
 
@@ -202,7 +239,10 @@ def steer(
 @app.command()
 def loop(
     model: str = typer.Option("qwen"),
-    items: Path = typer.Option(Path("data/augmented/items.jsonl")),
+    # Same build as probe and steer. The loop used to default to items.jsonl,
+    # which quietly ran the headline experiment on the leaky build while every
+    # other result was on the minimal one.
+    items: Path = typer.Option(Path("data/augmented/items_minimal.jsonl")),
     condition: str = typer.Option("gate", help="off | gate | always | prompt"),
     seed: int = typer.Option(0),
     out: Path = typer.Option(Path("results")),

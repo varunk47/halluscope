@@ -175,6 +175,45 @@ class AsksVerdict(BaseModel):
     )
 
 
+def _asking_curve(rows: list[dict], alphas) -> dict[str, dict[str, float]]:
+    curve: dict[str, dict[str, float]] = {}
+    for label in ("specified", "underspecified", "inconsistent", "all"):
+        curve[label] = {}
+        for a in alphas:
+            sel = [r for r in rows if r["alpha"] == a and (label == "all" or r["label"] == label)]
+            if sel:
+                curve[label][f"{a:+.1f}"] = float(np.mean([r["asks"] for r in sel]))
+    return curve
+
+
+def _reply_length(rows: list[dict], alphas) -> dict[str, float]:
+    """Mean reply length per alpha, as a cheap check that the push left the model fluent.
+
+    A push large enough to break generation would drive the asking rate to zero
+    for an uninteresting reason, so the length has to be reported next to the rate.
+    """
+    out = {}
+    for a in alphas:
+        sel = [len(r["text"].strip()) for r in rows if r["alpha"] == a]
+        if sel:
+            out[f"{a:+.1f}"] = float(np.mean(sel))
+    return out
+
+
+def random_unit_directions(dim: int, n: int, seed: int) -> list[np.ndarray]:
+    """``n`` unit vectors drawn uniformly on the sphere in ``dim`` dimensions.
+
+    In high dimensions two such vectors are almost orthogonal to each other and
+    to any fixed direction, so these are a fair "same push, no meaning" control.
+    """
+    rng = np.random.default_rng(seed)
+    out = []
+    for _ in range(n):
+        v = rng.standard_normal(dim)
+        out.append(v / (np.linalg.norm(v) + 1e-12))
+    return out
+
+
 def run_steer(
     model_key: str,
     items_path: Path,
@@ -184,6 +223,9 @@ def run_steer(
     limit: int = 32,
     alphas: tuple[float, ...] = (-2.0, -1.0, 0.0, 1.0, 2.0),
     max_new_tokens: int = 160,
+    random_controls: int = 0,
+    control_seed: int | None = None,
+    resume: bool = False,
 ) -> Path:
     """Push the residual stream along the mass-mean gap direction and count asks.
 
@@ -192,6 +234,13 @@ def run_steer(
     asking rate rises with alpha on specified requests and falls with negative
     alpha on underspecified ones, the direction is causally relevant and not
     just a correlate. A judge decides whether each steered reply asks.
+
+    ``random_controls`` repeats the whole sweep along that many random unit
+    directions at the identical push norm. Without it, a flat curve has two
+    readings that cannot be told apart: the direction carries no causal weight,
+    or a push of this size does nothing at all whatever its direction. The
+    control separates them, and it is what the 2026 probing critiques ask for.
+    Alpha zero is the unsteered model, so it is generated once and shared.
     """
     from halluscope.judge.client import JudgeClient
     from halluscope.models.loader import load_model
@@ -219,48 +268,92 @@ def run_steer(
     gap_items = [i for i in te if i.label != "specified"][: limit - len(spec_items)]
     chosen = spec_items + gap_items
 
-    client = JudgeClient(cfg.judge, cost_log=cfg.paths.cost_log)
-    loaded = load_model(spec)
-    rows = []
-    for a in alphas:
-        for it in track(chosen, description=f"steer alpha={a:+.1f}"):
-            t0 = time.time()
-            text = steered_generate(loaded, it.turns, direction, layer, a * scale, max_new_tokens)
-            verdict = client.complete(
-                "judge_primary",
-                [
+    c_seed = cfg.probe.seed if control_seed is None else control_seed
+    controls = random_unit_directions(direction.shape[0], random_controls, c_seed)
+    # The probe direction is unit norm and ``steer`` normalizes again, so every
+    # direction here adds a vector of exactly the same length at the same layer.
+    plan: list[tuple[str, np.ndarray, tuple[float, ...]]] = [("probe", direction, tuple(alphas))]
+    nonzero = tuple(a for a in alphas if a != 0.0)
+    for k, v in enumerate(controls):
+        plan.append((f"random_{k}", v, nonzero))
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"steer_{model_key}_{pooling}{_tag_suffix(items_path, tag)}.json"
+
+    partial = path.with_name(path.stem + ".partial.json")
+    rows: list[dict] = []
+    if resume:
+        seen: set[tuple] = set()
+        for src_path in (path, partial):
+            if not src_path.exists():
+                continue
+            for r in json.loads(src_path.read_text(encoding="utf-8")).get("rows", []):
+                r.setdefault("direction", "probe")
+                key = (r["direction"], r["item_id"], float(r["alpha"]))
+                if key not in seen:
+                    seen.add(key)
+                    rows.append(r)
+    done = {(r["direction"], r["item_id"], float(r["alpha"])) for r in rows}
+    todo = sum(
+        1
+        for name, _, als in plan
+        for a in als
+        for it in chosen
+        if (name, it.id, float(a)) not in done
+    )
+    if todo == 0:
+        client = None
+        loaded = None
+    else:
+        client = JudgeClient(cfg.judge, cost_log=cfg.paths.cost_log)
+        loaded = load_model(spec)
+
+    for name, vec, als in plan:
+        for a in als:
+            pending = [it for it in chosen if (name, it.id, float(a)) not in done]
+            if not pending:
+                continue
+            for it in track(pending, description=f"{name} alpha={a:+.1f}"):
+                t0 = time.time()
+                text = steered_generate(loaded, it.turns, vec, layer, a * scale, max_new_tokens)
+                verdict = client.complete(
+                    "judge_primary",
+                    [
+                        {
+                            "role": "system",
+                            "content": "You label whether an assistant reply asks a clarifying question.",
+                        },
+                        {
+                            "role": "user",
+                            "content": "Request:\n"
+                            + "\n".join(f"{t.role}: {t.content}" for t in it.turns)
+                            + f"\n\nReply:\n{text}\n\nDoes the reply ask the user for a missing or conflicting detail before doing the task?",
+                        },
+                    ],
+                    AsksVerdict,
+                    tag=f"steer:{name}:{it.id}:{a:+.1f}",
+                )
+                rows.append(
                     {
-                        "role": "system",
-                        "content": "You label whether an assistant reply asks a clarifying question.",
-                    },
-                    {
-                        "role": "user",
-                        "content": "Request:\n"
-                        + "\n".join(f"{t.role}: {t.content}" for t in it.turns)
-                        + f"\n\nReply:\n{text}\n\nDoes the reply ask the user for a missing or conflicting detail before doing the task?",
-                    },
-                ],
-                AsksVerdict,
-                tag=f"steer:{it.id}:{a:+.1f}",
+                        "direction": name,
+                        "item_id": it.id,
+                        "label": it.label,
+                        "variant": it.variant,
+                        "alpha": a,
+                        "asks": verdict.asks_clarifying_question,
+                        "text": text,
+                        "seconds": round(time.time() - t0, 2),
+                    }
+                )
+            # Written to a sidecar after every alpha so a long control run survives an
+            # interruption without clobbering the finished result it resumed from.
+            partial.write_text(
+                json.dumps({"partial": True, "rows": rows}, indent=2), encoding="utf-8"
             )
-            rows.append(
-                {
-                    "item_id": it.id,
-                    "label": it.label,
-                    "variant": it.variant,
-                    "alpha": a,
-                    "asks": verdict.asks_clarifying_question,
-                    "text": text,
-                    "seconds": round(time.time() - t0, 2),
-                }
-            )
-    curve: dict[str, dict[str, float]] = {}
-    for label in ("specified", "underspecified", "inconsistent", "all"):
-        curve[label] = {}
-        for a in alphas:
-            sel = [r for r in rows if r["alpha"] == a and (label == "all" or r["label"] == label)]
-            if sel:
-                curve[label][f"{a:+.1f}"] = float(np.mean([r["asks"] for r in sel]))
+
+    probe_rows = [r for r in rows if r["direction"] == "probe"]
+    control_rows = [r for r in rows if r["direction"] != "probe"]
+    zero_rows = [r for r in probe_rows if r["alpha"] == 0.0]
     out = {
         "model": spec.id,
         "model_key": model_key,
@@ -275,11 +368,64 @@ def run_steer(
         "n_items": len(chosen),
         "n_specified": len(spec_items),
         "n_gap": len(gap_items),
-        "asking_rate": curve,
+        "asking_rate": _asking_curve(probe_rows, alphas),
+        "reply_chars": _reply_length(probe_rows, alphas),
         "rows": rows,
-        "cost": client.cost_summary(),
+        "cost": client.cost_summary() if client else {},
     }
-    out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"steer_{model_key}_{pooling}{_tag_suffix(items_path, tag)}.json"
+    if control_rows:
+        names = sorted({r["direction"] for r in control_rows})
+        # Alpha zero is the unsteered model, identical for every direction, so the
+        # controls borrow the probe run's rows rather than regenerating them.
+        per_direction = {
+            n: _asking_curve([r for r in control_rows if r["direction"] == n] + zero_rows, alphas)
+            for n in names
+        }
+        pooled = _asking_curve(control_rows + zero_rows, alphas)
+        out["random_controls"] = {
+            "n": len(names),
+            "seed": c_seed,
+            "note": (
+                "same layer, same items, same push norm, directions drawn uniformly on the unit "
+                "sphere; alpha zero is shared with the probe direction because no push is applied"
+            ),
+            "cosine_with_probe": {
+                f"random_{k}": float(np.dot(v, direction)) for k, v in enumerate(controls)
+            },
+            "per_direction": per_direction,
+            "pooled": pooled,
+            "pooled_reply_chars": _reply_length(control_rows + zero_rows, alphas),
+            "probe_minus_random": _steer_comparison(probe_rows, control_rows, nonzero),
+        }
     path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+    partial.unlink(missing_ok=True)
     return path
+
+
+def _steer_comparison(probe_rows: list[dict], control_rows: list[dict], alphas) -> dict:
+    """Paired difference in asking rate between the probe direction and the controls.
+
+    Items are the same on both sides, so the bootstrap resamples items and
+    recomputes both rates on the resampled set rather than treating the two
+    curves as independent.
+    """
+    from halluscope.eval.metrics import paired_bootstrap_delta
+
+    mean = lambda _y, s: float(np.mean(s))  # noqa: E731
+    out = {}
+    for a in alphas:
+        by_item = {r["item_id"]: r for r in probe_rows if r["alpha"] == a}
+        ctrl: dict[str, list[float]] = {}
+        for r in control_rows:
+            if r["alpha"] == a:
+                ctrl.setdefault(r["item_id"], []).append(float(r["asks"]))
+        ids = [i for i in by_item if i in ctrl]
+        if not ids:
+            continue
+        pa = np.array([float(by_item[i]["asks"]) for i in ids])
+        ca = np.array([float(np.mean(ctrl[i])) for i in ids])
+        d = paired_bootstrap_delta(mean, np.zeros(len(ids)), pa, ca, n=1000)
+        d["probe_rate"] = float(pa.mean())
+        d["random_rate"] = float(ca.mean())
+        out[f"{a:+.1f}"] = d
+    return out

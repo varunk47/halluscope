@@ -45,6 +45,37 @@ def state() -> ScorerState:
     return _STATE
 
 
+def _headline_build(cfg, key: str, pooling: str) -> tuple[Path, Path | None, str]:
+    """The dataset build and probe file the report card was written from.
+
+    The live demo used to load whatever items file it found first and then
+    re-select a layer from its own validation split, which is how the page came
+    to show layer 13 while the report card said 16. Both numbers were honest and
+    they were answers to different questions. Reading the build off the saved
+    probe run removes the choice: the demo scores on the same items, at the same
+    depth, with the same gate the written result describes.
+    """
+    from halluscope.probes.run import probe_result_path
+
+    aug = Path(cfg.paths.data_dir) / "augmented"
+    fallback = (aug / "items.jsonl", None, "items")
+    build = cfg.headline_build
+    items_path = aug / f"{build}.jsonl"
+    if not items_path.exists():
+        return fallback
+    try:
+        res_path = probe_result_path(Path(cfg.paths.results_dir), key, "gap", pooling, items_path)
+    except FileNotFoundError:
+        return fallback
+    try:
+        found = json.loads(res_path.read_text(encoding="utf-8")).get("dataset")
+    except json.JSONDecodeError:
+        return fallback
+    if found != build:
+        return fallback
+    return items_path, res_path, build
+
+
 def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
     cfg = get_settings()
     key = model_key or cfg.primary_model
@@ -63,7 +94,7 @@ def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
         spec = cfg.model_spec(key)
         loaded = load_model(spec)
         cache = ActivationCache(cfg.resolved_cache_dir() / "activations")
-        items_path = cfg.paths.data_dir / "augmented" / "items.jsonl"
+        items_path, res_path, build = _headline_build(cfg, key, pooling)
         items = approved(load_items(items_path if items_path.exists() else cfg.paths.seeds_dir))
         shas = shas_for(items)
         try:
@@ -85,8 +116,7 @@ def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
             y_tr = np.array([gap_label(i) for i in tr])
             y_va = np.array([gap_label(i) for i in va])
             n_layers = cache.n_layers(spec.id)
-            res_path = Path(cfg.paths.results_dir) / f"probe_{key}_gap_{pooling}.json"
-            if res_path.exists():
+            if res_path is not None and res_path.exists():
                 with open(res_path, encoding="utf-8") as fh:
                     best_layer = int(json.load(fh)["probes"]["linear"]["best_layer"])
             val_auc: dict[int, float] = {}
@@ -105,6 +135,11 @@ def _ensure(model_key: str | None = None, pooling: str = "last") -> ScorerState:
             gate_info = {
                 "fitted": True,
                 "layer": best_layer,
+                "layer_source": (
+                    "report card" if res_path is not None else "live validation split"
+                ),
+                "build": build,
+                "report_card": res_path.name if res_path is not None else None,
                 "threshold": float(thr),
                 "alpha": cfg.gate.alpha,
                 "n_train": len(tr),

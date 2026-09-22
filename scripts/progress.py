@@ -1,17 +1,21 @@
-"""Where the experiment chain is, from what it has written so far.
+"""Where the running work is, from what it has written so far.
 
     python scripts/progress.py
 
-Reads the chain log for the current step and start time, then counts the
-things each step leaves behind: rows in a results file, entries in the
-activation cache, judge calls in the cost log. Estimates are from the runs
-already done on this machine and are rough.
+Two parts. First the jobs running right now, the steering control and the
+loop-seed queue, each read from the file it is filling rather than from
+anything it claims. Then the older overnight chain, for history.
+
+Nothing here talks to the jobs. A run that died leaves a checkpoint whose
+timestamp stops moving, so a stale file is the signal, and the process table
+is consulted only to confirm it.
 """
 
 from __future__ import annotations
 
 import json
 import re
+import subprocess
 import time
 from datetime import datetime
 from pathlib import Path
@@ -20,6 +24,98 @@ ROOT = Path(__file__).resolve().parents[1]
 LOG = ROOT / "logs" / "overnight.log"
 RES = ROOT / "results"
 COST = ROOT / "logs" / "llm_cost.jsonl"
+
+STEER_FINAL = RES / "steer_qwen_last_minimal.json"
+STEER_PARTIAL = RES / "steer_qwen_last_minimal.partial.json"
+STEER_LOG = ROOT / "logs" / "steer_control.log"
+LOOP_LOG = ROOT / "logs" / "loop_seeds.log"
+
+# probe at five magnitudes, then three random directions at the four nonzero ones
+STEER_SWEEPS = 17
+LOOP_CONDITIONS = ("off", "gate", "always", "prompt")
+LOOP_SEEDS = (0, 1, 2)
+
+
+def _alive(pattern: str) -> int | None:
+    """Python processes whose command line contains ``pattern``.
+
+    Returns None if the process table cannot be read, so the caller can fall
+    back to file timestamps rather than report a run dead on a failed lookup.
+    """
+    q = f"Name like '%python%' and CommandLine like '%{pattern}%'"
+    try:
+        out = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-c",
+             f"@(Get-CimInstance Win32_Process -Filter \"{q}\").Count"],
+            capture_output=True, text=True, timeout=30,
+        )
+        return int(out.stdout.strip())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
+def _ago(path: Path) -> float:
+    """Minutes since the file was last written."""
+    return (time.time() - path.stat().st_mtime) / 60
+
+
+def steer_status() -> None:
+    print("steering control (random-direction)")
+    if not STEER_PARTIAL.exists() and STEER_FINAL.exists():
+        d = json.loads(STEER_FINAL.read_text(encoding="utf-8"))
+        has = "random_controls" in d or any(
+            r.get("direction", "probe") != "probe" for r in d.get("rows", [])
+        )
+        print(f"  finished, controls in the file: {has}")
+        return
+    if not STEER_PARTIAL.exists():
+        print("  not started")
+        return
+
+    rows = json.loads(STEER_PARTIAL.read_text(encoding="utf-8")).get("rows", [])
+    combos = {(r.get("direction", "probe"), float(r["alpha"])) for r in rows}
+    done = len(combos)
+    idle = _ago(STEER_PARTIAL)
+
+    # Sweep durations come from the log, so the estimate uses this machine's
+    # actual pace rather than a number I guessed once.
+    times = [
+        int(h) * 60 + int(m) + int(s) / 60
+        for h, m, s in re.findall(r"\s(\d+):(\d\d):(\d\d)\s*$", STEER_LOG.read_text(
+            encoding="utf-8", errors="replace"), re.M)
+    ] if STEER_LOG.exists() else []
+    per = sum(times[-5:]) / len(times[-5:]) if times else 16.0
+    left = (STEER_SWEEPS - done) * per
+
+    print(f"  {done} of {STEER_SWEEPS} sweeps, {len(rows)} rows")
+    print(f"  {per:.0f} min per sweep lately, about {left / 60:.1f} h left")
+    n = _alive("steer")
+    if idle > 2 * per:
+        print(f"  STALLED: checkpoint untouched for {idle:.0f} min")
+    if n == 0:
+        print("  DEAD: no process. Restart with --resume, it keeps what is done")
+    elif n is None:
+        print(f"  process table unreadable; checkpoint moved {idle:.0f} min ago")
+
+
+def loop_status() -> None:
+    print("\nloop seeds")
+    have = {
+        (c, s) for c in LOOP_CONDITIONS for s in LOOP_SEEDS
+        if (RES / f"loop_qwen_{c}_s{s}.json").exists()
+    }
+    want = len(LOOP_CONDITIONS) * len(LOOP_SEEDS)
+    print(f"  {len(have)} of {want} runs present")
+    for s in LOOP_SEEDS:
+        got = [c for c in LOOP_CONDITIONS if (c, s) in have]
+        print(f"    seed {s}: {', '.join(got) if got else 'none'}")
+    if not LOOP_LOG.exists():
+        print("  queue not started")
+        return
+    tail = [ln for ln in LOOP_LOG.read_text(encoding="utf-8", errors="replace").splitlines() if ln.strip()]
+    print(f"  queue: {tail[-1] if tail else 'no output yet'}")
+    if STEER_PARTIAL.exists():
+        print("  waiting for the card; the steering run still holds it")
 
 STEPS = [
     ("behavior labels on the minimal build", 300),
@@ -98,6 +194,13 @@ def _detail(step: str, started: float) -> str:
 
 
 def main() -> None:
+    steer_status()
+    loop_status()
+    print("\novernight chain (history)")
+    chain()
+
+
+def chain() -> None:
     if not LOG.exists():
         print("no chain log; nothing running")
         return

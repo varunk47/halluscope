@@ -34,8 +34,17 @@ def _fmt(m: dict, key: str = "auroc") -> str:
 
 
 def _load_all(results_dir: Path, prefix: str) -> list[dict]:
+    """Every finished result file for one experiment family.
+
+    Long runs checkpoint to ``<name>.partial.json`` so an interrupted sweep can
+    resume, and those checkpoints carry only the rows written so far. They are
+    skipped here: the report describes completed experiments, and reading a
+    half-written sweep as if it were one is how a table ends up quietly wrong.
+    """
     out = []
     for p in sorted(results_dir.glob(f"{prefix}_*.json")):
+        if p.name.endswith(".partial.json"):
+            continue
         with open(p, encoding="utf-8") as fh:
             d = json.load(fh)
         d["_file"] = p.name
@@ -58,6 +67,17 @@ def dataset_label(r: dict) -> str:
     return stem.removeprefix(prefix) if stem.startswith(prefix) else "items"
 
 
+def model_label(r: dict) -> str:
+    """Short model name for tables that hold more than one model.
+
+    Without this the 2B and the 4B print as identical `minimal | gap | linear`
+    rows and the only thing separating them is the layer denominator, 24 against
+    32, which the pair table does not even show. A reader going top down takes
+    the first row as the headline and gets the wrong model.
+    """
+    return str(r.get("model", r.get("model_key", "?"))).split("/")[-1]
+
+
 PAIR_NAMES = {"single_turn_ab": "single turn, a vs b", "multi_turn_cd": "multi turn, c vs d"}
 
 
@@ -69,8 +89,9 @@ def headline_table(probe_results: list[dict]) -> str:
     anything over reading the words.
     """
     lines = [
-        "| dataset | pair | probe | probe AUROC | words AUROC | delta [95% CI] | p | n |",
-        "|---|---|---|---|---|---|---|---|",
+        "| model | dataset | target | pair | probe | probe AUROC | words AUROC | "
+        "delta [95% CI] | p | n |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in probe_results:
         pvs = r.get("probe_vs_surface")
@@ -82,7 +103,8 @@ def headline_table(probe_results: list[dict]) -> str:
                 pa = r["probes"][probe].get("by_pair", {}).get(pair, {}).get("auroc")
                 sa = surface.get(pair, {}).get("auroc")
                 lines.append(
-                    f"| {dataset_label(r)} | {PAIR_NAMES.get(pair, pair)} | {probe} | "
+                    f"| {model_label(r)} | {dataset_label(r)} | {r['target']} | "
+                    f"{PAIR_NAMES.get(pair, pair)} | {probe} | "
                     f"{pa:.3f} | {sa:.3f} | {d['delta']:+.3f} [{d['lo']:+.3f}, {d['hi']:+.3f}] | "
                     f"{d['p']:.3f} | {d['n']} |"
                 )
@@ -91,11 +113,11 @@ def headline_table(probe_results: list[dict]) -> str:
 
 def probe_table(probe_results: list[dict]) -> str:
     lines = [
-        "| dataset | target | probe | layer | AUROC [95% CI] | AUPRC [95% CI] | acc | ECE |",
-        "|---|---|---|---|---|---|---|---|",
+        "| model | dataset | target | probe | layer | AUROC [95% CI] | AUPRC [95% CI] | acc | ECE |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for r in probe_results:
-        ds = dataset_label(r)
+        ds = f"{model_label(r)} | {dataset_label(r)}"
         for name, p in r["probes"].items():
             t = p["test"]
             lines.append(
@@ -112,12 +134,15 @@ def probe_table(probe_results: list[dict]) -> str:
 
 def loto_table(probe_results: list[dict]) -> str:
     lines = [
-        "| dataset | target | held-out topic | linear probe AUROC [95% CI] | n |",
-        "|---|---|---|---|---|",
+        "| model | dataset | target | held-out topic | linear probe AUROC [95% CI] | n |",
+        "|---|---|---|---|---|---|",
     ]
     for r in probe_results:
         for topic, m in sorted(r.get("loto", {}).items()):
-            lines.append(f"| {dataset_label(r)} | {r['target']} | {topic} | {_fmt(m)} | {m['n']} |")
+            lines.append(
+                f"| {model_label(r)} | {dataset_label(r)} | {r['target']} | {topic} | "
+                f"{_fmt(m)} | {m['n']} |"
+            )
     return "\n".join(lines)
 
 
@@ -156,7 +181,9 @@ def behavior_table(behavior_results: list[dict]) -> str:
 
 def loop_table(loop_results: list[dict]) -> str:
     lines = [
-        "| model | condition | seed | label | n | correct | partial or better | assumption rate | questions/task |",
+        # "run" rather than "seed": --seed only tags the output file, it does not
+        # reseed anything, so the column is provenance and not a replicate index.
+        "| model | condition | run | label | n | correct | partial or better | assumption rate | questions/task |",
         "|---|---|---|---|---|---|---|---|---|",
     ]
     for r in loop_results:
@@ -165,6 +192,45 @@ def loop_table(loop_results: list[dict]) -> str:
                 f"| {r['model']} | {r['condition']} | {r['seed']} | {label} | {s['n']} | {s['correct']:.2f} | "
                 f"{s['partial_or_better']:.2f} | {s['assumption_rate']:.2f} | {s['questions_per_task']:.2f} |"
             )
+    return "\n".join(lines)
+
+
+def loop_size_table(loop_results: list[dict]) -> str:
+    """The same cell measured at different sample sizes.
+
+    These runs are not replicates and this table deliberately reports no mean.
+    Every generate call in the clarify loop passes temperature=0.0, so do_sample
+    is False and decoding is greedy, and --seed only names the output file:
+    item selection comes from cfg.split.seed. Two runs at the same n are
+    therefore identical, and averaging them would invent a spread that does not
+    exist.
+
+    What does differ between runs is --limit, so the honest question is not
+    "what is the mean across runs" but "does the effect survive going from the
+    pilot subset to the full test split". That is what this shows. Returns an
+    empty string until some cell has been measured at two different sizes.
+    """
+    by: dict[tuple[str, str, str], dict[int, dict]] = {}
+    for r in loop_results:
+        for label, s in r["summary"].items():
+            # Same n means the same deterministic run, so keep a single copy.
+            by.setdefault((r["model"], r["condition"], label), {})[int(s["n"])] = s
+
+    lines = [
+        "| model | condition | label | n | correct | assumption rate | questions/task |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for (model, cond, label), at_n in sorted(by.items()):
+        if len(at_n) < 2:
+            continue
+        for n in sorted(at_n):
+            s = at_n[n]
+            lines.append(
+                f"| {model} | {cond} | {label} | {n} | {s['correct']:.2f} | "
+                f"{s['assumption_rate']:.2f} | {s['questions_per_task']:.2f} |"
+            )
+    if len(lines) == 2:
+        return ""
     return "\n".join(lines)
 
 
@@ -199,6 +265,61 @@ def transfer_table(rows: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def control_verdict(rc: dict, cmp: dict) -> str:
+    """State in prose which side of the sweep survives the random-direction control.
+
+    Written from the numbers rather than by hand, so the paragraph cannot drift
+    away from the table above it when the experiment is rerun. A steering claim
+    is only worth as much as the control under it, and the honest split here is
+    that suppression separates from a same-norm random push while elicitation
+    does not, so the text has to be able to say that on its own.
+    """
+    cos = rc.get("cosine_with_probe", {})
+    parts = []
+    if cos:
+        worst = max(abs(v) for v in cos.values())
+        parts.append(
+            f"The {len(cos)} control directions are near orthogonal to the probe, largest "
+            f"absolute cosine {worst:.3f}, so a difference between the rows is about where "
+            "the push points and not about overlap with the probe itself."
+        )
+
+    # A control direction that moves the rate off its own unpushed baseline is the
+    # norm artifact this experiment exists to measure, so say so before claiming
+    # anything about the probe.
+    base = rc.get("pooled", {}).get("all", {}).get("+0.0")
+    moved = [a for a, d in cmp.items() if base is not None and abs(d["random_rate"] - base) > 1e-9]
+    if moved:
+        parts.append(
+            f"Random pushes alone move the asking rate off its unpushed baseline of {base:.2f} "
+            f"at {len(moved)} of the {len(cmp)} nonzero alphas, which is the norm artifact the "
+            "control was built to expose."
+        )
+
+    sep = [a for a, d in cmp.items() if d["lo"] > 0 or d["hi"] < 0]
+    same = [a for a in cmp if a not in sep]
+    if sep:
+        detail = ", ".join(
+            f"alpha {a} at {cmp[a]['delta']:+.2f} with 95% CI "
+            f"[{cmp[a]['lo']:+.2f}, {cmp[a]['hi']:+.2f}] and p {cmp[a]['p']:.3f}"
+            for a in sep
+        )
+        parts.append(f"The probe separates from the control at {detail}.")
+    else:
+        parts.append(
+            "No alpha separates the probe from the control at the 95% level, so on this "
+            "evidence the sweep is a norm effect rather than a direction effect."
+        )
+    if same:
+        parts.append(
+            "At "
+            + ", ".join(f"alpha {a}" for a in same)
+            + " the confidence interval includes zero, so the probe is not distinguishable "
+            "from a random push of the same size and no causal claim is made there."
+        )
+    return " ".join(parts)
+
+
 def steer_table(rows: list[dict]) -> str:
     lines = []
     for r in rows:
@@ -217,6 +338,78 @@ def steer_table(rows: list[dict]) -> str:
                 f"| {label} | "
                 + " | ".join(f"{curve.get(a, float('nan')):.2f}" for a in alphas)
                 + " |"
+            )
+        lines.append("")
+        rc = r.get("random_controls")
+        if rc:
+            lines += [
+                f"Random-direction control: {rc['n']} directions drawn uniformly on the unit "
+                "sphere, pushed at the same layer, on the same items, with the same push norm. "
+                "Alpha zero applies no push and is shared. A flat curve on both rows means the "
+                "push was too weak to move behavior at all; a flat probe row under a moving "
+                "random row would mean the direction is worse than chance at causing asking.\n",
+                "| direction | " + " | ".join(alphas) + " |",
+                "|---|" + "---|" * len(alphas),
+                "| probe, all items | "
+                + " | ".join(f"{r['asking_rate']['all'].get(a, float('nan')):.2f}" for a in alphas)
+                + " |",
+                "| random, all items | "
+                + " | ".join(f"{rc['pooled']['all'].get(a, float('nan')):.2f}" for a in alphas)
+                + " |",
+                "| mean reply characters, probe | "
+                + " | ".join(f"{r.get('reply_chars', {}).get(a, float('nan')):.0f}" for a in alphas)
+                + " |",
+                "| mean reply characters, random | "
+                + " | ".join(
+                    f"{rc.get('pooled_reply_chars', {}).get(a, float('nan')):.0f}" for a in alphas
+                )
+                + " |",
+                "",
+            ]
+            cmp = rc.get("probe_minus_random", {})
+            if cmp:
+                lines += [
+                    "Paired difference in asking rate, probe direction minus random, "
+                    "bootstrapped over the same items.\n",
+                    "| alpha | probe | random | delta | 95% CI | p |",
+                    "|---|---|---|---|---|---|",
+                ]
+                for a, d in cmp.items():
+                    lines.append(
+                        f"| {a} | {d['probe_rate']:.2f} | {d['random_rate']:.2f} | "
+                        f"{d['delta']:+.2f} | [{d['lo']:+.2f}, {d['hi']:+.2f}] | {d['p']:.3f} |"
+                    )
+                lines.append("")
+                lines += [control_verdict(rc, cmp), ""]
+    return "\n".join(lines)
+
+
+def residual_table(rows: list[dict]) -> str:
+    """Probe AUROC after linearly predictable surface format is removed."""
+    lines = []
+    for r in rows:
+        ds = r.get("tag") or str(r.get("dataset", "")).removeprefix("items_") or "items"
+        b = r["base_test"]
+        lines += [
+            f"Model {r['model']}, {ds} build, {r['split_sizes']['test']} test items. Each block "
+            "is regressed out of the activations with a map fit on the training split only, then "
+            "the probe is re-selected and re-fit on the residuals. The unmodified probe at layer "
+            f"{r['base_layer']} scores {b['auroc']:.3f} [{b['auroc_lo']:.3f}, {b['auroc_hi']:.3f}] "
+            f"and the strongest bag-of-words baseline is {r['surface_baseline']}.\n",
+            "| removed | features | features alone | layer | AUROC | vs unmodified probe | "
+            "vs words | vs words, multi turn |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+        for name, d in r["blocks"].items():
+            t = d["test"]
+            vb, vs = d["vs_base_probe"], d["vs_surface"]
+            mt = d.get("vs_surface_by_pair", {}).get("multi_turn_cd")
+            mt_s = f"{mt['delta']:+.3f} (p={mt['p']:.2f})" if mt else "n/a"
+            lines.append(
+                f"| {name} | {d['n_features']} | {d['features_alone']['auroc']:.3f} | "
+                f"{d['best_layer']} | {t['auroc']:.3f} [{t['auroc_lo']:.3f}, {t['auroc_hi']:.3f}] | "
+                f"{vb['delta']:+.3f} (p={vb['p']:.2f}) | {vs['delta']:+.3f} (p={vs['p']:.2f}) | "
+                f"{mt_s} |"
             )
         lines.append("")
     return "\n".join(lines)
@@ -315,6 +508,7 @@ def build_report(
     loops = _load_all(results_dir, "loop")
     transfers = _load_all(results_dir, "transfer")
     steers = _load_all(results_dir, "steer")
+    residuals = _load_all(results_dir, "residual")
 
     figs: list[Path] = []
     for r in probes:
@@ -359,8 +553,27 @@ def build_report(
         md += ["## Uncertainty baselines\n", uq_table(uqs), "\n"]
     if loops:
         md += ["## Clarify gate, simulated-user loop\n", loop_table(loops), "\n"]
+        sizes = loop_size_table(loops)
+        if sizes:
+            md += [
+                "### Sample-size sensitivity\n",
+                "Decoding is greedy at temperature 0 and `--seed` only names the "
+                "output file, so runs at the same `n` are identical and no mean "
+                "over runs is reported. These rows show the same cell at the "
+                "pilot subset and at the full test split.\n",
+                sizes,
+                "\n",
+            ]
     if transfers:
         md += ["## Cross-model transfer\n", transfer_table(transfers), "\n"]
+    if residuals:
+        md += [
+            "## Is the probe reading format?\n",
+            "Surface features are regressed out of the activations before the probe is re-fit, "
+            "so a linear readout of length, digit count or wording cannot supply what is left.\n",
+            residual_table(residuals),
+            "\n",
+        ]
     if steers:
         md += ["## Activation steering\n", steer_table(steers), "\n"]
     if figs:

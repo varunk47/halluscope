@@ -172,6 +172,14 @@ class Settings(BaseSettings):
         "tiny": ModelSpec(id="Qwen/Qwen3.5-0.8B", family="qwen", quant="bf16"),
     }
     primary_model: str = "qwen"
+    headline_build: str = Field(
+        default="items_minimal",
+        description=(
+            "Dataset build the written results describe. The live server scores on this "
+            "build and takes its layer from the matching probe run, so the demo and the "
+            "report card cannot drift apart."
+        ),
+    )
     paths: Paths = Paths()
     capture: CaptureCfg = CaptureCfg()
     probe: ProbeCfg = ProbeCfg()

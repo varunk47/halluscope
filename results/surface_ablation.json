@@ -1,23 +1,23 @@
 {
   "datasets": [
     {
-      "path": "data/augmented/items_v1_lengthbiased.jsonl",
-      "n": 768,
-      "n_train": 576,
-      "n_test": 96,
+      "path": "data/augmented/items_minimal.jsonl",
+      "n": 728,
+      "n_train": 544,
+      "n_test": 88,
       "dialogue": {
-        "all_to_all": 0.9348958333333334,
-        "ab_to_ab": 0.984375,
-        "cd_to_cd": 1.0,
-        "ab_to_cd": 0.32291666666666663,
-        "cd_to_ab": 0.10416666666666664
+        "all_to_all": 0.8832644628099173,
+        "ab_to_ab": 1.0,
+        "cd_to_cd": 0.7913223140495868,
+        "ab_to_cd": 0.5289256198347108,
+        "cd_to_ab": 0.475206611570248
       },
       "final_turn": {
-        "all_to_all": 0.94921875,
-        "ab_to_ab": 0.984375,
-        "cd_to_cd": 1.0,
-        "ab_to_cd": 0.0625,
-        "cd_to_ab": 0.012152777777777768
+        "all_to_all": 0.9302685950413223,
+        "ab_to_ab": 1.0,
+        "cd_to_cd": 0.9297520661157025,
+        "ab_to_cd": 0.524793388429752,
+        "cd_to_ab": 0.43595041322314054
       }
     },
     {
@@ -41,23 +41,23 @@
       }
     },
     {
-      "path": "data/augmented/items_minimal.jsonl",
+      "path": "data/augmented/items_v1_lengthbiased.jsonl",
       "n": 768,
       "n_train": 576,
       "n_test": 96,
       "dialogue": {
-        "all_to_all": 0.8680555555555556,
-        "ab_to_ab": 1.0,
-        "cd_to_cd": 0.7413194444444444,
-        "ab_to_cd": 0.5069444444444444,
-        "cd_to_ab": 0.4618055555555555
+        "all_to_all": 0.9348958333333334,
+        "ab_to_ab": 0.984375,
+        "cd_to_cd": 1.0,
+        "ab_to_cd": 0.32291666666666663,
+        "cd_to_ab": 0.10416666666666664
       },
       "final_turn": {
-        "all_to_all": 0.9066840277777779,
-        "ab_to_ab": 1.0,
-        "cd_to_cd": 0.861111111111111,
-        "ab_to_cd": 0.513888888888889,
-        "cd_to_ab": 0.41666666666666663
+        "all_to_all": 0.94921875,
+        "ab_to_ab": 0.984375,
+        "cd_to_cd": 1.0,
+        "ab_to_cd": 0.0625,
+        "cd_to_ab": 0.012152777777777768
       }
     }
   ]
